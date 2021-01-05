@@ -1,0 +1,34 @@
+{% load cms_tags sekizai_tags static menu_tags analytical page_meta_tags meta %}
+{% page_meta request.current_page as page_meta %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+    <head> 
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>{% block title %}{% page_attribute page_title %}{% if site_settings.site.name %} - {{ site_settings.site.name }}{% endif %}{% endblock title %}</title>
+  <link rel="shortcut icon" href="https://presalytics.io/static/favicon.ico">
+  <link rel="stylesheet" href="https://presalytics.io/static/css/bootstrap-retheme.min.css" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Overpass:400,900&display=swap" rel="stylesheet">
+  <link href="{% static '/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet"/>
+  <link href="{% static '/vendor/simple-line-icons/css/simple-line-icons.css' %}" rel="stylesheet" type="text/css"/>
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css"/>
+  <link href="https://presalytics.io/static/css/landing-page.min.css" rel="stylesheet" type="text/css"/>
+    {% render_block 'css' %}
+    {% block page_css %}{% endblock page_css %}
+  </head>
+  <body class="bg-light">
+    <div id="page-container">
+      {% include "menus/navigation.html" %}
+      <div id="content-wrap">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+      {% render_block "js" %}
+      <script src="https://presalytics.io/static/vendor/jquery/jquery.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+      <script src="https://presalytics.io/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script src="{% static 'js/index.js' %}"></script>
+  </body>
+</html>
