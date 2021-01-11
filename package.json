@@ -4,15 +4,20 @@
   "description": "The Preaslytics Workspace app helps users update their Presalytics Stories in a local environment",
   "main": "index.js",
   "scripts": {
-    "getscss": ". venv/bin/activate && python ./scripts/get_scss.py"
+    "get-base-scss": ". venv/bin/activate && python ./scripts/get_scss.py",
+    "compile-scss": "node-sass --include-path ./node_modules -o ./presalytics_workspace/static/css ./presalytics_workspace/static/scss",
+    "webpack": "webpack --mode development"
   },
   "author": "Kevin Hannegan",
   "license": "ISC",
   "dependencies": {
-    "sass": "^1.30.0",
-    "webpack": "^5.10.0"
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "eslint": "^7.15.0"
+    "bootstrap": "^4.5.3",
+    "eslint": "^7.15.0",
+    "sass": "^1.30.0",
+    "webpack": "^5.10.0",
+    "webpack-cli": "^4.3.1"
   }
 }

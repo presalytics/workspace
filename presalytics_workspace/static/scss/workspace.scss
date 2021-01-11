@@ -1,0 +1,16 @@
+// Core variables and mixins
+@import "variables.scss";
+@import "mixins.scss";
+// Global CSS
+@import "global.scss";
+// Components
+@import "page-container.scss";
+@import "icons.scss";
+@import "code.scss";
+
+
+.center-page-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

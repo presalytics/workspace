@@ -1,0 +1,13 @@
+{% load static %}
+
+{% extends 'base.html'}
+
+{% block content %}
+    <div id="root">
+        This is the home page
+    </div>
+{% endblock %}
+
+{% block page_js %}
+    {% static 'js/workspace.js'}
+{% endblock %}

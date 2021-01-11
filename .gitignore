@@ -2,3 +2,8 @@ venv/
 node_modules/
 
 __pycache__/
+
+log/
+presalytics_workspace/log/
+
+.env

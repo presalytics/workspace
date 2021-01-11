@@ -22,7 +22,17 @@ class PresalyticsUser(AbstractUser):
     def __str__(self):
         return self.email
 
-
+    @classmethod
+    def get_or_create(cls, token):
+        payload = PresaltyicsNativeDeviceOidc().validate_token(token)
+        email = payload['email']
+        user = None
+        try:
+            user = cls.objects.get(email=email)
+        except cls.DoesNotExist:
+            api_user_id = payload["https://api.presalytics.io/api_user_id"]
+            user = cls.objects.create_user(email, None, {"presalytics_user_id": api_user_id})
+        return user
 
 class PresaltyicsNativeDeviceOidc(presalytics.client.oidc.OidcClient):
     def __init__(self, *args, **kwargs):

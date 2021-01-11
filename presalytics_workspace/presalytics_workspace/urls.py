@@ -15,10 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .view import index
+from django.conf.urls import url, include
+from django.conf import settings
+from django.conf.urls.static import static
+from .views import home
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name='home')
+    path('', home, name='home'),
+    url(r'^user/?$', include='users.urls', namespace='users'),
+    url(r'^workspace/?$', 'workspace_manager.urls', namespace='workspace_manager')
 ]

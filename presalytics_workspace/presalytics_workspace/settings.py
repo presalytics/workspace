@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from environs import Env
+import os
+
+env = Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'qg8mlu4pkg!(xe=t)&toxe1dku=&lm%ofcb@z$uxla2n=7x7z4'
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "debug-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'localhost:8000'
+]
+
+ALLOWED_HOSTS.extend(env.list("ALLOWED_HOSTS", []))
 
 
 # Application definition
@@ -46,9 +55,14 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.PresalyticsAuthenticationMidddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.PresalyticsDeviceAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend'
 ]
 
 ROOT_URLCONF = 'presalytics_workspace.urls'
@@ -56,7 +70,9 @@ ROOT_URLCONF = 'presalytics_workspace.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,3 +138,19 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'users.PresalyticsUser'
+
+
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PASS = os.getenv('REDIS_PASSWORD')
+REDIS_PORT = env.int('REDIS_PORT', 6379)
+
+REDIS_URL = "redis://:{0}@{1}:6379/0".format(REDIS_PASS, REDIS_HOST)  # CELERY
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'  # CACHE
+CELERY_DEFAULT_QUEUE = 'workspace'
+CELERY_DEFAULT_EXCHANGE = CELERY_DEFAULT_QUEUE
+
