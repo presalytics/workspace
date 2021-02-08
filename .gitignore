@@ -9,4 +9,4 @@ presalytics_workspace/log
 
 .env
 auth_config.json
-.sqllite3
+.sqlite3
