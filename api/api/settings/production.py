@@ -20,6 +20,7 @@ DATABASES = {
     }
 }
 
+
 class LevelFilter(logging.Filter):
     def filter(self, record):
         return record.levelno > LOG_LEVEL
