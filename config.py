@@ -1,1 +1,0 @@
-PRESALYTICS = {'USERNAME': 'kevin@presalytics.io', 'CACHE_TOKENS': True}

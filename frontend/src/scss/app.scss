@@ -1,0 +1,25 @@
+// Core variables and mixins
+@import "variables.scss";
+@import "bootstrap-retheme.scss";
+// Then import Bootstrap an BootstrapVue SCSS files (order is important)
+@import 'node_modules/bootstrap/scss/bootstrap.scss';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+
+@import "mixins.scss";
+// Global CSS
+@import "global.scss";
+// Components
+@import "page-container.scss";
+@import "icons.scss";
+@import "code.scss";
+
+.center-page-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body {
+    padding-top: 0;
+    padding-bottom: 0;
+}

@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: workspace-api
+  namespace: public
+  labels:
+    app: workspace-api
+    app.kubernetes.io/part-of: presalytics
+    app.kubernetes.io/name: workspace-api
+spec:
+  type: ClusterIP
+  selector:
+    app: workspace-api
+    app.kubernetes.io/name: workspace-api
+    app.kubernetes.io/part-of: presalytics
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    name: http

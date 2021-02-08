@@ -1,0 +1,81 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Vue.js Frontend",
+            "request": "launch",
+            "runtimeArgs": [
+                "run",
+                "serve"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node",
+            "cwd": "${workspaceFolder}/frontend"
+        },
+        {
+            "name": "Django Backend",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/api/manage.py",
+            "cwd": "${workspaceFolder}/api",
+            "args": [
+                "runserver",
+                "127.0.0.1:8081",
+                "--noreload",
+            ],
+            "django": true,
+            "envFile": "${workspaceFolder}/.env",
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "justMyCode": true
+        },
+        {
+            "name": "Celery Debug",
+            "type": "python",
+            "request": "launch",
+            "envFile": "${workspaceFolder}/.env",
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "justMyCode": true,
+            "module": "celery",
+            "cwd": "${workspaceFolder}/api",
+            "args": [
+                "-A",
+                "api.celery",
+                "worker",
+                "--loglevel=DEBUG",
+                "-P",
+                "solo",
+                "-Q",
+                "workspace",
+                "-n",
+                "workspace-worker"
+            ]
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Vue: Chrome",
+            "url": "http://localhost:8081",
+            "webRoot": "${workspaceFolder}/frontend/src",
+            "breakOnLoad": true,
+            "sourceMapPathOverrides": {
+              "webpack:///src/*": "${webRoot}/*"
+            },
+
+          },
+    ]
+}

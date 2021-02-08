@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workspace
+  namespace: public
+  labels:
+    app: workspace
+    app.kubernetes.io/name: workspace
+    app.kubernetes.io/part-of: presalytics
+spec:
+  selector:
+    matchLabels:
+      app: workspace
+      app.kubernetes.io/name: workspace
+      app.kubernetes.io/part-of: presalytics
+  replicas: 2
+  template:
+    metadata:
+      name: workspace
+      namespace: public
+      labels:
+        app: workspace
+        app.kubernetes.io/name: workspace
+        app.kubernetes.io/part-of: presalytics
+    spec:  
+      containers:
+      - name: workspace
+        image: presalytics/workspace
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        ports:
+          - containerPort: 80
+        env:
+        - name: VUE_APP_AUTH0_DOMAIN
+          value: login.presalytics.io
+        - name: VUE_APP_AUTH0_AUDIENCE
+          value: https://api.presalytics.io/
+        - name: VUE_APP_AUTH0_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: client-id
+        - name: VUE_APP_AUTH0_SCOPE
+          value: 'openid profile offline_access'
+        - name: VUE_APP_WORKSPACE_API_URL
+          value: https://workspace-api.presalytics.io

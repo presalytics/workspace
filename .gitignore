@@ -4,6 +4,9 @@ node_modules/
 __pycache__/
 
 log/
-presalytics_workspace/log/
+api/log/
+presalytics_workspace/log
 
 .env
+auth_config.json
+.sqllite3

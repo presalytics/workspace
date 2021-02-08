@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workspace-api
+  namespace: public
+  labels:
+    app: workspace-api
+    app.kubernetes.io/name: workspace-api
+    app.kubernetes.io/part-of: presalytics
+spec:
+  selector:
+    matchLabels:
+      app: workspace-api
+      app.kubernetes.io/name: workspace-api
+      app.kubernetes.io/part-of: presalytics
+  replicas: 3
+  template:
+    metadata:
+      name: workspace-api
+      namespace: public
+      labels:
+        app: workspace-api
+        app.kubernetes.io/name: workspace-api
+        app.kubernetes.io/part-of: presalytics
+    spec:
+      initContainers:
+      - name: workspace-migrations
+        image: presalytics/workspace-api
+        command: ["python3", "manage.py", "migrate"]        
+         resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: DJANGO_DEBUG
+          value: 'False'
+        - name: DB_REQUIRE_SSL
+          value: 'True'
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: db-password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: db-host
+          value: presalytics-prod.postgres.database.azure.com
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: redis-password
+        - name: WORKSPACE_CLIENT_URL
+          value: https://workspace.presalytics.io/
+        - name: CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: client-id
+        - name: DJANGO_SETTINGS_MODULE
+          value: api.settings.production
+      containers:
+      - name: workspace-api
+        image: presalytics/workspace-api
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        ports:
+          - containerPort: 80
+        env:
+        - name: DJANGO_DEBUG
+          value: 'False'
+        - name: DB_REQUIRE_SSL
+          value: 'True'
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: db-password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: db-host
+          value: presalytics-prod.postgres.database.azure.com
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: redis-password
+        - name: WORKSPACE_CLIENT_URL
+          value: https://workspace.presalytics.io/
+        - name: CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: client-id
+        - name: DJANGO_SETTINGS_MODULE
+          value: api.settings.production

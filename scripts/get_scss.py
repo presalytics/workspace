@@ -8,7 +8,7 @@ urls = [
     "https://presalytics.io/static/scss/_global.scss",
     "https://presalytics.io/static/scss/_icons.scss",
     "https://presalytics.io/static/scss/_mixins.scss",
-    "https://presalytics.io/static/scss/_page_container.scss",
+    "https://presalytics.io/static/scss/_page-container.scss",
     "https://presalytics.io/static/scss/_footer.scss",
     "https://presalytics.io/static/scss/_code.scss",
 ]
@@ -18,7 +18,7 @@ for url in urls:
 
     fname = url.split("/")[-1]
 
-    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "presalytics_workspace", "static", "scss", fname)
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "src", "scss", fname)
 
     if os.path.exists(path):
         os.remove(path)
@@ -27,7 +27,7 @@ for url in urls:
         f.write(r.content)
 
 bootstrap_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'node_modules', 'bootstrap')
-static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'presalytics_workspace', 'static')
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'api', 'static')
 bootstrap_target = os.path.join(static_dir, 'bootstrap')
 
 if os.path.exists(bootstrap_target):

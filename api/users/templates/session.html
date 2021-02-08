@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            window.addEventListener('DOMContentLoaded', () => {
+                try {
+                    let sessionData = {
+                        csrf: "{{ csrf_token }}",
+                        sessionId: "{{ request.session.session_key }}"
+                    };
+
+                    let targetOrigin = "{{ target_origin }}";
+                    window.parent.postMessage(sessionData, targetOrigin);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
