@@ -92,7 +92,11 @@ spec:
             secretKeyRef:
               name: workspace
               key: db-host
-          value: presalytics-prod.postgres.database.azure.com
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: db-user
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:

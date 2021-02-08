@@ -9,8 +9,8 @@ LOG_LEVEL = logging.INFO
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'workspace_api',
-        'USER': 'workspace_bot',
+        'NAME': os.environ.get('DB_NAME', 'workspace_api'),
+        'USER': os.environ['DB_USER'],
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': os.environ['DB_HOST'],
         'PORT': 5432,
