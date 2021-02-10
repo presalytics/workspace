@@ -58,13 +58,14 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: .
-        file: ./api/Dockerfile
+        context: ./api
+        file: ./Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           ${{ env.API_REGISTRY_NAME }}:latest
   deploy:
+    if: github.ref == 'refs/heads/master'
     needs: build-api
     runs-on: ubuntu-latest
     steps:
