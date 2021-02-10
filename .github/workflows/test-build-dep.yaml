@@ -16,6 +16,14 @@ env:
 jobs:
   test-api:
     runs-on: "ubuntu-latest"
+    env:
+      DJANGO_SETTINGS_MODULE: api.settings.test
+      REDIS_PASSWORD: dummy-pass
+      WORKSPACE_CLIENT_URL: http://test-url
+      CLIENT_ID: test-client-id
+      STORY_HOST: https://api.presalytics.io/story/
+      SITE_HOST: https://presalytics.io/
+      OOXML_AUTOMATION_HOST: https://api.presalytics.io/ooxml-automation/
     defaults:
       run:
         working-directory: api
