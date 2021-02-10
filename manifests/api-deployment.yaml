@@ -30,7 +30,7 @@ spec:
         effect: "NoSchedule"
       initContainers:
       - name: workspace-migrations
-        image: presalytics/workspace-api
+        image: presalytics/workspace-api:master
         command: ["python3", "manage.py", "migrate"]
         resources:
           requests:
