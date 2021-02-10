@@ -67,7 +67,7 @@ jobs:
           ${{ env.API_REGISTRY_NAME }}:latest
   
   deploy:
-    needs: buiid-api
+    needs: build-api
     runs-on: ubuntu-latest
     steps:
     - name: Azure Kubernetes set context
