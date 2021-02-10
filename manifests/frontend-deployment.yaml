@@ -41,4 +41,5 @@ spec:
             cpu: "500m"
         ports:
           - containerPort: 80
+      imagePullSecrets:
       - name: chartalot-docker-registry
