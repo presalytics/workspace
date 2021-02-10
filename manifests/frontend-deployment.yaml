@@ -30,7 +30,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: workspace
-        image: presalytics/workspace:master
+        image: presalytics/workspace:latest
         imagePullPolicy: Always
         resources:
           requests:

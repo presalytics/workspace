@@ -30,7 +30,7 @@ spec:
         effect: "NoSchedule"
       initContainers:
       - name: workspace-migrations
-        image: presalytics/workspace-api:master
+        image: presalytics/workspace-api:latest
         command: ["python3", "manage.py", "migrate"]
         resources:
           requests:
@@ -75,7 +75,7 @@ spec:
           value: api.settings.production
       containers:
       - name: workspace-api
-        image: presalytics/workspace-api
+        image: presalytics/workspace-api:latest
         imagePullPolicy: Always
         resources:
           requests:
