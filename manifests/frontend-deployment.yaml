@@ -22,7 +22,12 @@ spec:
         app: workspace
         app.kubernetes.io/name: workspace
         app.kubernetes.io/part-of: presalytics
-    spec:  
+    spec:
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
       containers:
       - name: workspace
         image: presalytics/workspace

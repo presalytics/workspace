@@ -23,6 +23,11 @@ spec:
         app.kubernetes.io/name: workspace-api
         app.kubernetes.io/part-of: presalytics
     spec:
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
       initContainers:
       - name: workspace-migrations
         image: presalytics/workspace-api
