@@ -52,9 +52,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: 'presalytics/workspace-api'
-        tags: |
-          {{ github.head_ref }}
-          {{ github.head_ref }}-{{ githb.sha }}
+        tags: prealytics/workspace-api:{{ github.head_ref }},presalytics/workspace-api:{{ github.head_ref }}-{{ githb.sha }}
         path: ./api
         platforms: linux/amd64,linux/arm64
         tag_with_ref: true
@@ -72,9 +70,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: 'presalytics/workspace'
-        tags: |
-          {{ github.head_ref }}
-          {{ github.head_ref }}-{{ githb.sha }}
+        tags: prealytics/workspace:{{ github.head_ref }},presalytics/workspace:{{ github.head_ref }}-{{ githb.sha }}
         path: ./frontend
         platforms: linux/amd64,linux/arm64
 
