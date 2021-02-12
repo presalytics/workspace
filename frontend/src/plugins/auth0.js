@@ -1,158 +1,155 @@
-import Vue from "vue";
-import {Auth0Client} from "@auth0/auth0-spa-js/dist/auth0-spa-js.development";
-import Cookies from 'js-cookie';
+import Vue from 'vue'
+import { Auth0Client } from '@auth0/auth0-spa-js/dist/auth0-spa-js.development'
+import Cookies from 'js-cookie'
 
 class ApiSessionManager {
-  constructor(options = {}) {
-    this.workspaceApiUrl = process.env.VUE_APP_WORKSPACE_API_URL;
-    this.csrf = null;
-    this.sessionId = null;
-    this.timeout_seconds = options.timeout || 5;
-    this.frame = null;
+  constructor (options = {}) {
+    this.workspaceApiUrl = process.env.VUE_APP_WORKSPACE_API_URL
+    this.csrf = null
+    this.sessionId = null
+    this.timeout_seconds = options.timeout || 5
+    this.frame = null
   }
 
-  async initializeSession() {
-      
+  async initializeSession () {
     var authResult = await Promise.race([
       this.getAuthResultFromIFrame(),
-      this.timeoutTrigger()
-    ]);
-    this.removeIFrame();
+      this.timeoutTrigger(),
+    ])
+    this.removeIFrame()
 
     if (authResult.error) {
-      throw authResult.error;
+      throw authResult.error
     }
 
-    this.sessionId = authResult.sessionId;
-    this.csrf = authResult.csrf;
+    this.sessionId = authResult.sessionId
+    this.csrf = authResult.csrf
   }
-  
-  async timeoutTrigger() {
-    return new Promise((reject) => {
+
+  async timeoutTrigger () {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         var err = new Error('login_required')
         err.error = 'login_required'
-        err.message = "Get Server Session Timeout.  Prompt for Login";
-        reject(err);
-      }, this.timeout_seconds * 1000);
-    });
+        err.message = 'Get Server Session Timeout.  Prompt for Login'
+        reject(err)
+      }, this.timeout_seconds * 1000)
+    })
   }
 
-  async getAuthResultFromIFrame() {
-    this.injectIFrame();
-    return new Promise( (resolve) => {
-      var that = this;
-      window.addEventListener("message", function handlePostMessage(e) {
+  async getAuthResultFromIFrame () {
+    this.injectIFrame()
+    return new Promise((resolve) => {
+      var that = this
+      window.addEventListener('message', function handlePostMessage (e) {
         if (e.origin === that.getWorkspaceApiOrigin() && e.data.sessionId) {
-          window.removeEventListener('message', handlePostMessage);
-          resolve(e.data);
+          window.removeEventListener('message', handlePostMessage)
+          resolve(e.data)
         }
-      }); 
-    });
-
+      })
+    })
   }
 
-  injectIFrame() {
-    var body = document.querySelector('body');
-    var frame = document.createElement('iframe');
-    var sessionUrl = this.workspaceApiUrl + "user/session/"
-    frame.setAttribute("src", sessionUrl);
-    frame.setAttribute("height", 0);
-    frame.setAttribute("width", 0)
-    frame.setAttribute("style", "height:0; width: 0;")
+  injectIFrame () {
+    var body = document.querySelector('body')
+    var frame = document.createElement('iframe')
+    var sessionUrl = this.workspaceApiUrl + 'user/session/'
+    frame.setAttribute('src', sessionUrl)
+    frame.setAttribute('height', 0)
+    frame.setAttribute('width', 0)
+    frame.setAttribute('style', 'height:0; width: 0;')
     body.appendChild(frame)
     this.frame = frame
   }
 
-  removeIFrame() {
-    let body = document.querySelector('body');
+  removeIFrame () {
+    const body = document.querySelector('body')
     body.removeChild(this.frame)
-    this.frame = null;
+    this.frame = null
   }
 
-  getWorkspaceApiOrigin() {
-    return new URL(this.workspaceApiUrl).origin;
+  getWorkspaceApiOrigin () {
+    return new URL(this.workspaceApiUrl).origin
   }
 
-  getHeaders() {
-    let headers = {};
-    this.csrf = Cookies.get('csrftoken') || self.csrf;
+  getHeaders () {
+    const headers = {}
+    this.csrf = Cookies.get('csrftoken') || self.csrf
     if (this.csrf) {
-      headers['X-CSRFToken'] = this.csrf;
+      headers['X-CSRFToken'] = this.csrf
     }
-    return headers;
+    return headers
   }
-  async logout() {
+
+  async logout () {
     if (this.sessionId) {
-      let headers = this.getHeaders();
-      let url = this.workspaceApiUrl + "user/session/";
-      let response = await fetch(url, {
+      const headers = this.getHeaders()
+      const url = this.workspaceApiUrl + 'user/session/'
+      const response = await fetch(url, {
         headers: headers,
         method: 'DELETE',
         mode: 'cors',
         credentials: 'include',
         cache: 'no-cache',
-        redirect: 'manual'
-      });
+        redirect: 'manual',
+      })
       if (response.status === 200) {
-        var data = await response.json();
-        return data;
+        var data = await response.json()
+        return data
       } else {
-        return null;
+        return null
       }
     }
   }
 
-  async updateSession(sessionData) {
+  async updateSession (sessionData) {
     if (this.sessionId) {
-      let headers = this.getHeaders();
-      headers['Content-Type'] = 'application/json';
-      headers['Authorization'] = 'Bearer ' + sessionData.access_token;
-      let url = this.workspaceApiUrl + "user/session/";
-      let response = await fetch(url, {
+      const headers = this.getHeaders()
+      headers['Content-Type'] = 'application/json'
+      headers.Authorization = 'Bearer ' + sessionData.access_token
+      const url = this.workspaceApiUrl + 'user/session/'
+      const response = await fetch(url, {
         headers: headers,
         method: 'POST',
         mode: 'cors',
         credentials: 'include',
         cache: 'no-cache',
         redirect: 'manual',
-        body: JSON.stringify(sessionData)
-      });
+        body: JSON.stringify(sessionData),
+      })
       if (response.ok) {
         if (response.status === 200) {
-          var resData = await response.json();
-          return resData;
+          var resData = await response.json()
+          return resData
         } else {
-          return null;
+          return null
         }
       } else {
-        throw new Error(response);
+        throw new Error(response)
       }
     }
   }
 }
 
-
 /** Define a default action to perform after authentication */
 const DEFAULT_REDIRECT_CALLBACK = () =>
-  window.history.replaceState({}, document.title, window.location.pathname);
+  window.history.replaceState({}, document.title, window.location.pathname)
 
-let instance;
+let instance
 
 /** Returns the current instance of the SDK */
-export const getInstance = () => instance;
-
+export const getInstance = () => instance
 
 /** Creates an instance of the Auth0 SDK. If one has already been created, it returns that instance */
 export const useAuth0 = ({
   onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
   ...options
 }) => {
-  if (instance) return instance;
+  if (instance) return instance
 
   // The 'instance' is simply a Vue object
   instance = new Vue({
-    data() {
+    data () {
       return {
         loading: true,
         isAuthenticated: false,
@@ -161,138 +158,137 @@ export const useAuth0 = ({
         popupOpen: false,
         error: null,
         apiSessionMgr: null,
-        accessToken: null
-      };
-    },
-    methods: {
-      /** Authenticates the user using a popup window */
-      async loginWithPopup(options, config) {
-        this.popupOpen = true;
-
-        try {
-          await this.auth0Client.loginWithPopup(options, config);
-          this.user = await this.auth0Client.getUser();
-          this.isAuthenticated = await this.auth0Client.isAuthenticated();
-          this.error = null;
-        } catch (e) {
-          this.error = e;
-          // eslint-disable-next-line
-          console.error(e);
-        } finally {
-          this.popupOpen = false;
-        }
-
-        this.user = await this.auth0Client.getUser();
-        this.isAuthenticated = true;
-      },
-      /** Handles the callback when logging in using a redirect */
-      async handleRedirectCallback() {
-        this.loading = true;
-        try {
-          await this.auth0Client.handleRedirectCallback();
-          this.user = await this.auth0Client.getUser();
-          this.isAuthenticated = true;
-          this.error = null;
-        } catch (e) {
-          this.error = e;
-        } finally {
-          this.loading = false;
-        }
-      },
-      /** Authenticates the user using the redirect method */
-      loginWithRedirect() {
-        return this.auth0Client.loginWithRedirect(this.auth0Client.options);
-      },
-      /** Returns all the claims present in the ID token */
-      getIdTokenClaims(o) {
-        return this.auth0Client.getIdTokenClaims(o);
-      },
-      /** Returns the access token. If the token is invalid or missing, a new one is retrieved */
-      async getTokenSilently(o) {
-        return await this.auth0Client.getTokenSilently(o);
-      },
-      /** Gets the access token using a popup window */
-
-      async checkSession(o) {
-        return await this.auth0Client.checkSession(o)
-      },
-
-      getTokenWithPopup(o) {
-        return this.auth0Client.getTokenWithPopup(o);
-      },
-      /** Logs the user out and removes their session on the authorization server */
-      async logout(o) {
-        await Promise.all([
-          this.apiSessionMgr.logout(), 
-          this.auth0Client.logout({...o, localOnly: true})  // set localOnly to false if you want to log use out of main website too.
-        ]);
-        this.isAuthenticated = await this.auth0Client.isAuthenticated();
-
-      },
-      /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
-      getRedirectUri(o) {
-        let callbackUri = o.redirect_uri + "?returnTo=" + encodeURIComponent(window.location.origin);
-        return callbackUri;
-      },
-      ifErrorThrow() {
-        if (this.error) {
-          throw this.error;
-        }
-      },
-
+        accessToken: null,
+      }
     },
     /** Use this lifecycle method to instantiate the SDK client */
-    async created() {
+    async created () {
       this.auth0Client = await new Auth0Client({
         ...options,
-        redirect_uri: window.location.origin
-      });
-      this.apiSessionMgr = new ApiSessionManager();
+        redirect_uri: window.location.origin,
+      })
+      this.apiSessionMgr = new ApiSessionManager()
       try {
-        this.accessToken = await this.auth0Client.getTokenSilently();
-        await this.apiSessionMgr.initializeSession();
-        this.ifErrorThrow();
+        this.accessToken = await this.auth0Client.getTokenSilently()
+        await this.apiSessionMgr.initializeSession()
+        this.ifErrorThrow()
       } catch (err) {
         this.error = err
         if (err.error === 'login_required') {
-          this.logout();
+          this.logout()
         }
       }
       try {
         // If the user is returning to the app after authentication..
         if (
-          window.location.search.includes("code=") &&
-          window.location.search.includes("state=")
+          window.location.search.includes('code=') &&
+          window.location.search.includes('state=')
         ) {
           // handle the redirect and retrieve tokens
-          const { appState } = await this.auth0Client.handleRedirectCallback();
+          const { appState } = await this.auth0Client.handleRedirectCallback()
 
-          this.error = null;
+          this.error = null
 
           // Notify subscribers that the redirect callback has happened, passing the appState
           // (useful for retrieving any pre-authentication state)
-          onRedirectCallback(appState);
+          onRedirectCallback(appState)
         }
       } catch (e) {
-        this.error = e;
+        this.error = e
       } finally {
         // Initialize our internal authentication state
-        this.isAuthenticated = await this.auth0Client.isAuthenticated();
+        this.isAuthenticated = await this.auth0Client.isAuthenticated()
         if (this.isAuthenticated) {
-          this.user = await this.auth0Client.getUser();
-          this.apiSessionMgr.updateSession({'access_token': this.accessToken})
+          this.user = await this.auth0Client.getUser()
+          this.apiSessionMgr.updateSession({ access_token: this.accessToken })
         }
-        this.loading = false;
+        this.loading = false
       }
-    }
-  });
+    },
+    methods: {
+      /** Authenticates the user using a popup window */
+      async loginWithPopup (options, config) {
+        this.popupOpen = true
 
-  return instance;
-};
+        try {
+          await this.auth0Client.loginWithPopup(options, config)
+          this.user = await this.auth0Client.getUser()
+          this.isAuthenticated = await this.auth0Client.isAuthenticated()
+          this.error = null
+        } catch (e) {
+          this.error = e
+          // eslint-disable-next-line
+          console.error(e);
+        } finally {
+          this.popupOpen = false
+        }
+
+        this.user = await this.auth0Client.getUser()
+        this.isAuthenticated = true
+      },
+      /** Handles the callback when logging in using a redirect */
+      async handleRedirectCallback () {
+        this.loading = true
+        try {
+          await this.auth0Client.handleRedirectCallback()
+          this.user = await this.auth0Client.getUser()
+          this.isAuthenticated = true
+          this.error = null
+        } catch (e) {
+          this.error = e
+        } finally {
+          this.loading = false
+        }
+      },
+      /** Authenticates the user using the redirect method */
+      loginWithRedirect () {
+        return this.auth0Client.loginWithRedirect(this.auth0Client.options)
+      },
+      /** Returns all the claims present in the ID token */
+      getIdTokenClaims (o) {
+        return this.auth0Client.getIdTokenClaims(o)
+      },
+      /** Returns the access token. If the token is invalid or missing, a new one is retrieved */
+      async getTokenSilently (o) {
+        return await this.auth0Client.getTokenSilently(o)
+      },
+      /** Gets the access token using a popup window */
+
+      async checkSession (o) {
+        return await this.auth0Client.checkSession(o)
+      },
+
+      getTokenWithPopup (o) {
+        return this.auth0Client.getTokenWithPopup(o)
+      },
+      /** Logs the user out and removes their session on the authorization server */
+      async logout (o) {
+        await Promise.all([
+          this.apiSessionMgr.logout(),
+          this.auth0Client.logout({ ...o, localOnly: true }), // set localOnly to false if you want to log use out of main website too.
+        ])
+        this.isAuthenticated = await this.auth0Client.isAuthenticated()
+      },
+      /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
+      getRedirectUri (o) {
+        const callbackUri = o.redirect_uri + '?returnTo=' + encodeURIComponent(window.location.origin)
+        return callbackUri
+      },
+      ifErrorThrow () {
+        if (this.error) {
+          throw this.error
+        }
+      },
+
+    },
+  })
+
+  return instance
+}
 
 // Create a simple Vue plugin to expose the wrapper object throughout the application
 export const Auth0Plugin = {
-  install(Vue, options) {
-    Vue.prototype.$auth = useAuth0(options);
-  }
-};
+  install (Vue, options) {
+    Vue.prototype.$auth = useAuth0(options)
+  },
+}

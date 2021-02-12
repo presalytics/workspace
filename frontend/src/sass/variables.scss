@@ -1,0 +1,90 @@
+$font-size-root: 14px;
+$sheet-border-radius: 4px;
+$list-item-title-font-size: 0.929rem;
+$list-item-dense-title-font-size: 0.929rem;
+$list-item-dense-title-font-weight: initial;
+$fab-icon-sizes: ( small: 20 );
+$btn-font-sizes: ( default: 1rem, large: 1rem );
+$btn-sizes: ( default: 41, large: 54 );
+$btn-letter-spacing: 0;
+$btn-font-weight: 400;
+$card-text-font-size: 16px;
+
+$headings: (
+  'h1': (
+    'size': 3.3125rem,
+    'line-height': 1.15em,
+    'font-wieght': 900
+  ),
+  'h2': (
+    'size': 2.25rem,
+    'line-height': 1.5em,
+    'font-wieght': 900
+  ),
+  'h3': (
+    'size': 1.5625rem,
+    'line-height': 1.4em,
+    'font-wieght': 900
+  ),
+  'h4': (
+    'size': 1.125rem,
+    'line-height': 1.4em
+  ),
+  'h5': ( 
+    'size': 1.0625rem,
+    'font-wieght': 900
+   ),
+  'h6': ( 
+    'size': .75rem,
+    'font-wieght': 900
+  ),
+  'subtitle-2': ( 'size': 1rem ),
+  'overline': ( 'letter-spacing': 0 )
+);
+
+$body-font-family: Montserrat,Arial,sans-serif;
+$heading-font-family: Overpass,Arial,sans-serif;
+$heading-font-weight: 900;
+
+// Variables
+
+// Restated Bootstrap Variables
+
+// $white: #fff !default;
+// $gray-100: #f8f9fa !default;
+// $gray-200: #e9ecef !default;
+// $gray-300: #dee2e6 !default;
+// $gray-400: #ced4da !default;
+// $gray-500: #adb5bd !default;
+// $gray-600: #868e96 !default;
+// $gray-700: #495057 !default;
+// $gray-800: #343a40 !default;
+// $gray-900: #212529 !default;
+// $black: #000 !default;
+
+
+// for reference -- bootstrap vars from main site
+
+// $emphasisblue: #6f3dbd !default;
+// $blue: #1057fc !default;
+// $indigo: #6340bc !default;
+// $purple: #6f42c1 !default;
+// $pink: #e83e8c !default;
+// // $red: #ec555c !default;
+// $orange: #fcb410 !default;
+// $yellow: #ffc107 !default;
+// $green: #40bc86 !default;
+// $teal: #55ece4 !default;
+// $cyan: #199ec7 !default;
+// $green-yellow: #9ec719 !default;
+// $light-blue: #a3daeb !default;
+// $dark-blue: #093947 !default;
+
+// $primary: $emphasisblue !default;
+// $secondary: $cyan !default;
+// $success: $green !default;
+// $info: $green-yellow !default;
+// $warning: $orange !default;
+// $danger: #ec555c !default;
+// $light: $gray-100 !default;
+// $dark: $dark-blue !default;

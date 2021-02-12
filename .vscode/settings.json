@@ -3,5 +3,8 @@
     "python.analysis.typeCheckingMode": "basic",
     "yaml.schemas": {
     
-    }
+    },
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false
 }
