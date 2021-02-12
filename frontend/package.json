@@ -34,6 +34,7 @@
     "babel-jest": "^24.9.0",
     "eslint": "^6.8.0",
     "eslint-config-vuetify": "^0.4.1",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-vue": "^6.1.2",
     "js-cookie": "^2.2.1",
     "sass": "^1.24.3",
