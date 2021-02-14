@@ -83,6 +83,7 @@ jobs:
         path: ./frontend
         tag_with_ref: true
         tag_with_sha: true
+        build_args: no-cache
 
   deploy:
     if: github.ref == 'refs/heads/master'
