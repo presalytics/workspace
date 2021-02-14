@@ -2,46 +2,30 @@
   <v-navigation-drawer
     id="core-navigation-drawer"
     v-model="drawer"
-    :dark="barColor !== 'rgba(228, 226, 226, 1), rgba(255, 255, 255, 0.7)'"
+    class="nav-drawer"
+    :dark="true"
     :expand-on-hover="expandOnHover"
     :right="$vuetify.rtl"
-    :src="barImage"
     mobile-break-point="960"
     app
     width="260"
     v-bind="$attrs"
   >
-    <template v-slot:img="props">
-      <v-img
-        :gradient="`to bottom, ${barColor}`"
-        v-bind="props"
-      />
-    </template>
-
     <v-divider class="mb-1" />
-
     <v-list
       dense
       nav
     >
       <v-list-item>
-        <v-list-item-avatar
-          class="align-self-center"
-          color="white"
-          contain
+        <a
+          href="https://presalytics.io"
+          style="max-width: 230px; margin: -20px;"
         >
           <v-img
-            src="https://demos.creative-tim.com/vuetify-material-dashboard/favicon.ico"
+            src="../../../../assets/orange-white-logo.png"
             max-height="30"
           />
-        </v-list-item-avatar>
-
-        <v-list-item-content>
-          <v-list-item-title
-            class="display-1"
-            v-text="profile.title"
-          />
-        </v-list-item-content>
+        </a>
       </v-list-item>
     </v-list>
 
@@ -102,29 +86,19 @@
           to: '/',
         },
         {
-          icon: 'mdi-account',
-          title: 'user',
-          to: '/pages/user',
+          icon: 'mdi-book-open-variant',
+          title: 'Stories',
+          to: '/stories',
         },
         {
-          title: 'rtables',
-          icon: 'mdi-clipboard-outline',
-          to: '/tables/regular-tables',
+          title: 'Audience',
+          icon: 'mdi-account-group',
+          to: '/audience',
         },
         {
-          title: 'typography',
-          icon: 'mdi-format-font',
-          to: '/components/typography',
-        },
-        {
-          title: 'icons',
-          icon: 'mdi-chart-bubble',
-          to: '/components/icons',
-        },
-        {
-          title: 'google',
-          icon: 'mdi-map-marker',
-          to: '/maps/google-maps',
+          title: 'Events',
+          icon: 'mdi-flash',
+          to: '/events',
         },
         {
           title: 'notifications',
@@ -135,7 +109,7 @@
     }),
 
     computed: {
-      ...mapState(['barColor', 'barImage']),
+      ...mapState(['barImage']),
       drawer: {
         get () {
           return this.$store.state.drawer
@@ -146,12 +120,6 @@
       },
       computedItems () {
         return this.items.map(this.mapItem)
-      },
-      profile () {
-        return {
-          avatar: true,
-          title: this.$t('avatar'),
-        }
       },
     },
 

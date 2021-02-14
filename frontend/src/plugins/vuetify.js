@@ -26,6 +26,7 @@ export default new Vuetify({
     },
     options: {
       customProperties: true,
+      variations: true,
     },
   },
 })

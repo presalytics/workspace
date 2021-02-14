@@ -26,8 +26,10 @@
             "cwd": "${workspaceFolder}/api",
             "args": [
                 "runserver",
-                "127.0.0.1:8081",
+                "localhost:8081",
                 "--noreload",
+                "--settings",
+                "api.settings.development"
             ],
             "django": true,
             "envFile": "${workspaceFolder}/.env",

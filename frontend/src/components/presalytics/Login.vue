@@ -44,12 +44,6 @@
       login () {
         this.$auth.loginWithRedirect()
       },
-      // Log the user out
-      logout () {
-        this.$auth.logout({
-          returnTo: this.logoutUri,
-        })
-      },
     },
   }
 </script>

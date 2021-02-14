@@ -19,7 +19,7 @@
         color="white"
         contain
       >
-        <v-img src="https://demos.creative-tim.com/vuetify-material-dashboard/favicon.ico" />
+        <v-img src="<%= BASE_URL %>favicon.ico" />
       </v-list-item-avatar>
 
       <v-list-item-content>

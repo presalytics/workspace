@@ -54,12 +54,30 @@
     <div class="mx-3" />
 
     <v-btn
-      class="ml-2"
+      class="ml-2 hidden-xs-only"
       min-width="0"
       text
       to="/"
     >
       <v-icon>mdi-view-dashboard</v-icon>
+    </v-btn>
+
+    <v-btn
+      class="ml-2 hidden-xs-only"
+      min-width="0"
+      text
+      to="/stories"
+    >
+      <v-icon>mdi-book-open-variant</v-icon>
+    </v-btn>
+
+    <v-btn
+      class="ml-2 hidden-xs-only"
+      min-width="0"
+      text
+      to="/audience"
+    >
+      <v-icon>mdi-account-group</v-icon>
     </v-btn>
 
     <v-menu
@@ -105,15 +123,49 @@
         </div>
       </v-list>
     </v-menu>
-
-    <v-btn
-      class="ml-2"
-      min-width="0"
-      text
-      to="/pages/user"
+    <v-menu
+      bottom
+      left
+      offset-y
+      origin="top right"
+      transition="scale-transition"
     >
-      <v-icon>mdi-account</v-icon>
-    </v-btn>
+      <template v-slot:activator="{ attrs, on }">
+        <v-btn
+          icon
+          class="ml-2"
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-avatar>
+            <img
+              :src="picutureUrl"
+              max-height="30px"
+            />
+          </v-avatar>
+        </v-btn>
+      </template>
+      <v-list
+        :tile="false"
+      >
+        <app-bar-item
+          v-for="(item, i) in accountItems"
+          :key="i"
+        >
+          <div
+            class="d-flex flex-row"
+            @click="userMenuActionClick(item.action)"
+          >
+            <v-list-item-icon>
+              <v-icon v-text="item.icon" />
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="item.text" />
+            </v-list-item-content>
+          </div>
+        </app-bar-item>
+      </v-list>
+    </v-menu>
   </v-app-bar>
 </template>
 
@@ -168,16 +220,34 @@
         'Another Notification',
         'Another one',
       ],
+      accountItems: [
+        {
+          icon: 'mdi-logout',
+          text: 'Logout',
+          action: 'logout',
+        },
+      ],
     }),
 
     computed: {
       ...mapState(['drawer']),
+      auth () {
+        return this.$auth.data
+      },
+      picutureUrl () {
+        return this.$store.state.auth.user.picture
+      },
     },
 
     methods: {
       ...mapMutations({
         setDrawer: 'SET_DRAWER',
       }),
+      async userMenuActionClick (action) {
+        if (action === 'logout') {
+          await this.$auth.logout()
+        }
+      },
     },
   }
 </script>

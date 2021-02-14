@@ -19,9 +19,14 @@ export default new Router({
         },
         // Pages
         {
-          name: 'User Profile',
-          path: 'pages/user',
+          name: 'Target Audience',
+          path: 'audience',
           component: () => import('@/views/dashboard/pages/UserProfile'),
+        },
+        {
+          name: 'Stories',
+          path: 'stories',
+          component: () => import('@/views/dashboard/component/Icons'),
         },
         {
           name: 'Notifications',
@@ -29,27 +34,27 @@ export default new Router({
           component: () => import('@/views/dashboard/component/Notifications'),
         },
         {
-          name: 'Icons',
-          path: 'components/icons',
+          name: 'Events',
+          path: 'events',
           component: () => import('@/views/dashboard/component/Icons'),
         },
-        {
-          name: 'Typography',
-          path: 'components/typography',
-          component: () => import('@/views/dashboard/component/Typography'),
-        },
-        // Tables
-        {
-          name: 'Regular Tables',
-          path: 'tables/regular-tables',
-          component: () => import('@/views/dashboard/tables/RegularTables'),
-        },
-        // Maps
-        {
-          name: 'Google Maps',
-          path: 'maps/google-maps',
-          component: () => import('@/views/dashboard/maps/GoogleMaps'),
-        },
+        // {
+        //   name: 'Typography',
+        //   path: 'components/typography',
+        //   component: () => import('@/views/dashboard/component/Typography'),
+        // },
+        // // Tables
+        // {
+        //   name: 'Regular Tables',
+        //   path: 'tables/regular-tables',
+        //   component: () => import('@/views/dashboard/tables/RegularTables'),
+        // },
+        // // Maps
+        // {
+        //   name: 'Google Maps',
+        //   path: 'maps/google-maps',
+        //   component: () => import('@/views/dashboard/maps/GoogleMaps'),
+        // },
       ],
     },
   ],

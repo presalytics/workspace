@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js/dist/auth0-spa-js.development'
 import Cookies from 'js-cookie'
+import store from '../store'
 
 class ApiSessionManager {
   constructor (options = {}) {
@@ -201,6 +202,10 @@ export const useAuth0 = ({
         if (this.isAuthenticated) {
           this.user = await this.auth0Client.getUser()
           this.apiSessionMgr.updateSession({ access_token: this.accessToken })
+          store.dispatch('setAuthorization', {
+            token: this.accessToken,
+            user: this.user,
+          })
         }
         this.loading = false
       }
@@ -262,10 +267,13 @@ export const useAuth0 = ({
         return this.auth0Client.getTokenWithPopup(o)
       },
       /** Logs the user out and removes their session on the authorization server */
-      async logout (o) {
+      async logout () {
         await Promise.all([
           this.apiSessionMgr.logout(),
-          this.auth0Client.logout({ ...o, localOnly: true }), // set localOnly to false if you want to log use out of main website too.
+          this.auth0Client.logout({
+            returnTo: window.location.origin,
+            localOnly: true,
+          }), // set localOnly to false if you want to log use out of main website too.
         ])
         this.isAuthenticated = await this.auth0Client.isAuthenticated()
       },
@@ -279,7 +287,6 @@ export const useAuth0 = ({
           throw this.error
         }
       },
-
     },
   })
 
