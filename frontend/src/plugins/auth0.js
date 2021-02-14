@@ -6,8 +6,8 @@ import store from '../store'
 class ApiSessionManager {
   constructor (options = {}) {
     this.workspaceApiUrl = process.env.VUE_APP_WORKSPACE_API_URL
-    if (!(this.workspaceApiUrl.endsWith("/"))) {
-      this.workspaceApiUrl += "/"
+    if (!(this.workspaceApiUrl.endsWith('/'))) {
+      this.workspaceApiUrl += '/'
     }
     this.csrf = null
     this.sessionId = null
