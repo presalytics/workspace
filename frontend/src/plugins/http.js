@@ -51,15 +51,15 @@ class HttpPlugin {
     } else {
       var message = 'An error occured while fetching data'
       var statusCode = response.status_code
+      var fetchError = new Error('fetch_error')
+      fetchError.status_code = statusCode
       try {
         var errInfo = await response.json()
         message = errInfo.message
       } finally {
-        var fetchError = new Error('fetch_error')
         fetchError.message = message
-        fetchError.status_code = statusCode
-        throw fetchError
       }
+      throw fetchError
     }
   }
 
