@@ -54,13 +54,12 @@ class HttpPlugin {
       try {
         var errInfo = await response.json()
         message = errInfo.message
-      } catch (err) {
-        console.error(err)
+      } finally {
+        var fetchError = new Error('fetch_error')
+        fetchError.message = message
+        fetchError.status_code = statusCode
+        throw fetchError
       }
-      var fetchError = new Error('fetch_error')
-      fetchError.message = message
-      fetchError.status_code = statusCode
-      throw fetchError
     }
   }
 
