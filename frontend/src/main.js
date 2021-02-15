@@ -18,6 +18,7 @@ import store from './store'
 import './plugins/base'
 import './plugins/chartist'
 import './plugins/vee-validate'
+import HttpPlugin from './plugins/http'
 import vuetify from './plugins/vuetify'
 import i18n from './i18n'
 import { Auth0Plugin } from './plugins/auth0'
@@ -41,9 +42,11 @@ Vue.use(Auth0Plugin, {
   },
 })
 
+Vue.use(HttpPlugin)
+
 Vue.config.productionTip = false
 
-new Vue({
+export default new Vue({
   router,
   store,
   vuetify,

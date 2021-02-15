@@ -141,7 +141,7 @@
             <img
               :src="picutureUrl"
               max-height="30px"
-            />
+            >
           </v-avatar>
         </v-btn>
       </template>
