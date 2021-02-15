@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import { Auth0Client } from '@auth0/auth0-spa-js/dist/auth0-spa-js.development'
+import { Auth0Client } from '@auth0/auth0-spa-js'
 import Cookies from 'js-cookie'
 import store from '../store'
 
-class ApiSessionManager {
+export default class ApiSessionManager {
   constructor (options = {}) {
     this.workspaceApiUrl = process.env.VUE_APP_WORKSPACE_API_URL
     if (!(this.workspaceApiUrl.endsWith('/'))) {

@@ -1,8 +1,22 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VuexPersistence from 'vuex-persist'
+import SecureLS from 'secure-ls'
 import auth from './auth'
 
 Vue.use(Vuex)
+
+const ls = new SecureLS({ encodingType: 'AES', encryptionSecret: process.env.VUE_APP_ENCRYPTION_KEY })
+
+const vuexLocal = new VuexPersistence({
+  key: 'vuex',
+  saveState: (key, state, storage) => {
+    ls.set(key, state)
+  },
+  restoreState: (key, storage) => {
+    return ls.get(key)
+  },
+})
 
 export default new Vuex.Store({
   state: {
@@ -24,4 +38,5 @@ export default new Vuex.Store({
   modules: {
     auth,
   },
+  plugins: [vuexLocal.plugin],
 })
