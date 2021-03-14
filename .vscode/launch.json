@@ -65,7 +65,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
             "type": "chrome",
@@ -77,7 +78,18 @@
             "sourceMapPathOverrides": {
               "webpack:///src/*": "${webRoot}/*"
             },
-
-          },
+        },
+        {
+          "type": "python",
+          "name": "Generate API Schema",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/api",
+          "program": "manage.py",
+          "args": [
+            "generateschema"
+          ],
+          "console": "internalConsole",
+          "justMyCode": false
+        }
     ]
 }
