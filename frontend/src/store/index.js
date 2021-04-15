@@ -1,28 +1,49 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
-import SecureLS from 'secure-ls'
+// import SecureLS from 'secure-ls'
 import auth from './auth'
+import stories from './stories'
+import users from './users'
+import apiEvents from './apiEvents'
 
 Vue.use(Vuex)
 
-const ls = new SecureLS({ encodingType: 'AES', encryptionSecret: process.env.VUE_APP_ENCRYPTION_KEY })
+// const ls = new SecureLS({ encodingType: 'AES', encryptionSecret: process.env.VUE_APP_ENCRYPTION_KEY || 'debug-enc-key' })
+
+// const vuexSecure = new VuexPersistence({
+//   key: 'vuex',
+//   saveState: (key, state, storage) => {
+//     ls.set(key, state)
+//   },
+//   restoreState: (key, storage) => {
+//     return ls.get(key)
+//   },
+// })
 
 const vuexLocal = new VuexPersistence({
-  key: 'vuex',
-  saveState: (key, state, storage) => {
-    ls.set(key, state)
-  },
-  restoreState: (key, storage) => {
-    return ls.get(key)
-  },
+  key: 'vuex-local',
+  storage: window.localStorage,
 })
 
-export default new Vuex.Store({
-  state: {
-    barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
-    barImage: 'https://demos.creative-tim.com/material-dashboard/assets/img/sidebar-1.jpg',
-    drawer: null,
+var resetting = false
+
+const initialState = () => ({
+  barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
+  barImage: 'https://demos.creative-tim.com/material-dashboard/assets/img/sidebar-1.jpg',
+  drawer: null,
+  resetting: false,
+})
+
+const store = new Vuex.Store({
+  state: initialState,
+  getters: {
+    accessToken: (state) => {
+      return state.auth.accessToken
+    },
+    me: (state) => {
+      return state.auth.user
+    },
   },
   mutations: {
     SET_BAR_IMAGE (state, payload) {
@@ -31,12 +52,46 @@ export default new Vuex.Store({
     SET_DRAWER (state, payload) {
       state.drawer = payload
     },
+    RESET_STATE (state) {
+      state = initialState
+      resetting = true
+    },
   },
   actions: {
-
+    sendToken ({ dispatch }, token) {
+      dispatch('apiEvents/setToken', token)
+      dispatch('stories/setToken', token)
+      dispatch('users/setToken', token)
+    },
+    reset ({ commit }) {
+      commit('RESET_STATE')
+      commit('auth/RESET_STATE')
+      commit('apiEvents/RESET_STATE')
+      commit('stories/RESET_STATE')
+      commit('users/RESET_STATE')
+    },
   },
   modules: {
     auth,
+    stories,
+    users,
+    apiEvents,
   },
   plugins: [vuexLocal.plugin],
 })
+
+const vm = new Vue()
+
+store.watch(() => store.getters.accessToken, (newValue) => {
+  if (newValue?.length > 1) {
+    store.dispatch('sendToken', newValue)
+  } else {
+    if (resetting) {
+      resetting = false
+    } else {
+      vm.$auth.getTokenSilently()
+    }
+  }
+})
+
+export default store

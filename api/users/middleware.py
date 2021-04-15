@@ -18,6 +18,9 @@ class PresalyticsAuthenticationMidddleware(AuthenticationMiddleware):
                     token = auth_header.replace("Bearer ", "")
                     request.session['access_token'] = token
                     user = PresalyticsUser.get_or_create(token)
-                    login(request, user)
+                    if user:
+                        login(request, user)
             except Exception as ex:
                 logger.exception(ex)
+
+

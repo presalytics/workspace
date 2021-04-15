@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^user/', include('users.urls', namespace='users')),
     url(r'', include('user_sessions.urls', 'user_sessions')),
     url(r'^conversations/', include('conversations.urls', namespace='conversations')),
+    url(r'^stories/', include('stories.urls', namespace='stories')),
     path('openapi/schema.json', SpectacularAPIView.as_view(), name='schema'),
     path('openapi', SpectacularSwaggerView.as_view(), name='schema_ui')
 ]

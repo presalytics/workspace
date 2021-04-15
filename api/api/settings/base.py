@@ -50,8 +50,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'drf_spectacular',
+    'django_extensions',
     'users',
     'conversations',
+    'stories',
+
 ]
 
 MIDDLEWARE = [
@@ -138,6 +141,8 @@ SILENCED_SYSTEM_CHECKS = [
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASS = os.environ['REDIS_PASSWORD']
 REDIS_PORT = env.int('REDIS_PORT', 6379)
+CLIENT_CREDENTIALS_CACHE_KEY = os.environ.get('CLIENT_CREDENTIALS_CACHE_KEY', 'debug-cache-key')
+
 
 REDIS_URL = "redis://:{0}@{1}:{2}".format(REDIS_PASS, REDIS_HOST, REDIS_PORT)  # CELERYs
 
@@ -176,5 +181,20 @@ REST_FRAMEWORK = {
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DB_NAME', 'workspace_api'),
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': 5432,
+        'OPTIONS': {
+            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
+        }
+    }
+}
+
 
 
