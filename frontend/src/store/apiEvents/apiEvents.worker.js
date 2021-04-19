@@ -11,7 +11,6 @@ var manageApiErrors = async (wrappedAsyncFn) => {
   try {
     result = await wrappedAsyncFn()
   } catch (err) {
-    console.log(err)
     if (err.status === 401 || err.status === 500) {
       accessToken = null
       self.postMessage({ type: 'REFRESH_AUTH' })

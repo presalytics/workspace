@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
+// eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 import Cookies from 'js-cookie'
 import store from '../store'
@@ -176,10 +177,11 @@ export const useAuth0 = ({
       var stateActive = store.getters.accessToken && Cookies.get('csrftoken') && store.getters.me
       var tokenValid = false
       try {
-        var decoded = jwt_decode(token)
+        var decoded = jwt_decode(store.getters.accessToken)
         var currentTimePlus1hr = new Date().getTime() / 1000 + 3600
-	      tokenValid = currentTimePlus1hr < decoded.exp
+        tokenValid = currentTimePlus1hr < decoded.exp
       } catch {
+        // eslint-disable-next-line
         console.log('Invalid access token.  Running synchronous startup')
       }
       if (stateActive && tokenValid) {

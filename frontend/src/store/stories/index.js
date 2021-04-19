@@ -30,6 +30,7 @@ const stories = {
           return cur.id === storyId
         })[0]
       } catch (err) {
+        // eslint-disable-next-line
         console.error(err)
       }
       return ret

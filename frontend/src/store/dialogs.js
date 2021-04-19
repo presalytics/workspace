@@ -10,6 +10,7 @@ export default {
       try {
         return state.modals.filter((cur) => cur.name === name)[0]
       } catch (err) {
+        // eslint-disable-next-line
         console.error(err)
       }
     },
