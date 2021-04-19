@@ -18,12 +18,16 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .views import home
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     url(r'^user/', include('users.urls', namespace='users')),
-    url(r'', include('user_sessions.urls', 'user_sessions'))
+    url(r'', include('user_sessions.urls', 'user_sessions')),
+    url(r'^conversations/', include('conversations.urls', namespace='conversations')),
+    url(r'^stories/', include('stories.urls', namespace='stories')),
+    path('openapi/schema.json', SpectacularAPIView.as_view(), name='schema'),
+    path('openapi', SpectacularSwaggerView.as_view(), name='schema_ui')
 ]

@@ -395,7 +395,6 @@
 <script>
   export default {
     name: 'DashboardDashboard',
-
     data () {
       return {
         dailySalesChart: {

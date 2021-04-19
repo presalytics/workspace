@@ -14,6 +14,7 @@
       <dashboard-core-view />
 
       <dashboard-core-settings />
+      <p-alert />
     </template>
   </v-app>
 </template>
@@ -31,6 +32,7 @@
       DashboardCoreView: () => import('./components/core/View'),
       Preloader,
       Login,
+      PAlert: () => import('../../components/presalytics/Dialogs/PAlert'),
     },
   }
 </script>

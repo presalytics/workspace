@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import { Auth0Client } from '@auth0/auth0-spa-js'
+// eslint-disable-next-line camelcase
+import jwt_decode from 'jwt-decode'
 import Cookies from 'js-cookie'
 import store from '../store'
 
@@ -78,7 +80,7 @@ export default class ApiSessionManager {
 
   getHeaders () {
     const headers = {}
-    this.csrf = Cookies.get('csrftoken') || self.csrf
+    this.csrf = Cookies.get('csrftoken') || this.csrf
     if (this.csrf) {
       headers['X-CSRFToken'] = this.csrf
     }
@@ -172,15 +174,23 @@ export const useAuth0 = ({
         redirect_uri: window.location.origin,
       })
       this.apiSessionMgr = new ApiSessionManager()
+      var stateActive = store.getters.accessToken && Cookies.get('csrftoken') && store.getters.me
+      var tokenValid = false
       try {
-        this.accessToken = await this.auth0Client.getTokenSilently()
-        await this.apiSessionMgr.initializeSession()
-        this.ifErrorThrow()
-      } catch (err) {
-        this.error = err
-        if (err.error === 'login_required') {
-          this.logout()
-        }
+        var decoded = jwt_decode(store.getters.accessToken)
+        var currentTimePlus1hr = new Date().getTime() / 1000 + 3600
+        tokenValid = currentTimePlus1hr < decoded.exp
+      } catch {
+        // eslint-disable-next-line
+        console.log('Invalid access token.  Running synchronous startup')
+      }
+      if (stateActive && tokenValid) {
+        this.initialize().then(() => this.postRedirectCallback())
+        store.dispatch('sendToken', store.getters.accessToken)
+        this.loading = false
+        this.isAuthenticated = true
+      } else {
+        await this.initialize()
       }
       try {
         // If the user is returning to the app after authentication..
@@ -201,19 +211,36 @@ export const useAuth0 = ({
         this.error = e
       } finally {
         // Initialize our internal authentication state
+        if (!stateActive || !tokenValid) {
+          await this.postRedirectCallback()
+        }
+      }
+    },
+    methods: {
+      async initialize () {
+        try {
+          this.accessToken = await this.auth0Client.getTokenSilently()
+          await this.apiSessionMgr.initializeSession()
+          this.ifErrorThrow()
+        } catch (err) {
+          this.error = err
+          if (err.error === 'login_required') {
+            this.logout()
+          }
+        }
+      },
+      async postRedirectCallback () {
         this.isAuthenticated = await this.auth0Client.isAuthenticated()
         if (this.isAuthenticated) {
           this.user = await this.auth0Client.getUser()
           this.apiSessionMgr.updateSession({ access_token: this.accessToken })
-          store.dispatch('setAuthorization', {
+          store.dispatch('auth/setAuthorization', {
             token: this.accessToken,
             user: this.user,
           })
         }
         this.loading = false
-      }
-    },
-    methods: {
+      },
       /** Authenticates the user using a popup window */
       async loginWithPopup (options, config) {
         this.popupOpen = true
@@ -258,7 +285,13 @@ export const useAuth0 = ({
       },
       /** Returns the access token. If the token is invalid or missing, a new one is retrieved */
       async getTokenSilently (o) {
-        return await this.auth0Client.getTokenSilently(o)
+        this.accessToken = await this.auth0Client.getTokenSilently(o)
+        this.apiSessionMgr.updateSession({ access_token: this.accessToken })
+        store.dispatch('auth/setAuthorization', {
+          token: this.accessToken,
+          user: this.user,
+        })
+        return this.accessToken
       },
       /** Gets the access token using a popup window */
 
@@ -269,16 +302,23 @@ export const useAuth0 = ({
       getTokenWithPopup (o) {
         return this.auth0Client.getTokenWithPopup(o)
       },
+      async updateApiToken (o) {
+        // pushes token to server-side cache
+        return await this.apiSessionMgr.updateSession({ access_token: this.accessToken })
+      },
       /** Logs the user out and removes their session on the authorization server */
       async logout () {
+        store.dispatch('sendToken', null)
+        store.dispatch('reset')
         await Promise.all([
           this.apiSessionMgr.logout(),
           this.auth0Client.logout({
             returnTo: window.location.origin,
             localOnly: true,
+            clientId: this.clientId,
           }), // set localOnly to false if you want to log use out of main website too.
         ])
-        this.isAuthenticated = await this.auth0Client.isAuthenticated()
+        this.isAuthenticated = false
       },
       /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
       getRedirectUri (o) {

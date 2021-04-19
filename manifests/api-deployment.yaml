@@ -70,7 +70,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: workspace
-              key: client-id
+              key: api-client-id
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: api-client-secret
         - name: DJANGO_SETTINGS_MODULE
           value: api.settings.production
       containers:

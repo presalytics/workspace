@@ -1,8 +1,16 @@
+const initialState = () => ({
+  accessToken: null,
+  user: null,
+})
+
 export default {
-  state: () => ({
-    accessToken: null,
-    user: null,
-  }),
+  namespaced: true,
+  state: initialState,
+  getters: {
+    userId (state) {
+      return state.user['https://api.presalytics.io/api_user_id']
+    },
+  },
   mutations: {
     SET_AUTH (state, payload) {
       state.user = payload.user
@@ -11,6 +19,10 @@ export default {
     DELETE_AUTH (state) {
       state.user = null
       state.accessToken = null
+    },
+    RESET_STATE (state) {
+      const initial = initialState()
+      Object.keys(initial).forEach(key => { state[key] = initial[key] })
     },
   },
   actions: {

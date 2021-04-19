@@ -18,6 +18,22 @@ class CustomUserManager(BaseUserManager):
         user.save()
         return user
 
+    def get_or_create_user(self, **extra_fields):
+        create = False
+        user = None
+        id = extra_fields.get("user_id", None)
+        if id:
+            try:
+                user = self.get(pk=id)
+            except self.model.DoesNotExist:
+                create = True
+        else:
+            create = True
+        if create:
+            user = self.create_user(**extra_fields)
+        return user, create
+
+
     def create_superuser(self, **extra_fields):
         """
         Create and save a SuperUser with the given email and password.

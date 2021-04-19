@@ -6,20 +6,6 @@ LOG_LEVEL = logging.INFO
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'workspace_api'),
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': os.environ['DB_HOST'],
-        'PORT': 5432,
-        'OPTIONS': {
-            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
-        }
-    }
-}
-
 
 class LevelFilter(logging.Filter):
     def filter(self, record):

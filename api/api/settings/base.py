@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "debug-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DJANGO_DEBUG', True)
+DEBUG = env.bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -48,7 +48,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
+    'drf_spectacular',
+    'django_extensions',
     'users',
+    'conversations',
+    'stories',
+
 ]
 
 MIDDLEWARE = [
@@ -101,24 +107,6 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 
 
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -153,6 +141,8 @@ SILENCED_SYSTEM_CHECKS = [
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PASS = os.environ['REDIS_PASSWORD']
 REDIS_PORT = env.int('REDIS_PORT', 6379)
+CLIENT_CREDENTIALS_CACHE_KEY = os.environ.get('CLIENT_CREDENTIALS_CACHE_KEY', 'debug-cache-key')
+
 
 REDIS_URL = "redis://:{0}@{1}:{2}".format(REDIS_PASS, REDIS_HOST, REDIS_PORT)  # CELERYs
 
@@ -166,5 +156,45 @@ CELERY_DEFAULT_EXCHANGE = CELERY_DEFAULT_QUEUE
 
 PRESALYTICS_SITE_URL = os.environ.get('PRESALYTICS_SITE_URL', 'https://presalytics.io/')
 FRONTEND_BASE_URL = os.environ.get('WORKSPACE_CLIENT_URL', 'https://workspace.presalytics.io/')
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+        # Any other renders
+    ),
+
+    'DEFAULT_PARSER_CLASSES': (
+        # If you use MultiPartFormParser or FormParser, we also have a camel case version
+        'djangorestframework_camel_case.parser.CamelCaseFormParser',
+        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        # Any other parsers
+    ),
+    'JSON_UNDERSCOREIZE': {
+        'no_underscore_before_number': True,
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DB_NAME', 'workspace_api'),
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': 5432,
+        'OPTIONS': {
+            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
+        }
+    }
+}
+
 
 
