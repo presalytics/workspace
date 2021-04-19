@@ -69,7 +69,7 @@ jobs:
       VUE_APP_I18N_LOCALE: en
       VUE_APP_I18N_FALLBACK_LOCALE: en
       VUE_APP_ENCRYPTION_KEY: ${{ secrets.CLIENT_ENCRYPTION_KEY }}
-      VUE_APP_STORY_HOST: https://api.presalytics.io/story
+      VUE_APP_STORY_HOST: https://testing.presalytics.io/story
       VUE_APP_SITE_HOST: https://presalytics.io
       VUE_APP_OOXML_AUTOMATION_HOST: https://api.presalytics.io/ooxml-automation
       VUE_APP_WORKSPACE_API_URL: https://workspace-api.presalytics.io
