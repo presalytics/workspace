@@ -36,7 +36,12 @@ const router = new Router({
         {
           name: 'Events',
           path: 'events',
-          component: () => import('@/views/dashboard/component/Icons'),
+          component: () => import('@/views/dashboard/presalytics/Events'),
+        },
+        {
+          name: 'Story View',
+          path: 'stories/view/:storyId',
+          component: () => import('@/views/dashboard/presalytics/StoryView'),
         },
         // {
         //   name: 'Typography',

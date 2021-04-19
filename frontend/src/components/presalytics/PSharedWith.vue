@@ -13,6 +13,7 @@
           <v-avatar>
             <img
               :src="getPictureUrl(item)"
+              class="images"
               max-height="40px"
             >
           </v-avatar>
@@ -98,19 +99,19 @@
     position: absolute
     top: 0
     left: 0
-    z-index: 100
+    z-index: 4
     transform: translateY(-50%)
   .pictureItem-1
     position: absolute
     top: 0
     left: 15px
-    z-index: 90
+    z-index: 3
     transform: translateY(-50%)
   .pictureItem-2
     position: absolute
     top:0
     left: 30px
-    z-index: 80
+    z-index: 2
     transform: translateY(-50%)
   .countItem
     white-space: nowrap
@@ -125,4 +126,6 @@
     margin-left: 15px
   .margin-2
     margin-left: 7px
+  .images
+    background-color: white
 </style>

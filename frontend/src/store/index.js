@@ -6,6 +6,8 @@ import auth from './auth'
 import stories from './stories'
 import users from './users'
 import apiEvents from './apiEvents'
+import alerts from './alerts'
+import dialogs from './dialogs'
 
 Vue.use(Vuex)
 
@@ -76,6 +78,8 @@ const store = new Vuex.Store({
     stories,
     users,
     apiEvents,
+    alerts,
+    dialogs,
   },
   plugins: [vuexLocal.plugin],
 })

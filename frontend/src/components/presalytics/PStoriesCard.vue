@@ -49,6 +49,9 @@
         />
       </template>
     </v-data-table>
+    <p-story-share-modal />
+    <p-story-delete-modal />
+    <base-material-card />
   </base-material-card>
 </template>
 
@@ -59,6 +62,8 @@
   import PStoryViewCounter from './PStoryViewCounter'
   import PStoryActivitySparkline from './PStoryActivitySparkline'
   import PStoryActionsMenu from './PStoryActionsMenu'
+  import PStoryShareModal from './Dialogs/PStoryShareModal'
+  import PStoryDeleteModal from './Dialogs/PStoryDeleteModal'
 
   export default {
     components: {
@@ -68,6 +73,8 @@
       PStoryViewCounter,
       PStoryActivitySparkline,
       PStoryActionsMenu,
+      PStoryShareModal,
+      PStoryDeleteModal,
     },
     data () {
       return {

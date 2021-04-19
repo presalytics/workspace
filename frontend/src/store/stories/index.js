@@ -9,6 +9,10 @@ const initialState = () => {
     loading: false,
     tokenLoaded: false,
     stories: [],
+    shareModal: {
+      active: false,
+      storyId: null,
+    },
   }
 }
 
@@ -18,6 +22,17 @@ const stories = {
   getters: {
     storiesList: (state) => {
       return state.stories || []
+    },
+    story: (state, getters) => (storyId) => {
+      var ret = null
+      try {
+        ret = getters.storiesList.filter((cur) => {
+          return cur.id === storyId
+        })[0]
+      } catch (err) {
+        console.error(err)
+      }
+      return ret
     },
     annotation: (state, getters) => (storyId) => {
       var ret = {
@@ -34,6 +49,9 @@ const stories = {
         }
       }
       return ret
+    },
+    shareModal: (state) => {
+      return state.shareModal
     },
   },
   mutations: {
@@ -77,6 +95,14 @@ const stories = {
       const initial = initialState()
       Object.keys(initial).forEach(key => { state[key] = initial[key] })
     },
+    TOGGLE_SHARE_MODAL (state, payload) {
+      if (!payload) {
+        state.shareModal.active = false
+      } else {
+        state.shareModal.active = !state.shareModal.active
+        state.shareModal.storyId = payload
+      }
+    },
   },
   actions: {
     async initStories ({ commit, dispatch }) {
@@ -92,6 +118,10 @@ const stories = {
     async toggleIsFavorite ({ commit, state, getters }, storyId) {
       var annotation = getters.annotation(storyId)
       workerActions.postMessage({ request: 'toggleIsFavorite', annotation: annotation })
+    },
+    toggleShareModal ({ commit }, storyId) {
+      // eslint-disable-next-line no-unused-expressions
+      commit('TOGGLE_SHARE_MODAL', storyId)
     },
   },
 }
