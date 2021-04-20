@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 from environs import Env
+from urllib.parse import urlparse
 import os
 
 env = Env()
@@ -37,6 +38,9 @@ ALLOWED_HOSTS = [
 
 ALLOWED_HOSTS.extend(env.list("ALLOWED_HOSTS", []))
 
+WORKSPACE_CLIENT_HOST = os.environ.get("WORKSPACE_CLIENT_URL", "localhost:8080")
+
+CSRF_TRUSTED_ORIGINS = [urlparse(WORKSPACE_CLIENT_HOST).netloc]
 
 # Application definition
 
