@@ -81,7 +81,7 @@ spec:
         - name: ALLOWED_HOSTS
           value: workspace-api.presalytics.io
         - name: DJANGO_SECRET_KEY
-          valuefrom:
+          valueFrom:
             secretKeyRef:
               name: workspace
               key: django-secret-key
@@ -140,7 +140,7 @@ spec:
         - name: ALLOWED_HOSTS
           value: workspace-api.presalytics.io
         - name: DJANGO_SECRET_KEY
-          valuefrom:
+          valueFrom:
             secretKeyRef:
               name: workspace
               key: django-secret-key
