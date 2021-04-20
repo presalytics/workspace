@@ -78,6 +78,13 @@ spec:
               key: api-client-secret
         - name: DJANGO_SETTINGS_MODULE
           value: api.settings.development
+        - name: ALLOWED_HOSTS
+          value: workspace-api.presalytics.io
+        - name: DJANGO_SECRET_KEY
+          valuefrom:
+            secretKeyRef:
+              name: workspace
+              key: django-secret-key
       containers:
       - name: workspace-api
         image: presalytics/workspace-api:latest
@@ -118,12 +125,24 @@ spec:
               key: redis-password
         - name: WORKSPACE_CLIENT_URL
           value: https://workspace.presalytics.io
+        - name: DJANGO_SETTINGS_MODULE
+          value: api.settings.development
         - name: CLIENT_ID
           valueFrom:
             secretKeyRef:
               name: workspace
-              key: client-id
-        - name: DJANGO_SETTINGS_MODULE
-          value: api.settings.development
+              key: api-client-id
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: workspace
+              key: api-client-secret
+        - name: ALLOWED_HOSTS
+          value: workspace-api.presalytics.io
+        - name: DJANGO_SECRET_KEY
+          valuefrom:
+            secretKeyRef:
+              name: workspace
+              key: django-secret-key
       imagePullSecrets:
       - name: chartalot-docker-registry

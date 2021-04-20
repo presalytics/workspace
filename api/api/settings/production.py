@@ -12,6 +12,8 @@ class LevelFilter(logging.Filter):
         return record.levelno > LOG_LEVEL
 
 
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", [])
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
