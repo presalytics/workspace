@@ -93,7 +93,7 @@ spec:
           - containerPort: 80
         env:
         - name: DJANGO_DEBUG
-          value: 'False'
+          value: 'True'
         - name: DB_REQUIRE_SSL
           value: 'True'
         - name: DB_PASSWORD
@@ -124,6 +124,6 @@ spec:
               name: workspace
               key: client-id
         - name: DJANGO_SETTINGS_MODULE
-          value: api.settings.production
+          value: api.settings.development
       imagePullSecrets:
       - name: chartalot-docker-registry
