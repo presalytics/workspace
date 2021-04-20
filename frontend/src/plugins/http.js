@@ -38,7 +38,8 @@ class HttpPlugin {
       cache: 'no-cache',
       credentials: 'include',
       redirect: 'manual',
-      referrerPolicy: 'no-referrer',
+      referrerPolicy: 'origin',
+      referrer: window.location.origin,
     }
     this.accessTokenCallback = options.accessTokenCallback || null
     this.csrfCallback = options.csrfCallback || null
