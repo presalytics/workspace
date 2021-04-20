@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class SessionView(TemplateView):
 
-    template_name = 'session.html'
+    template_name = 'session.html' 
 
     def get_context_data(self, **kwargs):
 
