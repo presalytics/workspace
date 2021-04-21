@@ -22,6 +22,7 @@ import { HttpPlugin } from './plugins/http'
 import vuetify from './plugins/vuetify'
 import i18n from './i18n'
 import { Auth0Plugin } from './plugins/auth0'
+import { ErrorHandler } from './plugins/errorHandler'
 
 const authOptions = {
   domain: process.env.VUE_APP_AUTH0_DOMAIN,
@@ -43,6 +44,8 @@ Vue.use(Auth0Plugin, {
 })
 
 Vue.use(HttpPlugin)
+
+Vue.use(ErrorHandler)
 
 Vue.config.productionTip = false
 

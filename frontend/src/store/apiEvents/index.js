@@ -66,6 +66,10 @@ const apiEvents = {
     async getStoryEvents ({ commit }, storyId) {
       workerActions.postMessage({ request: 'getStoryEvents', storyId: storyId })
     },
+    async initEvents ({ getters }) {
+      var userId = getters['auth/userId']
+      workerActions.postMessage({ request: 'initEvents', userId: userId })
+    },
   },
 }
 

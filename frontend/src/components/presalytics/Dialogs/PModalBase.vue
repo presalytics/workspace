@@ -9,6 +9,8 @@
       <v-toolbar
         :color="color"
         dark
+        flat
+        dense
       >
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer />
@@ -19,7 +21,7 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
-      <template v-if="modalProps">
+      <template v-if="localModalProps">
         <slot>
           <v-card-text>Oops! You forgot to add a modal body</v-card-text>
         </slot>
@@ -86,6 +88,14 @@
           return false
         }
       },
+      localModalProps: {
+        get () {
+          return this.modalProps
+        },
+        set (newValue) {
+          this.$emit('change', newValue)
+        },
+      },
     },
     created () {
       this.add({ name: this.name, show: false, properties: {} })
@@ -93,12 +103,11 @@
         var modal = this.$store.getters['dialogs/modal'](this.name)
         if (modal.show) {
           this.show = true
-          this.modalProps = modal.properties
+          this.localModalProps = modal.properties
         } else {
           this.show = false
-          this.modalProps = null
+          this.localModalProps = null
         }
-        this.$emit('change', this.modalProps)
       })
     },
     beforeDestroy () {

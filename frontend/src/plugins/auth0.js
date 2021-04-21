@@ -186,7 +186,7 @@ export const useAuth0 = ({
       }
       if (stateActive && tokenValid) {
         this.initialize().then(() => this.postRedirectCallback())
-        store.dispatch('sendToken', store.getters.accessToken)
+        store.dispatch('sendToken', store.getters.accessToken, Cookies.get('csrftoken'))
         this.loading = false
         this.isAuthenticated = true
       } else {

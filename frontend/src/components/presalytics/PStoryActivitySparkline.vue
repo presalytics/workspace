@@ -21,7 +21,7 @@
     ['red', 'orange', 'yellow'],
     ['purple', 'violet'],
     ['#00c6ff', '#F0F', '#FF0'],
-    ['#f72047', '#ffd200', '#1feaea'],
+    ['#f72047', '#ffd200', '#c1c1c1'],
   ]
 
   var getDaysArray = function (start, end) {
@@ -34,15 +34,21 @@
     return arr
   }
 
-  // var aYearAgo = () => {
-  //   var date = new Date()
-  //   date.setFullYear(date.getFullYear() - 1)
-  //   return date
-  // }
+  var aYearAgo = () => {
+    var date = new Date()
+    date.setFullYear(date.getFullYear() - 1)
+    return date
+  }
 
   var aMonthAgo = () => {
     var date = new Date()
     date.setMonth(date.getMonth() - 1)
+    return date
+  }
+
+  var aWeekAgo = () => {
+    var date = new Date()
+    date.setDate(date.getDate() - 7)
     return date
   }
 
@@ -81,8 +87,32 @@
         var vm = this
         var storyId = vm.$props.story.item.id
         var evts = vm.$store.getters['apiEvents/getStoryEvents'](storyId)
-        var dates = getDaysArray(aMonthAgo(), new Date())
+        var dates = getDaysArray(vm.timeSpanFn(), new Date())
         return dates.map((cur) => countByDay(evts, cur))
+      },
+      timeWindow () {
+        return this.$store.getters['stories/table'].timeWindow
+      },
+      timeSpanFn () {
+        var fn
+        switch (this.timeWindow) {
+          case ('week'): {
+            fn = aWeekAgo
+            break
+          }
+          case ('month'): {
+            fn = aMonthAgo
+            break
+          }
+          case ('year'): {
+            fn = aYearAgo
+            break
+          }
+        }
+        if (!fn) {
+          fn = aMonthAgo
+        }
+        return fn
       },
     },
   }

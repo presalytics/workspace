@@ -36,6 +36,12 @@ var getStoryEvents = async (storyId) => {
   })
 }
 
+var getUserEvents = async (userId) => {
+  return await manageApiErrors(async () => {
+    return await http.getData(http.hosts.events, 'events?userId=' + userId)
+  })
+}
+
 const httpOptions = {
   accessTokenCallback: accessTokenCallbackFn,
   csrfCallback: () => null,
@@ -44,6 +50,7 @@ const httpOptions = {
 const http = new HttpPlugin(httpOptions)
 
 self.onmessage = async (e) => {
+  var events = []
   switch (e.data.request) {
     case ('accessToken'): {
       accessToken = e.data.accessToken
@@ -51,10 +58,19 @@ self.onmessage = async (e) => {
     }
     case ('getStoryEvents'): {
       var storyId = e.data.storyId
-      var events = await getStoryEvents(storyId) || []
+      events = await getStoryEvents(storyId) || []
       if (events.length > 0) {
         self.postMessage({ type: 'ADD_EVENTS', payload: events })
       }
+      break
+    }
+    case ('initEvents'): {
+      var userId = e.data.userId
+      events = await getUserEvents(userId) || []
+      if (events.length > 0) {
+        self.postMessage({ type: 'ADD_EVENTS', payload: events })
+      }
+      break
     }
   }
 }

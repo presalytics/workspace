@@ -13,6 +13,10 @@ const initialState = () => {
       active: false,
       storyId: null,
     },
+    table: {
+      columns: [],
+      timeWindow: 'month',
+    },
   }
 }
 
@@ -53,6 +57,9 @@ const stories = {
     },
     shareModal: (state) => {
       return state.shareModal
+    },
+    table: (state) => {
+      return state.table
     },
   },
   mutations: {
@@ -104,6 +111,20 @@ const stories = {
         state.shareModal.storyId = payload
       }
     },
+    ADD_TABLE_COLUMNS (state, payload) {
+      state.table.columns = payload
+    },
+    TOGGLE_TABLE_COLUMN (state, payload) {
+      state.table.columns = state.table.columns.map((cur) => {
+        if (cur.value === payload.value) {
+          cur.show = !cur.show
+        }
+        return cur
+      })
+    },
+    UPDATE_TABLE_WINDOW (state, payload) {
+      state.table.timeWindow = payload.timeWindow
+    },
   },
   actions: {
     async initStories ({ commit, dispatch }) {
@@ -123,6 +144,9 @@ const stories = {
     toggleShareModal ({ commit }, storyId) {
       // eslint-disable-next-line no-unused-expressions
       commit('TOGGLE_SHARE_MODAL', storyId)
+    },
+    initTableColumns ({ commit }, columnList) {
+      commit('ADD_TABLE_COLUMNS', columnList)
     },
   },
 }

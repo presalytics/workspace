@@ -21,7 +21,7 @@ const router = new Router({
         {
           name: 'Target Audience',
           path: 'audience',
-          component: () => import('@/views/dashboard/pages/UserProfile'),
+          component: () => import('@/views/dashboard/presalytics/Audience'),
         },
         {
           name: 'Stories',

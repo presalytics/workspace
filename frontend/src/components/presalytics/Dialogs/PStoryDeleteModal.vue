@@ -32,15 +32,10 @@
     components: {
       PModalBase: () => import('./PModalBase'),
     },
-    props: {
-      modalProps: {
-        type: Object,
-        default: () => {},
-      },
-    },
     data: () => ({
       title: 'Delete Story?',
       name: 'PStoryDeleteModal',
+      modalProps: {},
     }),
     computed: {
       story () {
