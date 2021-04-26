@@ -73,7 +73,7 @@ jobs:
       VUE_APP_SITE_HOST: https://presalytics.io
       VUE_APP_OOXML_AUTOMATION_HOST: https://api.presalytics.io/ooxml-automation
       VUE_APP_WORKSPACE_API_URL: https://workspace-api.presalytics.io
-      VUE_APP_EVENTS_API_URL: https://api.presalytics.io/events
+      VUE_APP_EVENTS_API_URL: https://api.presalytics.io/
 
     steps:
     - uses: actions/checkout@master
