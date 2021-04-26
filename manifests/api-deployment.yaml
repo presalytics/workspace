@@ -13,7 +13,7 @@ spec:
       app: workspace-api
       app.kubernetes.io/name: workspace-api
       app.kubernetes.io/part-of: presalytics
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       name: workspace-api
@@ -64,6 +64,8 @@ spec:
             secretKeyRef:
               name: workspace
               key: redis-password
+        - name: REDIS_HOST
+          value: http://redis.api.svc.cluster.local
         - name: WORKSPACE_CLIENT_URL
           value: https://workspace.presalytics.io
         - name: CLIENT_ID
