@@ -233,7 +233,6 @@
             })
             return filteredStories
           } catch (err) {
-            console.error(err)
             return vm.storiesList
           }
         }
