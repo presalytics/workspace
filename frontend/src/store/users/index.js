@@ -24,6 +24,15 @@ const users = {
       var matches = getters.userDb.filter((cur) => cur.app_metadata.api_user_id === userId)
       return matches[0] || {}
     },
+    search: (state, getters) => (searchText) => {
+      return getters.userDb.filter((cur) => {
+        var fullname = cur.given_name + ' ' + cur.family_name
+        if (fullname.includes(searchText) || cur.email.includes(searchText) || cur.app_metadata.api_user_id === searchText || cur.nickname.includes(searchText)) {
+          return true
+        }
+        return false
+      })
+    },
   },
   mutations: {
     SET_LOADING (state, payload) {

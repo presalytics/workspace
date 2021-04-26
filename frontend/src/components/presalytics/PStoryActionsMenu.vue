@@ -73,7 +73,7 @@
             break
           }
           case ('shareStory'): {
-            this.$store.dispatch('stories/toggleShareModal', storyId)
+            this.toggleModal({ name: 'PStoryShareModal', properties: { storyId: storyId } })
             break
           }
           case ('copyId'): {

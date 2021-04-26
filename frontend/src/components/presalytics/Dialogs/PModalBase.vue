@@ -21,29 +21,31 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
-      <template v-if="localModalProps">
-        <slot>
-          <v-card-text>Oops! You forgot to add a modal body</v-card-text>
-        </slot>
-      </template>
-      <template v-else>
-        <v-card-text
-          color="error"
-        >
-          <strong>ERROR</strong>: If this is rendering, you forgot to define modalProps on your component.
-        </v-card-text>
-      </template>
-      <v-card-actions>
-        <slot name="actions">
+      <div class="pa-2">
+        <template v-if="localModalProps">
+          <slot>
+            <v-card-text>Oops! You forgot to add a modal body</v-card-text>
+          </slot>
+        </template>
+        <template v-else>
+          <v-card-text
+            color="error"
+          >
+            <strong>ERROR</strong>: If this is rendering, you forgot to define modalProps on your component.
+          </v-card-text>
+        </template>
+        <v-card-actions>
+          <slot name="actions" />
           <v-spacer />
           <v-btn
             :color="color"
+            text
             @click="dismiss"
           >
             Close
           </v-btn>
-        </slot>
-      </v-card-actions>
+        </v-card-actions>
+      </div>
     </v-card>
   </v-dialog>
 </template>
