@@ -65,7 +65,7 @@ spec:
               name: workspace
               key: redis-password
         - name: REDIS_HOST
-          value: http://redis.api.svc.cluster.local
+          value: redis.api.svc.cluster.local
         - name: WORKSPACE_CLIENT_URL
           value: https://workspace.presalytics.io
         - name: CLIENT_ID
@@ -125,6 +125,8 @@ spec:
             secretKeyRef:
               name: workspace
               key: redis-password
+        - name: REDIS_HOST
+          value: redis.api.svc.cluster.local
         - name: WORKSPACE_CLIENT_URL
           value: https://workspace.presalytics.io
         - name: DJANGO_SETTINGS_MODULE
