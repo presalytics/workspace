@@ -38,9 +38,7 @@ ALLOWED_HOSTS = [
 
 ALLOWED_HOSTS.extend(env.list("ALLOWED_HOSTS", []))
 
-WORKSPACE_CLIENT_HOST = os.environ.get("WORKSPACE_CLIENT_URL", "localhost:8080")
-
-CSRF_TRUSTED_ORIGINS = [urlparse(WORKSPACE_CLIENT_HOST).netloc]
+CSRF_TRUSTED_ORIGINS = ["localhost:8080", ".presalytics.io"]
 
 # Application definition
 
