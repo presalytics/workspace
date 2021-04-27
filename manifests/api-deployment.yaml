@@ -88,7 +88,7 @@ spec:
               name: workspace
               key: django-secret-key
         - name: HOST_STORY
-          value: http://storyv2.api.svc.cluster.local
+          value: https://testing.presalytics.io/story
       containers:
       - name: workspace-api
         image: presalytics/workspace-api:latest
@@ -151,6 +151,6 @@ spec:
               name: workspace
               key: django-secret-key
         - name: HOST_STORY
-          value: http://storyv2.api.svc.cluster.local
+          value: https://testing.presalytics.io/story
       imagePullSecrets:
       - name: chartalot-docker-registry
