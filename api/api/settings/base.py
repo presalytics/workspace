@@ -39,6 +39,7 @@ ALLOWED_HOSTS = [
 ALLOWED_HOSTS.extend(env.list("ALLOWED_HOSTS", []))
 
 CSRF_TRUSTED_ORIGINS = ["localhost:8080", ".presalytics.io"]
+CSRF_COOKIE_DOMAIN = '.presalytics.io'
 
 # Application definition
 

@@ -122,6 +122,7 @@ export default class ApiSessionManager {
         cache: 'no-cache',
         redirect: 'manual',
         body: JSON.stringify(sessionData),
+        referrer: location.origin
       })
       if (response.ok) {
         if (response.status === 200) {
