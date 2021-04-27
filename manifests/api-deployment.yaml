@@ -87,6 +87,8 @@ spec:
             secretKeyRef:
               name: workspace
               key: django-secret-key
+        - name: HOST_STORY
+          value: http://storyv2.api.svc.cluster.local
       containers:
       - name: workspace-api
         image: presalytics/workspace-api:latest
@@ -148,5 +150,7 @@ spec:
             secretKeyRef:
               name: workspace
               key: django-secret-key
+        - name: HOST_STORY
+          value: http://storyv2.api.svc.cluster.local
       imagePullSecrets:
       - name: chartalot-docker-registry
