@@ -10,6 +10,10 @@ const initialState = () => {
     loading: false,
     tokenLoaded: false,
     users: [],
+    table: {
+      columns: [],
+      timeWindow: 'month',
+    },
   }
 }
 
@@ -33,6 +37,9 @@ const users = {
         return false
       })
     },
+    table: (state) => {
+      return state.table
+    },
   },
   mutations: {
     SET_LOADING (state, payload) {
@@ -52,6 +59,20 @@ const users = {
       const initial = initialState()
       Object.keys(initial).forEach(key => { state[key] = initial[key] })
     },
+    ADD_TABLE_COLUMNS (state, payload) {
+      state.table.columns = payload
+    },
+    TOGGLE_TABLE_COLUMN (state, payload) {
+      state.table.columns = state.table.columns.map((cur) => {
+        if (cur.value === payload.value) {
+          cur.show = !cur.show
+        }
+        return cur
+      })
+    },
+    UPDATE_TABLE_WINDOW (state, payload) {
+      state.table.timeWindow = payload.timeWindow
+    },
   },
   actions: {
     async initUsers ({ commit, dispatch }) {
@@ -63,6 +84,9 @@ const users = {
         accessToken: accessToken,
         csrf: Cookies.get('csrftoken'),
       })
+    },
+    initTable ({ commit }, columnList) {
+      commit('INIT_TABLE', columnList)
     },
   },
 }

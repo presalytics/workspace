@@ -235,7 +235,11 @@
         return this.$auth.data
       },
       picutureUrl () {
-        return this.$store.state.auth.user.picture
+        if (this.$store.state.auth?.user?.picture) {
+          return this.$store.state.auth.user.picture || null
+        } else {
+          return null
+        }
       },
     },
 

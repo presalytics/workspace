@@ -185,7 +185,11 @@
         var userId = vm.$store.getters['auth/userId']
         stories.forEach((cur, i, arr) => {
           if (cur.workspace?.annotations) {
-            arr[i].isFavorite = cur.workspace.annotations.filter((ele) => ele.userId === userId)[0].is_favorite || false
+            try {
+              arr[i].isFavorite = cur.workspace.annotations.filter((ele) => ele.userId === userId)[0].is_favorite || false
+            } catch {
+              arr[i].isFavorite = false
+            }
           } else {
             arr[i].isFavorite = false
           }

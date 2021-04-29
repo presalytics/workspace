@@ -30,15 +30,33 @@ var manageApiErrors = async (wrappedAsyncFn) => {
   return result
 }
 
-var getStoryEvents = async (storyId) => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.events, 'events?storyId=' + storyId)
-  })
+var querify = function (obj) {
+  var str = []
+  for (var p in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, p)) {
+      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
+    }
+  }
+  return str.join('&')
 }
 
-var getUserEvents = async (userId) => {
+var getEvents = async (query) => {
   return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.events, 'events?userId=' + userId)
+    var moreEvts = true
+    var page = 1
+    while (moreEvts) {
+      query.page = page
+      var evts = await http.getData(http.hosts.events, 'events?' + querify(query))
+      if (evts.length > 0) {
+        self.postMessage({ type: 'ADD_EVENTS', payload: evts })
+      }
+      if (evts.length !== 100) {
+        moreEvts = false
+      } else {
+        page += 1
+        evts = null
+      }
+    }
   })
 }
 
@@ -50,7 +68,6 @@ const httpOptions = {
 const http = new HttpPlugin(httpOptions)
 
 self.onmessage = async (e) => {
-  var events = []
   switch (e.data.request) {
     case ('accessToken'): {
       accessToken = e.data.accessToken
@@ -58,18 +75,12 @@ self.onmessage = async (e) => {
     }
     case ('getStoryEvents'): {
       var storyId = e.data.storyId
-      events = await getStoryEvents(storyId) || []
-      if (events.length > 0) {
-        self.postMessage({ type: 'ADD_EVENTS', payload: events })
-      }
+      await getEvents({ storyId: storyId })
       break
     }
     case ('initEvents'): {
       var userId = e.data.userId
-      events = await getUserEvents(userId) || []
-      if (events.length > 0) {
-        self.postMessage({ type: 'ADD_EVENTS', payload: events })
-      }
+      await getEvents({ userId: userId })
       break
     }
   }

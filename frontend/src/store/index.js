@@ -44,7 +44,18 @@ const store = new Vuex.Store({
       return state.auth.accessToken
     },
     me: (state) => {
-      return state.auth.user
+      if (state.auth?.user) {
+        return state.auth.user
+      } else {
+        return null
+      }
+    },
+    userId: (state, getters) => {
+      if (getters.me) {
+        return getters.me['https://api.presalytics.io/api_user_id']
+      } else {
+        return ''
+      }
     },
   },
   mutations: {
@@ -95,6 +106,14 @@ store.watch(() => store.getters.accessToken, (newValue) => {
     } else {
       vm.$auth.getTokenSilently()
     }
+  }
+})
+
+store.watch(() => store.getters.userId, (newValue) => {
+  if (newValue) {
+    store.dispatch('stories/initStories')
+    store.dispatch('apiEvents/initEvents')
+    store.dispatch('users/initUsers')
   }
 })
 

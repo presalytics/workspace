@@ -3,14 +3,9 @@ const initialState = () => ({
   user: null,
 })
 
-export default {
+const auth = {
   namespaced: true,
   state: initialState,
-  getters: {
-    userId (state) {
-      return state.user['https://api.presalytics.io/api_user_id']
-    },
-  },
   mutations: {
     SET_AUTH (state, payload) {
       state.user = payload.user
@@ -34,3 +29,5 @@ export default {
     },
   },
 }
+
+export default auth

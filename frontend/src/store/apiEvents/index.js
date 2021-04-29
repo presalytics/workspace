@@ -66,8 +66,9 @@ const apiEvents = {
     async getStoryEvents ({ commit }, storyId) {
       workerActions.postMessage({ request: 'getStoryEvents', storyId: storyId })
     },
-    async initEvents ({ getters }) {
-      var userId = getters['auth/userId']
+    async initEvents () {
+      var vm = Vue
+      var userId = vm.$store.getters.userId
       workerActions.postMessage({ request: 'initEvents', userId: userId })
     },
   },
