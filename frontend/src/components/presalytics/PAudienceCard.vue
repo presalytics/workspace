@@ -86,6 +86,21 @@
                 :user-id="item.app_metadata.api_user_id"
               />
             </template>
+            <template v-slot:item.view_count="{item}">
+              <p-user-view-counter
+                :user-id="item.app_metadata.api_user_id"
+              />
+            </template>
+            <template v-slot:item.activity="{item}">
+              <p-user-activity-sparkline
+                :user-id="item.app_metadata.api_user_id"
+              />
+            </template>
+            <template v-slot:item.recentEvents="{item}">
+              <p-user-recent-events
+                :user-id="item.app_metadata.api_user_id"
+              />
+            </template>
           </v-data-table>
         </v-col>
       </v-row>
@@ -105,6 +120,9 @@
       PFriendlyDate: () => import('./PFriendlyDate'),
       PAudienceStorySummary: () => import('./PAudienceStorySummary'),
       PUserNotificationToggle: () => import('./PUserNotificationToggle'),
+      PUserViewCounter: () => import('./PUserViewCounter'),
+      PUserActivitySparkline: () => import('./PUserActivitySparkline'),
+      PUserRecentEvents: () => import('./PUserRecentEvents'),
     },
     data () {
       return {
@@ -139,7 +157,7 @@
           },
           {
             text: 'Recent Actions',
-            value: 'recentActions',
+            value: 'recentEvents',
             show: true,
           },
           {
@@ -154,12 +172,7 @@
           },
           {
             text: 'Activity',
-            value: 'activity_last_90',
-            show: true,
-          },
-          {
-            text: 'Actions',
-            value: 'actions',
+            value: 'activity',
             show: true,
           },
         ],
