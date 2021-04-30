@@ -81,6 +81,11 @@
                 :user="item"
               />
             </template>
+            <template v-slot:item.notifySwitch="{ item }">
+              <p-user-notification-toggle
+                :user-id="item.app_metadata.api_user_id"
+              />
+            </template>
           </v-data-table>
         </v-col>
       </v-row>
@@ -99,6 +104,7 @@
       PUserCard: () => import('./PUserCard'),
       PFriendlyDate: () => import('./PFriendlyDate'),
       PAudienceStorySummary: () => import('./PAudienceStorySummary'),
+      PUserNotificationToggle: () => import('./PUserNotificationToggle'),
     },
     data () {
       return {
