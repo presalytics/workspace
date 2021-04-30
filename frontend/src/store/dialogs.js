@@ -21,7 +21,13 @@ export default {
         state.modals = state.modals.map((cur) => {
           if (cur.name === payload.name) {
             cur.show = !cur.show
-            cur.properties = payload.properties || {}
+            if (cur.show) {
+              cur.properties = payload.properties || {}
+            } else {
+              setTimeout(() => {
+                cur.properties = null
+              }, 2000)
+            }
           } else {
             cur.show = false
             cur.properties = null

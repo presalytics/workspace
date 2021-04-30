@@ -39,6 +39,20 @@ const stories = {
       }
       return ret
     },
+    storiesByUser: (state, getters) => (userId) => {
+      return getters.storiesList.filter((cur) => {
+        var isUserStory = false
+        if (cur.collaborators?.length > 0) {
+          isUserStory = cur.collaborators.reduce((acc, ele) => {
+            if (!acc) {
+              acc = ele.user_id === userId
+            }
+            return acc
+          }, false)
+        }
+        return isUserStory
+      })
+    },
     annotation: (state, getters) => (storyId) => {
       var ret = {
         isFavorite: false,

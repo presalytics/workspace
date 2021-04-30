@@ -62,9 +62,11 @@
           <v-data-table
             :headers="headers"
             :items="filteredAudienceList"
+            :sort-by="sortBy"
+            :sort-desc="sortDesc"
             multi-sort
           >
-            <template v-slot:item.user="{ item }">
+            <template v-slot:item.app_metadata.api_user_id="{ item }">
               <p-user-card
                 :user="{ item }"
               />
@@ -72,6 +74,11 @@
             <template v-slot:item.lastActivity="{ item }">
               <p-friendly-date
                 :timestamp="latestUserTimestamp(item)"
+              />
+            </template>
+            <template v-slot:item.stories="{ item }">
+              <p-audience-story-summary
+                :user="item"
               />
             </template>
           </v-data-table>
@@ -91,14 +98,28 @@
       PAudienceColumnManageModal: () => import('./Dialogs/PAudienceColumnManageModal'),
       PUserCard: () => import('./PUserCard'),
       PFriendlyDate: () => import('./PFriendlyDate'),
+      PAudienceStorySummary: () => import('./PAudienceStorySummary'),
     },
     data () {
       return {
         defaultHeaders: [
           {
             text: 'User',
-            value: 'user',
+            value: 'app_metadata.api_user_id',
             show: true,
+            sort: (a, b) => {
+              var aUser = this.$store.getters['users/getUser'](a)
+              var bUser = this.$store.getters['users/getUser'](b)
+              var aName = aUser.family_name || aUser.nickname
+              var bName = bUser.family_name || bUser.nickname
+              if (aName < bName) {
+                return -1
+              } else if (aName > bName) {
+                return 1
+              } else {
+                return 0
+              }
+            },
           },
           {
             text: 'Last Activity',
@@ -139,6 +160,9 @@
         loading: true,
         debouncedText: '',
         searchText: '',
+        sortBy: ['app_metadata.api_user_id'],
+        sortDesc: [false],
+
       }
     },
     computed: {
@@ -147,7 +171,7 @@
         return db.map((cur) => {
           cur.fullname = this.getFullname(cur)
           return cur
-        }).filter((cur) => cur.id !== this.$store.getters.userId)
+        }).filter((cur) => cur.app_metadata.api_user_id !== this.$store.getters.userId)
       },
       filteredAudienceList () {
         return this.audienceList.filter((cur) => this.isUserMatchtoQuery(this.debouncedText))
@@ -159,6 +183,10 @@
     async created () {
       this.initColumns(this.defaultHeaders)
       this.loading = false
+    },
+    mounted () {
+      this.$store.dispatch('users/initUsers')
+      this.handleSearchChange()
     },
     methods: {
       ...mapMutations('users', {

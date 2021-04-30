@@ -106,7 +106,7 @@
 
 <script>
   import { mapMutations } from 'vuex'
-  import { debounce } from 'lodash'
+  import { debounce, isEmpty } from 'lodash'
   import PFavoriteToggle from './PFavoriteToggle'
   import PFriendlyDate from './PFriendlyDate'
   import PSharedWith from './PSharedWith'
@@ -233,6 +233,9 @@
               if (collaboratorNames.toLowerCase().includes(vm.debouncedText)) {
                 return true
               }
+              if (this.matchesKeyValuePairs(cur)) {
+                return true
+              }
               return false
             })
             return filteredStories
@@ -242,10 +245,19 @@
         }
       },
     },
+    watch: {
+      '$route.query.userId' () {
+        this.setSearchFromQueryString()
+      },
+    },
     async created () {
       var vm = this
       vm.$store.dispatch('stories/initTableColumns', vm.defaultHeaders.slice())
       this.loading = false
+    },
+    mounted () {
+      this.setSearchFromQueryString()
+      this.handleSearchChange()
     },
     methods: {
       ...mapMutations('dialogs', {
@@ -262,9 +274,46 @@
       },
       handleSearchChange () {
         var setSearch = debounce(() => {
-          this.debouncedText = this.searchText.toLowerCase()
+          this.debouncedText = this.searchText ? this.searchText.toLowerCase() : ''
         }, 1000)
         setSearch()
+      },
+      matchesKeyValuePairs (story) {
+        var kvp = this.getKeyValueSearchPairs()
+        if (isEmpty(kvp)) {
+          return false
+        }
+        var userIdMatch = kvp.userid ? this.isUserIdMatch(kvp.userid, story) : false
+        return userIdMatch
+      },
+      getKeyValueSearchPairs () {
+        var re = /([\w-]+):([^,]+)/g
+        var m
+        var map = {}
+
+        while ((m = re.exec(this.debouncedText)) != null) {
+          map[m[1]] = m[2]
+        }
+        return map
+      },
+      isUserIdMatch (userId, story) {
+        if (story.collaborators) {
+          return story.collaborators.reduce((acc, cur) => {
+            if (!acc) {
+              if (cur.user_id === userId) {
+                acc = true
+              }
+            }
+            return acc
+          }, false)
+        } else {
+          return false
+        }
+      },
+      setSearchFromQueryString () {
+        if (this.$route.query.userId) {
+          this.searchText = 'userId:' + this.$route.query.userId
+        }
       },
     },
   }
