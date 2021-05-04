@@ -69,7 +69,7 @@
         var storyId = this.$props.story.item.id
         switch (actionName) {
           case ('viewStory'): {
-            this.$router.push('stories/view/' + storyId)
+            this.$router.push({ name: 'Story View', params: { storyId: storyId } })
             break
           }
           case ('shareStory'): {

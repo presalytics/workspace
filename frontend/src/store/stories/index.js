@@ -17,6 +17,10 @@ const initialState = () => {
       columns: [],
       timeWindow: 'month',
     },
+    panels: {
+      rightPanel: true,
+      slideNav: true,
+    },
   }
 }
 
@@ -74,6 +78,9 @@ const stories = {
     },
     table: (state) => {
       return state.table
+    },
+    panels: (state) => {
+      return state.panels
     },
   },
   mutations: {
@@ -138,6 +145,12 @@ const stories = {
     },
     UPDATE_TABLE_WINDOW (state, payload) {
       state.table.timeWindow = payload.timeWindow
+    },
+    TOGGLE_RIGHT_PANEL (state) {
+      state.panels.rightPanel = !state.panels.rightPanel
+    },
+    TOGGLE_SLIDENAV_PANEL (state) {
+      state.panels.slideNav = !state.panels.slideNav
     },
   },
   actions: {
