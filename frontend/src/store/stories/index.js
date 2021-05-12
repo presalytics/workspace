@@ -17,9 +17,9 @@ const initialState = () => {
       columns: [],
       timeWindow: 'month',
     },
-    panels: {
-      rightPanel: true,
-      slideNav: true,
+    viewPage: {
+      actionPanel: false,
+      slidePanel: false,
     },
   }
 }
@@ -79,8 +79,8 @@ const stories = {
     table: (state) => {
       return state.table
     },
-    panels: (state) => {
-      return state.panels
+    viewPage: (state) => {
+      return state.viewPage
     },
   },
   mutations: {
