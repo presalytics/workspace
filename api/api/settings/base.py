@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.PresalyticsAuthenticationMidddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'api.middleware.GlobalRequestMiddleware'
 ]
 
 SESSION_SAVE_EVERY_REQUEST = True
@@ -196,8 +197,21 @@ DATABASES = {
         'OPTIONS': {
             'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
         }
+    },
+    'storyv1': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DB_NAME', 'story'),
+        'USER': os.environ['STORY__DB_USER'],
+        'PASSWORD': os.environ['STORY__DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': 5432,
+        'OPTIONS': {
+            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
+        }
     }
 }
+
+AZURE_STORAGE_CONNECTION_STRING = env.str('AZURE_STORAGE_CONNECTION_STRING')
 
 
 

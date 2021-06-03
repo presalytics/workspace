@@ -1,0 +1,99 @@
+[{
+  "model": "stories.permissiontypes",
+  "pk": "327d620a-52d7-47ba-a31c-e17ac3a586b0",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.233Z",
+    "updated_at": "2021-06-02T16:55:49.233Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "editor",
+    "can_edit": true,
+    "can_view": true,
+    "can_add_collaborators": false,
+    "can_delete": false
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "372361eb-b2c9-4d2a-89d1-cb4cc0a620c1",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.200Z",
+    "updated_at": "2021-06-02T16:55:49.200Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "admin",
+    "can_edit": true,
+    "can_view": true,
+    "can_add_collaborators": true,
+    "can_delete": true
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "39a1f563-e822-4372-bd7f-bce037255db2",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.253Z",
+    "updated_at": "2021-06-02T16:55:49.253Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "promoter",
+    "can_edit": false,
+    "can_view": true,
+    "can_add_collaborators": true,
+    "can_delete": false
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "60fe310c-e8f6-4517-b585-62cd3d41a5ee",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.206Z",
+    "updated_at": "2021-06-02T16:55:49.207Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "creator",
+    "can_edit": true,
+    "can_view": true,
+    "can_add_collaborators": true,
+    "can_delete": true
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "b9de546f-7c0e-486a-b33d-28d6419d88e0",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.247Z",
+    "updated_at": "2021-06-02T16:55:49.247Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "inactive",
+    "can_edit": false,
+    "can_view": false,
+    "can_add_collaborators": false,
+    "can_delete": false
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "ec66357d-878e-4b7a-b606-a080aebcf9e4",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.239Z",
+    "updated_at": "2021-06-02T16:55:49.239Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "viewer",
+    "can_edit": false,
+    "can_view": true,
+    "can_add_collaborators": false,
+    "can_delete": false
+  }
+}, {
+  "model": "stories.permissiontypes",
+  "pk": "efd6bd0f-0fcb-451e-908b-7b322e8c94c8",
+  "fields": {
+    "created_at": "2021-06-02T16:55:49.225Z",
+    "updated_at": "2021-06-02T16:55:49.225Z",
+    "created_by": null,
+    "updated_by": null,
+    "name": "owner",
+    "can_edit": true,
+    "can_view": true,
+    "can_add_collaborators": true,
+    "can_delete": true
+  }
+}]

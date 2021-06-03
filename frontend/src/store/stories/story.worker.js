@@ -36,6 +36,42 @@ var manageApiErrors = async (wrappedAsyncFn) => {
   return result
 }
 
+var outlineData = {}
+const outlineSyncTimeout = 60 * 1000 // 60 seconds
+
+var clearOutline = (storyId) => {
+  delete outlineData[storyId]
+}
+
+var setNewOutline = async (storyId, outline) => {
+  if (outlineData[storyId]) {
+    clearTimeout(outlineData[storyId].timeoutPtr)
+  }
+  self.postMessage({
+    type: 'PATCH_OUTLINE',
+    payload: {
+      storyId: storyId,
+      outline: outline,
+    },
+  })
+  outlineData[storyId] = {
+    storyId: storyId,
+    outline: outline,
+    timeoutPtr: setTimeout(() => syncOutlineWithAPI(outline), outlineSyncTimeout),
+  }
+}
+
+var pushOutlineToServer = async (outline, storyId) => {
+  return await manageApiErrors(async () => {
+    return await http.postData(http.hosts.story, storyId + '/outline', outline)
+  })
+}
+
+var syncOutlineWithAPI = async (outline, storyId) => {
+  clearOutline(storyId)
+  await pushOutlineToServer(outline, storyId)
+}
+
 var getActiveWorkspaces = async () => {
   return await manageApiErrors(async () => {
     return await http.getData(http.hosts.api, 'stories/')
@@ -54,6 +90,12 @@ var updateAnnotation = async (annotation) => {
   })
 }
 
+var renderStory = async (storyId) => {
+  return await manageApiErrors(async () => {
+    return await http.getData(http.hosts.story, storyId + '/json')
+  })
+}
+
 const httpOptions = {
   accessTokenCallback: accessTokenCallbackFn,
   csrfCallback: csrfCallbackFn,
@@ -62,7 +104,15 @@ const httpOptions = {
 const http = new HttpPlugin(httpOptions)
 
 var getStories = async () => {
-  return await http.getData(http.hosts.story, '?include_relationships=true')
+  var stories = await manageApiErrors(async () => {
+    return await http.getData(http.hosts.story, '?include_relationships=true')
+  })
+  return stories.map((cur) => {
+    if (cur.outline && cur.outline.length > 1) {
+      cur.outline = JSON.parse(cur.outline)
+    }
+    return cur
+  })
 }
 
 self.onmessage = async (e) => {
@@ -102,6 +152,22 @@ self.onmessage = async (e) => {
       if (updatedAnno) {
         self.postMessage({ type: 'UPDATE_ANNOTATION', payload: updatedAnno })
       }
+      break
+    }
+    case ('render'): {
+      var content = await renderStory(e.data.storyId)
+      if (content) {
+        var payload = {
+          storyId: e.data.storyId,
+          content: content,
+        }
+        self.postMessage({ type: 'SET_STORY_CONTENT', payload: payload })
+      }
+      break
+    }
+    case ('setOutline'): {
+      await setNewOutline(e.data.storyId, e.data.outline)
+      break
     }
   }
 }

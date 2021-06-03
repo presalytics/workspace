@@ -1,14 +1,107 @@
 import Vue from '../../main'
 import Worker from './story.worker'
 import Cookies from 'js-cookie'
+import { template } from 'lodash'
 
 const workerActions = new Worker()
+
+var diffPatch = require('jsondiffpatch').create({
+  objectHash: function (obj) {
+    return obj.id
+  },
+  cloneDiffValues: true,
+})
+
+class InvalidOutlineError extends Error {
+   constructor (message, outline, storyId) {
+     super(message)
+     this.outline = outline
+     this.storyId = storyId
+   }
+}
+
+// class StoriesList {
+//   constructor () {
+//     this.list = []
+//   }
+
+//   getIndexFromId (storyId) {
+//     var indexMatcher = (ele) => ele.id === storyId
+//     return this.list.findIndex(indexMatcher)
+//   }
+
+//   getIndicesByAnnoationId (annoationId) {
+//     var indexMatcher = (ele) => ele.id === annoationId
+//     return this.list.reduce((acc, cur, i) => {
+//       if (!acc.storyIdx && !acc.annotationIdx) {
+//         if (cur.workspace?.annoations) {
+//           var annotationIdx = cur.workspace.annotations.findIndex(indexMatcher)
+//           if (annotationIdx >= 0) {
+//             acc = {
+//               storyIdx: cur.id,
+//               annotationIdx: annotationIdx,
+//             }
+//           }
+//         }
+//       }
+//       return acc
+//     }, {})
+//   }
+
+//   getAnnotationById (annotationId) {
+//     var idxs = this.getIndicesByAnnoationId(annotationId)
+//     if (idxs.storyIdx && idxs.annotationIdx) {
+//       return this.list[idxs.storyIdx].workspace.annoations[idxs.annotationIdx]
+//     } else {
+//       return null
+//     }
+//   }
+
+//   getStoryById (storyId) {
+//     var idx = this.getIndexFromId(storyId)
+//     if (idx >= 0) {
+//       return this.list[idx]
+//     } else {
+//       return null
+//     }
+//   }
+
+//   patchStory (story) {
+//     var index = this.getIndexFromId(story.id)
+//     if (index >= 0) {
+//       for (var [key, val] of story.entries) {
+//         if (key in this.list[index]) {
+//           if (this.list[index][key] !== val) {
+//             this.list[index][key] = val
+//           }
+//         } else {
+//           this.list[index][key] = val
+//         }
+//       }
+//     }
+//   }
+
+//   patchOutline (storyId, delta) {
+//     var index = this.getIndexFromId(storyId)
+//     if (index >= 0) {
+//       diffPatch.patch(this.list[index].outline, delta)
+//     }
+//   }
+// }
 
 const initialState = () => {
   return {
     loading: false,
     tokenLoaded: false,
-    stories: [],
+    stories: {},
+    storiesList: [],
+    workspaces: {},
+    workspacesList: [],
+    annotations: {},
+    outlines: {},
+    outlineDiffs: [],
+    content: {},
+    pages: {},
     shareModal: {
       active: false,
       storyId: null,
@@ -32,16 +125,17 @@ const stories = {
       return state.stories || []
     },
     story: (state, getters) => (storyId) => {
-      var ret = null
-      try {
-        ret = getters.storiesList.filter((cur) => {
-          return cur.id === storyId
-        })[0]
-      } catch (err) {
-        // eslint-disable-next-line
-        console.error(err)
+      return this.stories.getStoryById(storyId)
+    },
+    outline: (state, getters) => (storyId) => {
+      var story = getters.story(storyId)
+      if (story) {
+        try {
+          return story.outline
+        } catch (err) {
+          throw new InvalidOutlineError('This story outline could not be parsed', story.outline, story.id)
+        }
       }
-      return ret
     },
     storiesByUser: (state, getters) => (userId) => {
       return getters.storiesList.filter((cur) => {
@@ -61,15 +155,9 @@ const stories = {
       var ret = {
         isFavorite: false,
       }
-      var story = getters.storiesList.filter((cur) => {
-        return cur.id === storyId
-      })[0]
-      if (story) {
-        if (story.workspace) {
-          if (story.workspace.annotations || false) {
-            ret = story.workspace.annotations.filter((cur) => cur.userId === getters.userId)[0]
-          }
-        }
+      var story = getters.storiesList.getStoryById(storyId)
+      if (story?.workspace?.annotations) {
+        ret = story.workspace.annotations.filter((cur) => cur.userId === getters.userId)[0]
       }
       return ret
     },
@@ -84,11 +172,30 @@ const stories = {
     },
   },
   mutations: {
-    INIT_STORIES (state, payload) {
-      state.stories = payload
+    SET_STORY (state, payload) {
+      state.stories[payload.id] = payload
+      if (!state.storiesList.includes(payload.id)) {
+        state.storiesList.push(payload.id)
+      }
     },
-    INIT_STORY_DETAILS (state, payload) {
-      state.stories[payload.index] = payload.story
+    PATCH_STORY (state, payload) {
+      for (var [key, val] in payload) {
+        state.stories[payload.id][key] = val
+      }
+    },
+    SET_OUTLINE (state, payload) {
+      state.outlines[payload.id] = payload
+      if (!state.outlineList.includes(payload.id)) {
+        state.outlines.push(outline.id)
+      }
+    },
+    PATCH_OUTLINE (state, payload) {
+      diffPatch.patch(state.outlines[payload.outlineId], payload.delta)
+      state.outlineDiffs.push({
+        outlineId: payload.outlineId,
+        sequence: payload.sequence,
+        delta: payload.delta,
+      })
     },
     SET_LOADING (state, payload) {
       state.loading = payload
@@ -96,29 +203,23 @@ const stories = {
     SET_TOKEN_LOADED (state, payload) {
       state.tokenLoaded = payload
     },
-    UPDATE_WORKSPACE (state, payload) {
-      state.stories.forEach((cur, i, arr) => {
-        if (cur.id === payload.id) {
-          arr[i].workspace = payload
-        }
-      })
+    SET_WORKSPACE (state, payload) {
+      state.stories[payload.storyId].workspace = payload.id
+      state.workspaces[payload.id] = payload
     },
-    UPDATE_ANNOTATION (state, payload) {
-      var newStories = state.stories.map((cur, i, arr) => {
-        if (cur?.workspace?.annotations) {
-          if (cur.workspace.annotations.filter((ele) => ele.id === payload.id).length > 0) {
-            cur.workspace.annotations = cur.workspace.annotations.map((ele) => {
-              if (ele.id === payload.id) {
-                return payload
-              } else {
-                return ele
-              }
-            })
-          }
-        }
-        return cur
-      })
-      state.stories = newStories
+    PATCH_WORKSPACE (state, payload) {
+      for (var [key, val] in payload) {
+        state.workspaces[payload.id][key] = val
+      }
+    },
+    SET_ANNOTATION (state, payload) {
+      state.workspaces[payload.workspaceId] = payload.id
+      state.annoations[payload.id] = payload
+    },
+    PATCH_ANNOTATION (state, payload) {
+      for (var [key, val] in payload) {
+        state.annoations[payload.id][key] = val
+      }
     },
     RESET_STATE (state) {
       const initial = initialState()
@@ -152,6 +253,32 @@ const stories = {
     TOGGLE_SLIDENAV_PANEL (state) {
       state.panels.slideNav = !state.panels.slideNav
     },
+    SET_STORY_CONTENT (state, payload) {
+      var pageIds = payload.pages.map((cur) => cur.id)
+      payload.content.pages = pageIds
+      state.content[payload.storyId] = payload.content
+      payload.pages.forEach((cur) => {
+        state.pages[cur.id] = cur
+      })
+    },
+    PATCH_STORY_CONTENT (state, payload) {
+      if (payload.contentDelta) {
+        diffPatch(state.content[payload.storyId], payload.contentDelta)
+      }
+      if (payload.pagesDelta) {
+        diffPatch(state.pages, payload.pagesDelta)
+      }
+    },
+    STORY_DELETE (state, payload) {
+      var workspaceId = state.stories[payload.id].workspaceId
+      var annotationId = state.workspaces[workspaceId].annotationId
+      delete state.annoations[annotationId]
+      delete state.workspaces[workspaceId]
+      delete state.stories[payload.id]
+      state.content.pages.forEach((cur) => delete state.pages[cur])
+      delete state.content[payload.id]
+      delete state.outlines[payload.id]
+    },
   },
   actions: {
     async initStories ({ commit, dispatch }) {
@@ -175,6 +302,28 @@ const stories = {
     initTableColumns ({ commit }, columnList) {
       commit('ADD_TABLE_COLUMNS', columnList)
     },
+    render ({ commit }, storyId) {
+      workerActions.postMessage({ request: 'render', storyId: storyId })
+    },
+    setStoryOutline ({ commit }, payload) {
+      workerActions.postMessage({
+        request: 'setOutline',
+        storyId: payload.storyId,
+        outline: payload.outline,
+      })
+    },
+    syncIds ({ getters, dispatch }, payload) {
+      var storyId = payload.id
+      var outline = getters.outline(storyId)
+      var hasMissingsIds = outline.pages.filter((cur) => !cur.id).length > 0
+      if (hasMissingsIds) {
+        outline.pages = outline.pages.map((cur, i) => {
+          cur.id = payload.pages[i].id
+          return cur
+        })
+        dispatch('setStoryOutline', { storyId: storyId, outline: outline })
+      }
+    },
   },
 }
 
@@ -184,6 +333,9 @@ workerActions.onmessage = e => {
     vm.$auth.getTokenSilently()
   } else {
     vm.$store.commit('stories/' + e.data.type, e.data.payload)
+    if (e.data.type === 'UPDATE_WORKSPACE') {
+      vm.$store.dispatch('stories/syncIds', e.data.payload)
+    }
   }
 }
 

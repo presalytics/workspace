@@ -90,6 +90,31 @@
           ],
           "console": "internalConsole",
           "justMyCode": false
+        },
+        {
+          "type": "python",
+          "name": "Make Migrations",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/api",
+          "program": "manage.py",
+          "args": [
+            "makemigrations",
+            "stories"
+          ],
+          "console": "internalConsole",
+          "justMyCode": false
+        },
+        {
+          "type": "python",
+          "name": "Run Migrations",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/api",
+          "program": "manage.py",
+          "args": [
+            "migrate"
+          ],
+          "console": "internalConsole",
+          "justMyCode": false
         }
     ]
 }

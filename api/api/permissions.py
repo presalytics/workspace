@@ -22,9 +22,15 @@ class PresaltyicsBuilderPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user:
             roles = request.user.presalytics_roles.all()
-            for r in roles:
-                if 'builder' in r.role:
-                    return True
+            if request.method in permissions.SAFE_METHODS:
+                for r in roles:
+                    if 'viewer' in r.role:
+                        return True
+            else:
+                for r in roles:
+                    if 'builder' in r.role:
+                        return True
+
         return False
 
 

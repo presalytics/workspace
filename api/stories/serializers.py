@@ -1,9 +1,11 @@
+import collections
 import typing
 import json
+from django.core.exceptions import RequestAborted
 from rest_framework import serializers
 from django.conf import settings
 from django.apps import apps
-from .models import Story, StoryPage, Comment, UserAnnotations
+from .models import OoxmlDocument, Story, StoryPage, Comment, UserAnnotations, Outline, OutlinePatches, StoryCollaborator, PermissionTypes
 if typing.TYPE_CHECKING:
     from users.models import PresalyticsUser
 
@@ -34,15 +36,47 @@ class PageSerializer(serializers.ModelSerializer):
             Comment.objects.get_or_create(**c, page=page)
         return page.refresh_from_db()
 
+class OutlineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Outline
+        fields = ['id', 'story_id', 'document', 'latest_patch_sequence']
+
+
+class OutlinePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OutlinePatches
+        fields = ['id', 'outline_id', 'jsondiffpatch', 'rfc_6902_patch']
+
+
+class PermissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PermissionTypes
+        fields = ['id', 'name', 'can_edit', 'can_view', 'can_add_collaborators', 'can_delete' ]
+
+
+class StoryCollaboratorSerializer(serializers.ModelSerializer):
+    permission_name = serializers.SerializerMethodField('get_permission_name')
+
+    def get_permission_name(self, instance):
+        return instance.permission_type.name
+
+    class Meta:
+        model = StoryCollaborator
+        fields = ['id', 'user_id', 'story_id', 'permission_type_id', 'permission_name']
+
 
 class StorySerializer(serializers.ModelSerializer):
     pages = PageSerializer(many=True, required=False)
     annotations = UserAnnotationSerialzer(many=True, required=False)
-    outline: str
+    outline = OutlineSerializer()
+    collaborators = StoryCollaboratorSerializer(many=True, required=False)
 
     class Meta:
         model = Story
-        fields = ['id', 'annotations', 'pages']
+        fields = (
+            'id',
+            'outline'
+        )
         extra_kwargs = {
             'id': {
                 'read_only': False
@@ -82,6 +116,68 @@ class StorySerializer(serializers.ModelSerializer):
             for p in outline['pages']:
                 StoryPage.objects.get_or_create(**p)
         return super().update(instance, validated_data)
-        
 
+
+class PostStoryOutlineSerializer(serializers.ModelSerializer):
+    outline = OutlineSerializer(read_only=True, required=False)
+    annotations = UserAnnotationSerialzer(read_only=True, required=False)
+    collaborators = StoryCollaboratorSerializer(read_only=True, required=False)
+    pages = PageSerializer(read_only=True, required=False)
+
+    class Meta:
+        model = Story
+        fields = ['id', 'outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages']
+        extra_kwargs = {
+            'is_public': {
+                'validators': False
+            },
+            'title': {
+                'validators': False
+            }
+        }
+
+    def create(self, validated_data):
+        outline_json = validated_data.pop('outline')
+        story = Story.objects.create(is_public=False, title=outline_json.get('title', 'New Story'))
+        Outline.objects.create(story=story, document=outline_json, latest_patch_sequence=0)
+        permission = PermissionTypes.objects.get(name='creator')
+        StoryCollaborator.objects.create(permission_type=permission, user=self.context['request'].user, story=story)
+        UserAnnotations.objects.create(story=story, user=self.context['request'].user, is_favorite=False)
+        for page in outline_json.get('pages', []):
+            page_id = page.get('id', None)
+            page = StoryPage.objects.create(story=story, created_from=page_id)
+        story.save()
+        story.refresh_from_db()
+        return story
+
+
+class PostStoryOoxmlDocumentSerializer(serializers.ModelSerializer):
+    outline = OutlineSerializer(read_only=True, required=False)
+    annotations = UserAnnotationSerialzer(read_only=True, required=False)
+    collaborators = StoryCollaboratorSerializer(read_only=True, required=False)
+    pages = PageSerializer(read_only=True, required=False)
+
+    class Meta:
+        model = Story
+        fields = ['id', 'outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages']
+        extra_kwargs = {
+            'is_public': {
+                'validators': False
+            },
+            'title': {
+                'validators': False
+            }
+        }
+
+    def create(self, validated_data):
+        file = validated_data['file']
+        story = Story.objects.create(is_public=False, title=file.filename)
+        OoxmlDocument.create_with_file(file, story, self.context['request'].user)
+        permission = PermissionTypes.objects.get(name='creator')
+        StoryCollaborator.objects.create(permission_type=permission, user=self.context['request'].user, story=story)
+        UserAnnotations.objects.create(story=story, user=self.context['request'].user, is_favorite=False)
+        story.save()
+        story.refresh_from_db()
+        return story
+        
 

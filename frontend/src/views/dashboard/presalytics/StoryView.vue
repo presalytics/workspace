@@ -38,7 +38,9 @@
           </v-btn>
         </v-list-item>
         <v-divider />
-        slide list
+        <p-slide-list
+          :story-id="$route.params.storyId"
+        />
       </v-navigation-drawer>
     </v-card>
     <div class="center-item">
@@ -46,16 +48,16 @@
         tile
         elevation="5"
       >
-        <v-card-title>{{ $route.params.storyId }}</v-card-title>
-        <v-card-text>This will be the Story View Page for Story:</v-card-text>
+        <v-card-title>{{ title }}</v-card-title>
       </v-card>
       <v-card
         tile
         elevation="5"
         class="story-view-panel"
       >
-        <v-card-title>Story View Panel</v-card-title>
-        <v-card-text>Place the rendered story view in here</v-card-text>
+        <story-viewer
+          :story-id="$route.params.storyId"
+        />
       </v-card>
       <v-card
         tile
@@ -96,7 +98,7 @@
               mdi-chevron-right
             </v-icon>
           </v-btn>
-          <v-list-item-title>Slides</v-list-item-title>
+          <v-list-item-title>Actions</v-list-item-title>
           <v-btn
             icon
             color="primary"
@@ -114,9 +116,12 @@
 </template>
 
 <script>
-
   export default {
     name: 'StoryView',
+    components: {
+      StoryViewer: () => import('../../../components/presalytics/Viewer/StoryViewer'),
+      PSlideList: () => import('../../../components/presalytics/PSlideList'),
+    },
     data: () => ({
       minifiedPanelWidth: '60px',
       slidesPanelIsMini: true,
@@ -130,6 +135,16 @@
       isBuilder () {
         return true
       },
+      story () {
+        return this.$store.getters['stories/story'](this.$route.params.storyId)
+      },
+      title () {
+        if (this.story) {
+          return this.story.title
+        } else {
+          return ''
+        }
+      },
     },
     methods: {
       handleSlidePanelToggle (e) {
@@ -138,7 +153,6 @@
       handleActionPanelToggle (e) {
         this.actionPanelIsMini = !this.actionPanelIsMini
       },
-
     },
   }
 </script>
@@ -161,7 +175,6 @@
     padding-left: 1rem
   .story-view-panel
     width: 100%
-    padding-bottom: 43.75%
     margin-top: 1rem
   .story-work-panel
     width: 100%

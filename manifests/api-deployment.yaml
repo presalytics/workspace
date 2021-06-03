@@ -152,5 +152,10 @@ spec:
               key: django-secret-key
         - name: HOST_STORY
           value: https://testing.presalytics.io/story
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-storage
+              key: connection-string
       imagePullSecrets:
       - name: chartalot-docker-registry

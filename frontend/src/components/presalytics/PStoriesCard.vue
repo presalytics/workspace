@@ -250,7 +250,7 @@
         this.setSearchFromQueryString()
       },
     },
-    async created () {
+    created () {
       var vm = this
       vm.$store.dispatch('stories/initTableColumns', vm.defaultHeaders.slice())
       this.loading = false
@@ -258,6 +258,7 @@
     mounted () {
       this.setSearchFromQueryString()
       this.handleSearchChange()
+      this.$store.dispatch('stories/initStories')
     },
     methods: {
       ...mapMutations('dialogs', {
