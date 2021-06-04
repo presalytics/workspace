@@ -4,7 +4,7 @@ from django.shortcuts import HttpResponse
 from rest_framework import generics, views, parsers, response, request
 from api.permissions import PresaltyicsBuilderPermission, PresalyticsViewerPermission
 from api.services.azure import AzureBlobService
-from .models import Story, UserAnnotations
+from .models import PermissionTypes, Story, UserAnnotations
 from . import serializers, permissions
 
 
@@ -16,7 +16,7 @@ class StoryView(generics.ListCreateAPIView):
     permission_classes = [PresaltyicsBuilderPermission]
 
     def get_queryset(self):
-        return Story.objects.filter(collaborators=self.request.user)
+        return Story.objects.filter(collaborators__user=self.request.user)
 
     def get_serializer_class(self):
         content_type = self.request.content_type
@@ -107,6 +107,12 @@ class CollaboratorsDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CollaboratorPermssion, PresaltyicsBuilderPermission]
     serializer_class = serializers.StoryCollaboratorSerializer
 
+class PermissionTypesListView(generics.ListAPIView):
+    permission_classes = [PresalyticsViewerPermission]
+    serializer_class = serializers.PermissionTypeSerializer
+
+    def get_queryset(self):
+        return PermissionTypes.objects.all()
 
 
 

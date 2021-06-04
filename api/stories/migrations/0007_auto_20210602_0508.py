@@ -39,7 +39,7 @@ def backwards(apps, schema_edtitor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('stories', '0004_auto_20210531_2029'),
+        ('stories', '0006_auto_20210531_2029'),
     ]
 
     operations = [

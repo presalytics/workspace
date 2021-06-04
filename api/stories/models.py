@@ -18,10 +18,10 @@ if typing.TYPE_CHECKING:
 # Create your models here.
 
 class Story(BaseModel):
-    annotations: typing.Union[models.Manager, 'UserAnnotations']
     pages: typing.Union[models.Manager, 'StoryPage']
     outline: typing.Union[models.Manager, 'Outline']
     collaborators: typing.Union[models.Manager, 'StoryCollaborator']
+    ooxml_documents: typing.Union[models.Manager, 'OoxmlDocument']
     is_public = models.BooleanField(default=False)
     title = models.CharField(max_length=1024, blank=True, null=True)
     
@@ -45,12 +45,6 @@ class OutlinePatches(BaseModel):
 def handle_outline_changes_post_save(**kwargs):
     transaction.on_commit(sync_outlines_to_latest_patches.apply_async(args=tuple(), kwargs={'queue': 'workspace'}))  #type: ignore
     
-
-class UserAnnotations(BaseModel):
-    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='annotations')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name='user')
-    is_favorite = models.BooleanField(default=False)
-
 
 class StoryPage(BaseModel):
     comments: typing.Union[models.Manager, 'Comment']
@@ -86,7 +80,7 @@ class Comment(BaseModel):
 class OoxmlDocument(BaseModel):
     delete_target_on_story_delete = models.BooleanField(default=False)
     ooxml_automation_id = models.UUIDField(blank=True, null=True, default=None)
-    story = models.ForeignKey(Story, models.SET_NULL, null=True, blank=True, default=None)
+    story = models.ForeignKey(Story, models.SET_NULL, null=True, blank=True, default=None, related_name='ooxml_documents')
     cloned_from = models.UUIDField(blank=True, null=True, default=None)
 
     @classmethod
@@ -105,7 +99,25 @@ class PermissionTypes(BaseModel):
     can_delete = models.BooleanField(blank=True, null=True)
 
 
+def create_default_annotation():
+    return UserAnnotations.objects.create(is_favorite=False)
+
+def get_default_permission_type():
+    return PermissionTypes.objects.get(name='viewer')
+
 class StoryCollaborator(BaseModel):
+    annotation: typing.Union[models.Manager, 'UserAnnotations']
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
-    story = models.ForeignKey(Story, models.CASCADE)
-    permission_type = models.ForeignKey(PermissionTypes, models.SET_NULL, blank=True, null=True)
+    story = models.ForeignKey(Story, models.CASCADE, related_name='collaborators')
+    permission_type = models.ForeignKey(PermissionTypes, models.SET_NULL, blank=True, null=True, default=get_default_permission_type)
+    
+
+class UserAnnotations(BaseModel):
+    collaborator = models.OneToOneField(StoryCollaborator, models.CASCADE, related_name='annotation')
+    is_favorite = models.BooleanField(default=False)
+
+
+@receiver(post_save, sender=StoryCollaborator)
+def handle_story_collaborator_post_save(sender, instance, created, **kwargs):
+    if created:
+        UserAnnotations.objects.create(collaborator=instance, is_favorite=False)

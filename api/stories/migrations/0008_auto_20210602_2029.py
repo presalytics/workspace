@@ -1,4 +1,5 @@
 # Manual one-time data migrate to move from stories database 
+from stories.models import UserAnnotations
 import typing
 import logging
 import json
@@ -115,6 +116,7 @@ def get_existing_stories(apps, schema_editor):
     for sc in scs:
         sc = add_timezone_awareness(sc)
         sc.save(using='default')
+        UserAnnotations.objects.create(id=uuid.uuid4(), collaborator_id=sc.id, is_favorite=False)
 
 
 def reverse_op(apps, schema_editor):
@@ -126,7 +128,7 @@ def reverse_op(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('stories', '0005_auto_20210602_0508'),
+        ('stories', '0007_auto_20210602_0508'),
     ]
 
     operations = [

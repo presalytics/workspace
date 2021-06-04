@@ -1,7 +1,50 @@
+import { normalize, schema } from 'normalizr'
 import { HttpPlugin } from '../../plugins/http'
+
+var jsondiffpatch = require('jsondiffpatch').create({
+  objectHash: function (obj) {
+    return obj.id
+  },
+  cloneDiffValues: true,
+})
 
 var accessToken = ''
 var csrf = ''
+var currentStories = {}
+var currentAnnotations = {}
+var currentPages = {}
+var currentComments = {}
+var currentPatches = {}  // eslint-disable-line
+var currentOutlines = {}
+var currentOoxmlDocuments = {}
+var currentCollaborators = {}
+
+const annotation = new schema.Entity('annotation')
+
+const comment = new schema.Entity('comment')
+
+const page = new schema.Entity('page', {
+  comments: [comment],
+})
+
+const outlinePatch = new schema.Entity('outlinePatch')
+
+const outline = new schema.Entity('outline', {
+  patches: [outlinePatch],
+})
+
+const ooxmlDocument = new schema.Entity('ooxmlDocument')
+
+const collaborator = new schema.Entity('storyCollaborator', {
+  annotation: annotation,
+})
+
+const story = new schema.Entity('story', {
+  pages: [page],
+  outline: outline,
+  collaborators: [collaborator],
+  ooxmlDocuments: [ooxmlDocument],
+})
 
 var accessTokenCallbackFn = () => {
   return accessToken
@@ -36,54 +79,6 @@ var manageApiErrors = async (wrappedAsyncFn) => {
   return result
 }
 
-var outlineData = {}
-const outlineSyncTimeout = 60 * 1000 // 60 seconds
-
-var clearOutline = (storyId) => {
-  delete outlineData[storyId]
-}
-
-var setNewOutline = async (storyId, outline) => {
-  if (outlineData[storyId]) {
-    clearTimeout(outlineData[storyId].timeoutPtr)
-  }
-  self.postMessage({
-    type: 'PATCH_OUTLINE',
-    payload: {
-      storyId: storyId,
-      outline: outline,
-    },
-  })
-  outlineData[storyId] = {
-    storyId: storyId,
-    outline: outline,
-    timeoutPtr: setTimeout(() => syncOutlineWithAPI(outline), outlineSyncTimeout),
-  }
-}
-
-var pushOutlineToServer = async (outline, storyId) => {
-  return await manageApiErrors(async () => {
-    return await http.postData(http.hosts.story, storyId + '/outline', outline)
-  })
-}
-
-var syncOutlineWithAPI = async (outline, storyId) => {
-  clearOutline(storyId)
-  await pushOutlineToServer(outline, storyId)
-}
-
-var getActiveWorkspaces = async () => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'stories/')
-  })
-}
-
-var createActiveWorkspace = async (story) => {
-  return await manageApiErrors(async () => {
-    return await http.postData(http.hosts.api, 'stories/', story)
-  })
-}
-
 var updateAnnotation = async (annotation) => {
   return await manageApiErrors(async () => {
     return await http.putData(http.hosts.api, 'stories/annotations/' + annotation.id + '/', annotation)
@@ -104,40 +99,104 @@ const httpOptions = {
 const http = new HttpPlugin(httpOptions)
 
 var getStories = async () => {
-  var stories = await manageApiErrors(async () => {
-    return await http.getData(http.hosts.story, '?include_relationships=true')
+  return await manageApiErrors(async () => {
+    return await http.getData(http.hosts.api, 'stories/')
   })
-  return stories.map((cur) => {
-    if (cur.outline && cur.outline.length > 1) {
-      cur.outline = JSON.parse(cur.outline)
+}
+
+var genericNewEntityHandler = (currents, setMutationName, patchMutationName, newObject) => {
+  if (currents[newObject.id]) {
+    var diff = jsondiffpatch.diff(currents[newObject.id], newObject)
+    if (diff) {
+      self.postMessage({
+        type: patchMutationName,
+        payload: {
+          id: newObject.id,
+          diff: diff,
+        },
+      })
+      currents[newObject.id] = newObject
     }
-    return cur
+  } else if (Object.keys(newObject).length !== 0) {
+    self.postMessage({
+      type: setMutationName,
+      payload: newObject,
+    })
+    currents[newObject.id] = newObject
+  }
+}
+
+var handleNewStoryEntity = (newStory) => genericNewEntityHandler(currentStories, 'SET_STORY', 'PATCH_STORY', newStory)
+var handleNewAnnotationEntity = (newAnnotation) => genericNewEntityHandler(currentAnnotations, 'SET_ANNOTATION', 'PATCH_ANNOATION', newAnnotation)
+var handleNewCommentEntity = (newComment) => genericNewEntityHandler(currentComments, 'SET_COMMENT', 'PATCH_COMMENT', newComment)
+var handleNewPageEntity = (newPage) => genericNewEntityHandler(currentPages, 'SET_PAGE', 'PATCH_PAGE', newPage)
+var handleNewOoxmlDocumentEntity = (newOoxmlDocument) => genericNewEntityHandler(currentOoxmlDocuments, 'SET_OOXML_DOCUMENT', 'PATCH_OOXML_DOCUMENT', newOoxmlDocument)
+var handleNewCollaboratorEntity = (newCollaborator) => genericNewEntityHandler(currentCollaborators, 'SET_COLLABORATOR', 'PATCH_COLLABORATOR', newCollaborator)
+
+var updateOutlineDocuments = (outlineId, outlineDiff) => {
+  if (outlineDiff) {
+    self.postMessage({
+      type: 'PATCH_OUTLINE',
+      payload: {
+        id: outlineId,
+        delta: outlineDiff,
+      },
+    })
+  }
+}
+
+var handleNewOutlineEntity = (newOutline) => {
+  if (currentOutlines[newOutline.id]) {
+    if (newOutline.latestPatchSequence > currentOutlines[newOutline.id].latestPatchSequence) {
+      var diff = jsondiffpatch.diff(currentOutlines[newOutline.id].document, newOutline.document)
+      updateOutlineDocuments(newOutline.id, diff)
+      currentOutlines[newOutline.id] = newOutline
+    }
+  } else {
+    self.postMessage({
+      type: 'SET_OUTLINE',
+      payload: newOutline,
+    })
+    currentOutlines[newOutline.id] = newOutline
+  }
+}
+
+var handleRefreshedStoriesList = (newStoriesList) => {
+  var newNormalizedStories = normalize(newStoriesList, [story])
+  Object.values(newNormalizedStories.entities.story || {}).map((cur) => handleNewStoryEntity(cur))
+  Object.values(newNormalizedStories.entities.annotation || {}).map((cur) => handleNewAnnotationEntity(cur))
+  Object.values(newNormalizedStories.entities.page || {}).map((cur) => handleNewPageEntity(cur))
+  Object.values(newNormalizedStories.entities.comment || {}).map((cur) => handleNewCommentEntity(cur))
+  Object.values(newNormalizedStories.entities.ooxmlDocument || {}).map((cur) => handleNewOoxmlDocumentEntity(cur))
+  Object.values(newNormalizedStories.entities.storyCollaborator || {}).map((cur) => handleNewCollaboratorEntity(cur))
+  Object.values(newNormalizedStories.entities.outline || {}).map((cur) => handleNewOutlineEntity(cur))
+}
+
+var refreshPermissionTypes = async () => {
+  var permissionTypes = await manageApiErrors(async () => {
+    return await http.getData(http.hosts.api, 'stories/permission_types')
   })
+  if (permissionTypes.length > 0) {
+    self.postMessage({ type: 'SET_PERMISSION_TYPES', payload: permissionTypes })
+  }
+}
+
+var syncGlobals = (data) => {
+  currentStories = data.stories || {}
+  currentAnnotations = data.annotations || {}
+  currentCollaborators = data.collaborators || {}
+  currentComments = data.comments || {}
+  currentOoxmlDocuments = data.ooxmlDocuments || {}
+  currentOutlines = data.outlines || {}
+  currentPages = data.pages || {}
 }
 
 self.onmessage = async (e) => {
   switch (e.data.request) {
     case ('initStories'): {
+      syncGlobals(e.data)
       var stories = await getStories()
-      self.postMessage({ type: 'INIT_STORIES', payload: stories })
-
-      var activeWorkspaces = await getActiveWorkspaces()
-
-      activeWorkspaces.map(async (cur) => {
-        self.postMessage({ type: 'UPDATE_WORKSPACE', payload: cur })
-      })
-
-      var activeIds = activeWorkspaces.reduce((acc, cur, i) => {
-        acc.push(cur.id)
-        return acc
-      }, [])
-
-      await Promise.all(stories.filter((cur) => !(activeIds.includes(cur.id))).map(async (cur, i) => {
-        var details = await createActiveWorkspace(cur)
-        if (details) {
-          self.postMessage({ type: 'UPDATE_WORKSPACE', payload: details })
-        }
-      }))
+      handleRefreshedStoriesList(stories)
       break
     }
     case ('accessToken'): {
@@ -165,8 +224,8 @@ self.onmessage = async (e) => {
       }
       break
     }
-    case ('setOutline'): {
-      await setNewOutline(e.data.storyId, e.data.outline)
+    case ('permissionTypes'): {
+      await refreshPermissionTypes()
       break
     }
   }

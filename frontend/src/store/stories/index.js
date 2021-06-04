@@ -1,11 +1,10 @@
 import Vue from '../../main'
 import Worker from './story.worker'
 import Cookies from 'js-cookie'
-import { template } from 'lodash'
 
 const workerActions = new Worker()
 
-var diffPatch = require('jsondiffpatch').create({
+var jsondiffpatch = require('jsondiffpatch').create({
   objectHash: function (obj) {
     return obj.id
   },
@@ -20,88 +19,19 @@ class InvalidOutlineError extends Error {
    }
 }
 
-// class StoriesList {
-//   constructor () {
-//     this.list = []
-//   }
-
-//   getIndexFromId (storyId) {
-//     var indexMatcher = (ele) => ele.id === storyId
-//     return this.list.findIndex(indexMatcher)
-//   }
-
-//   getIndicesByAnnoationId (annoationId) {
-//     var indexMatcher = (ele) => ele.id === annoationId
-//     return this.list.reduce((acc, cur, i) => {
-//       if (!acc.storyIdx && !acc.annotationIdx) {
-//         if (cur.workspace?.annoations) {
-//           var annotationIdx = cur.workspace.annotations.findIndex(indexMatcher)
-//           if (annotationIdx >= 0) {
-//             acc = {
-//               storyIdx: cur.id,
-//               annotationIdx: annotationIdx,
-//             }
-//           }
-//         }
-//       }
-//       return acc
-//     }, {})
-//   }
-
-//   getAnnotationById (annotationId) {
-//     var idxs = this.getIndicesByAnnoationId(annotationId)
-//     if (idxs.storyIdx && idxs.annotationIdx) {
-//       return this.list[idxs.storyIdx].workspace.annoations[idxs.annotationIdx]
-//     } else {
-//       return null
-//     }
-//   }
-
-//   getStoryById (storyId) {
-//     var idx = this.getIndexFromId(storyId)
-//     if (idx >= 0) {
-//       return this.list[idx]
-//     } else {
-//       return null
-//     }
-//   }
-
-//   patchStory (story) {
-//     var index = this.getIndexFromId(story.id)
-//     if (index >= 0) {
-//       for (var [key, val] of story.entries) {
-//         if (key in this.list[index]) {
-//           if (this.list[index][key] !== val) {
-//             this.list[index][key] = val
-//           }
-//         } else {
-//           this.list[index][key] = val
-//         }
-//       }
-//     }
-//   }
-
-//   patchOutline (storyId, delta) {
-//     var index = this.getIndexFromId(storyId)
-//     if (index >= 0) {
-//       diffPatch.patch(this.list[index].outline, delta)
-//     }
-//   }
-// }
-
 const initialState = () => {
   return {
-    loading: false,
-    tokenLoaded: false,
-    stories: {},
-    storiesList: [],
-    workspaces: {},
-    workspacesList: [],
     annotations: {},
-    outlines: {},
-    outlineDiffs: [],
+    collaborators: {},
+    comments: {},
     content: {},
+    loading: false,
+    ooxmlDocuments: {},
+    outlines: {},
     pages: {},
+    permissionTypes: {},
+    stories: {},
+    tokenLoaded: false,
     shareModal: {
       active: false,
       storyId: null,
@@ -156,8 +86,8 @@ const stories = {
         isFavorite: false,
       }
       var story = getters.storiesList.getStoryById(storyId)
-      if (story?.workspace?.annotations) {
-        ret = story.workspace.annotations.filter((cur) => cur.userId === getters.userId)[0]
+      if (story?.annotations) {
+        ret = story.annotations.filter((cur) => cur.userId === getters.userId)[0]
       }
       return ret
     },
@@ -174,28 +104,21 @@ const stories = {
   mutations: {
     SET_STORY (state, payload) {
       state.stories[payload.id] = payload
-      if (!state.storiesList.includes(payload.id)) {
-        state.storiesList.push(payload.id)
-      }
     },
     PATCH_STORY (state, payload) {
-      for (var [key, val] in payload) {
-        state.stories[payload.id][key] = val
-      }
+      jsondiffpatch.patch(state.stories[payload.id], payload.diff)
     },
     SET_OUTLINE (state, payload) {
       state.outlines[payload.id] = payload
-      if (!state.outlineList.includes(payload.id)) {
-        state.outlines.push(outline.id)
-      }
     },
     PATCH_OUTLINE (state, payload) {
-      diffPatch.patch(state.outlines[payload.outlineId], payload.delta)
-      state.outlineDiffs.push({
-        outlineId: payload.outlineId,
-        sequence: payload.sequence,
-        delta: payload.delta,
-      })
+      jsondiffpatch.patch(state.outlines[payload.outlineId], payload.delta)
+    },
+    SET_COMMENT (state, payload) {
+      state.comments[payload.id] = payload
+    },
+    PATCH_COMMENT (state, payload) {
+      jsondiffpatch.patch(state.comments[payload.id], payload.delta)
     },
     SET_LOADING (state, payload) {
       state.loading = payload
@@ -203,23 +126,11 @@ const stories = {
     SET_TOKEN_LOADED (state, payload) {
       state.tokenLoaded = payload
     },
-    SET_WORKSPACE (state, payload) {
-      state.stories[payload.storyId].workspace = payload.id
-      state.workspaces[payload.id] = payload
-    },
-    PATCH_WORKSPACE (state, payload) {
-      for (var [key, val] in payload) {
-        state.workspaces[payload.id][key] = val
-      }
-    },
     SET_ANNOTATION (state, payload) {
-      state.workspaces[payload.workspaceId] = payload.id
-      state.annoations[payload.id] = payload
+      state.annotations[payload.id] = payload
     },
     PATCH_ANNOTATION (state, payload) {
-      for (var [key, val] in payload) {
-        state.annoations[payload.id][key] = val
-      }
+      jsondiffpatch.patch(state.annotations[payload.id], payload.delta)
     },
     RESET_STATE (state) {
       const initial = initialState()
@@ -263,26 +174,62 @@ const stories = {
     },
     PATCH_STORY_CONTENT (state, payload) {
       if (payload.contentDelta) {
-        diffPatch(state.content[payload.storyId], payload.contentDelta)
+        jsondiffpatch(state.content[payload.storyId], payload.contentDelta)
       }
       if (payload.pagesDelta) {
-        diffPatch(state.pages, payload.pagesDelta)
+        jsondiffpatch(state.pages, payload.pagesDelta)
       }
     },
     STORY_DELETE (state, payload) {
-      var workspaceId = state.stories[payload.id].workspaceId
-      var annotationId = state.workspaces[workspaceId].annotationId
-      delete state.annoations[annotationId]
-      delete state.workspaces[workspaceId]
+      var story = state.stories[payload.id]
+      story.annotations.forEach((cur) => delete state.annotations[cur])
+      delete state.outlines[story.outline.id]
+      story.pages.forEach((cur) => {
+        var page = state.pages[cur]
+        page.comments.forEach((ele) => delete state.comments[ele])
+        delete state.pages[cur]
+      })
+      story.ooxmlDocuments.forEach((cur) => delete state.ooxmlDocuments[cur])
+      story.collaborators.forEach((cur) => delete state.collaborators[cur])
       delete state.stories[payload.id]
-      state.content.pages.forEach((cur) => delete state.pages[cur])
-      delete state.content[payload.id]
-      delete state.outlines[payload.id]
+    },
+    SET_PERMISSION_TYPES (state, payload) {
+      state.permissionTypes = payload
+    },
+    SET_PAGE (state, payload) {
+      state.pages[payload.id] = payload
+    },
+    PATCH_PAGE (state, payload) {
+      jsondiffpatch.patch(state.pages[payload.id], payload.delta)
+    },
+    SET_OOXML_DOCUMENT (state, payload) {
+      state.ooxmlDocuments[payload.id] = payload
+    },
+    PATCH_OOXML_DOCUMENT (state, payload) {
+      jsondiffpatch.patch(state.ooxmlDocuments[payload.id], payload.delta)
+    },
+    SET_COLLABORATOR (state, payload) {
+      state.collaborators[payload.id] = payload
+    },
+    PATCH_COLLABORATOR (state, payload) {
+      jsondiffpatch.patch(state.collaborators[payload.id], payload.delta)
     },
   },
   actions: {
-    async initStories ({ commit, dispatch }) {
-      workerActions.postMessage({ request: 'initStories' })
+    async initStories ({ commit, state }) {
+      workerActions.postMessage({
+        request: 'initStories',
+        stories: state.stories,
+        annotations: state.annotations,
+        collaborators: state.collaborators,
+        comments: state.comments,
+        ooxmlDocuments: state.ooxmlDocuments,
+        outlines: state.outlines,
+        pages: state.pages,
+      })
+      if (Object.keys(state.permissionTypes).length === 0) {
+        workerActions.postMessage({ request: 'permissionTypes' })
+      }
     },
     setToken ({ state }, accessToken) {
       workerActions.postMessage({

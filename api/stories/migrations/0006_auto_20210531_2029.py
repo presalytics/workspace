@@ -23,7 +23,7 @@ def reverse_op(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('stories', '0003_auto_20210603_0646'),
+        ('stories', '0001_init'),
     ]
 
     operations = [

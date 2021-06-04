@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
@@ -19,7 +20,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
     
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='%(class)s_created_by')

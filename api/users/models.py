@@ -1,5 +1,4 @@
 import uuid
-from django.db.models.fields import related
 import presalytics
 import typing
 import itertools
@@ -9,8 +8,8 @@ import presalytics.client.oidc
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
-from api.services.stories import StoryService
 from conversations.models import Conversation
+from stories.models import StoryCollaborator, Story
 from .managers import CustomUserManager
 if typing.TYPE_CHECKING:
     from user_sessions.models import Session
@@ -81,13 +80,13 @@ class PresalyticsUser(AbstractUser):
 
     def update_roles(self, roles_list: typing.Sequence[str]) -> bool:
         changes = False
-        current_roles = [x.role for x in self.presalytics_roles.all()]
+        current_roles = [x.role for x in self.presalytics_roles.all()] # type: ignore
         for r in roles_list:
             if r not in current_roles:
                 new_role = Role.objects.create(role=r, user=self)
                 new_role.save()
                 changes = True
-        expired_roles = [x for x in self.presalytics_roles.all() if x.role not in roles_list]
+        expired_roles = [x for x in self.presalytics_roles.all() if x.role not in roles_list]  # type: ignore
         for er in expired_roles:
             er.objects.delete()
             changes = True
@@ -95,13 +94,13 @@ class PresalyticsUser(AbstractUser):
     
     def update_scopes(self, scopes_list: typing.Sequence[str]) -> bool:
         changes = False
-        current_scopes = [x.scope for x in self.presalytics_scopes.all()]
+        current_scopes = [x.scope for x in self.presalytics_scopes.all()]  # type: ignore
         for s in scopes_list:
             if s not in current_scopes:
                 new_scope = Scope.objects.create(scope=s, user=self)
                 new_scope.save()
                 changes = True
-        expired_scopes = [x for x in self.presalytics_scopes.all() if x.scope not in scopes_list]
+        expired_scopes = [x for x in self.presalytics_scopes.all() if x.scope not in scopes_list]  # type: ignore
         for es in expired_scopes:
             es.objects.delete()
             changes = True
@@ -109,13 +108,12 @@ class PresalyticsUser(AbstractUser):
     
     def get_related_users(self):
         dtos = list()
-        story_service = StoryService()
-        story_users = story_service.get_user_collaborators(user_token=self.token)
+        stories = Story.objects.filter(collaborators__user=self)
+        story_users = StoryCollaborator.objects.filter(story__in=stories).select_related('user').distinct()
         for user in story_users:
-            uid = user.get("userId", None)
-            if str(uid) != str(self.id):
+            if user != self:
                 try:
-                    new_dto = UserRelationshipDto(user_id=self.id, related_user_id=uid)
+                    new_dto = UserRelationshipDto(user_id=self.id, related_user_id=user.id)
                     dtos.append(new_dto)
                 except ValueError:
                     pass

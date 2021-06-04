@@ -5,6 +5,7 @@ from django.core.exceptions import RequestAborted
 from rest_framework import serializers
 from django.conf import settings
 from django.apps import apps
+from presalytics.story.outline import StoryOutline
 from .models import OoxmlDocument, Story, StoryPage, Comment, UserAnnotations, Outline, OutlinePatches, StoryCollaborator, PermissionTypes
 if typing.TYPE_CHECKING:
     from users.models import PresalyticsUser
@@ -19,7 +20,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class UserAnnotationSerialzer(serializers.ModelSerializer):
     class Meta:
         model = UserAnnotations
-        fields = ['id', 'user_id', 'is_favorite']
+        fields = ['id', 'is_favorite']
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -37,9 +38,19 @@ class PageSerializer(serializers.ModelSerializer):
         return page.refresh_from_db()
 
 class OutlineSerializer(serializers.ModelSerializer):
+    document = serializers.SerializerMethodField('get_document')
+
+    def get_document(self, instance):
+        if type(instance.document) == StoryOutline:
+            return instance.document.to_dict()
+        else:
+            return instance.document
+    
+    
     class Meta:
         model = Outline
         fields = ['id', 'story_id', 'document', 'latest_patch_sequence']
+    
 
 
 class OutlinePatchSerializer(serializers.ModelSerializer):
@@ -56,26 +67,38 @@ class PermissionTypeSerializer(serializers.ModelSerializer):
 
 class StoryCollaboratorSerializer(serializers.ModelSerializer):
     permission_name = serializers.SerializerMethodField('get_permission_name')
+    annotation = UserAnnotationSerialzer()
 
     def get_permission_name(self, instance):
         return instance.permission_type.name
 
     class Meta:
         model = StoryCollaborator
-        fields = ['id', 'user_id', 'story_id', 'permission_type_id', 'permission_name']
+        fields = ['id', 'user_id', 'story_id', 'permission_type_id', 'permission_name', 'annotation']
+
+
+class OoxmlDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OoxmlDocument
+        fields = ['id', 'ooxml_automation_id', 'story_id', 'cloned_from', 'delete_target_on_story_delete']
 
 
 class StorySerializer(serializers.ModelSerializer):
     pages = PageSerializer(many=True, required=False)
-    annotations = UserAnnotationSerialzer(many=True, required=False)
     outline = OutlineSerializer()
     collaborators = StoryCollaboratorSerializer(many=True, required=False)
+    ooxml_documents = OoxmlDocumentSerializer(many=True, required=False)
 
     class Meta:
         model = Story
         fields = (
             'id',
-            'outline'
+            'outline',
+            'pages',
+            'collaborators',
+            'ooxml_documents',
+            'is_public',
+            'title'
         )
         extra_kwargs = {
             'id': {
