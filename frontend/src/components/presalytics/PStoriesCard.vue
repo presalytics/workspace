@@ -69,7 +69,7 @@
                 :story="{ item }"
               />
             </template>
-            <template v-slot:item.updated_at="{ item }">
+            <template v-slot:item.updatedAt="{ item }">
               <p-friendly-date
                 :timestamp="lastUpdated(item)"
               />
@@ -149,7 +149,7 @@
           },
           {
             text: 'Last Modified',
-            value: 'updated_at',
+            value: 'updatedAt',
             show: true,
           },
           {
@@ -181,29 +181,12 @@
     computed: {
       storiesList () {
         var vm = this
-        var stories = vm.$store.getters['stories/storiesList']
-        var userId = vm.$store.getters['auth/userId']
-        stories.forEach((cur, i, arr) => {
-          if (cur.workspace?.annotations) {
-            try {
-              arr[i].isFavorite = cur.workspace.annotations.filter((ele) => ele.userId === userId)[0].is_favorite || false
-            } catch {
-              arr[i].isFavorite = false
-            }
-          } else {
-            arr[i].isFavorite = false
-          }
-          var collaborator = cur.collaborators.filter((ele) => ele.user_id === userId)[0]
-          if (collaborator?.permission_type?.name) {
-            var capitalize = (lowercaseString) => {
-              if (typeof lowercaseString !== 'string') return ''
-              return lowercaseString.charAt(0).toUpperCase() + lowercaseString.slice(1)
-            }
-            var roleName = cur.collaborators.filter((ele) => ele.user_id === userId)[0].permission_type.name
-            arr[i].userRole = capitalize(roleName)
-          }
+        var storyIds = vm.$store.state.stories.storiesList
+        return storyIds.map((cur) => {
+          var story = vm.$store.getters['stories/story'](cur)
+          story.userRole = this.getUserRole(story)
+          return story
         })
-        return stories
       },
       headers () {
         return this.$store.getters['stories/table'].columns.filter((cur) => cur.show)
@@ -222,7 +205,8 @@
               }
               if (cur.collaborators) {
                 var collaboratorNames = cur.collaborators.map((ele) => {
-                  var usr = vm.$store.getters['users/getUser'](ele.user_id) || ''
+                  var collaborator = vm.$store.state.stories.collaborators[ele]
+                  var usr = vm.$store.getters['users/getUser'](collaborator.userId) || ''
                   if (usr) {
                     return usr.name
                   } else {
@@ -265,7 +249,7 @@
         toggleModal: 'TOGGLE_MODAL',
       }),
       lastUpdated (story) {
-        return story.updated_at
+        return story.updatedAt
       },
       toggleColumnModal () {
         this.toggleModal({ name: 'PStoryManageColumnsModal' })
@@ -315,6 +299,21 @@
         if (this.$route.query.userId) {
           this.searchText = 'userId:' + this.$route.query.userId
         }
+      },
+      capitalize (lowercaseString) {
+        if (typeof lowercaseString !== 'string') return ''
+        return lowercaseString.charAt(0).toUpperCase() + lowercaseString.slice(1)
+      },
+      getUserRole (story) {
+        var vm = this
+        return story.collaborators.reduce((acc, ele) => {
+          if (!acc) {
+            var collaborator = vm.$store.state.stories.collaborators[ele]
+            if (collaborator?.userId === vm.$store.getters.userId) {
+              return this.capitalize(collaborator.permissionName)
+            }
+          }
+        }, null)
       },
     },
   }

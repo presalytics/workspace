@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "deep-diff": "^1.0.2",
     "jsondiffpatch": "^0.4.1",
     "vuedraggable": "^2.24.3"
   }

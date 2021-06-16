@@ -87,7 +87,7 @@ var updateAnnotation = async (annotation) => {
 
 var renderStory = async (storyId) => {
   return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.story, storyId + '/json')
+    return await http.getData(http.hosts.api, 'stories/' + storyId + '/render')
   })
 }
 
@@ -112,7 +112,7 @@ var genericNewEntityHandler = (currents, setMutationName, patchMutationName, new
         type: patchMutationName,
         payload: {
           id: newObject.id,
-          diff: diff,
+          delta: diff,
         },
       })
       currents[newObject.id] = newObject
@@ -127,7 +127,7 @@ var genericNewEntityHandler = (currents, setMutationName, patchMutationName, new
 }
 
 var handleNewStoryEntity = (newStory) => genericNewEntityHandler(currentStories, 'SET_STORY', 'PATCH_STORY', newStory)
-var handleNewAnnotationEntity = (newAnnotation) => genericNewEntityHandler(currentAnnotations, 'SET_ANNOTATION', 'PATCH_ANNOATION', newAnnotation)
+var handleNewAnnotationEntity = (newAnnotation) => genericNewEntityHandler(currentAnnotations, 'SET_ANNOTATION', 'PATCH_ANNOTATION', newAnnotation)
 var handleNewCommentEntity = (newComment) => genericNewEntityHandler(currentComments, 'SET_COMMENT', 'PATCH_COMMENT', newComment)
 var handleNewPageEntity = (newPage) => genericNewEntityHandler(currentPages, 'SET_PAGE', 'PATCH_PAGE', newPage)
 var handleNewOoxmlDocumentEntity = (newOoxmlDocument) => genericNewEntityHandler(currentOoxmlDocuments, 'SET_OOXML_DOCUMENT', 'PATCH_OOXML_DOCUMENT', newOoxmlDocument)

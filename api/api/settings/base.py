@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 from environs import Env
 from urllib.parse import urlparse
+from django.utils.module_loading import import_string
 import os
 
 env = Env()
@@ -57,7 +58,7 @@ INSTALLED_APPS = [
     'users',
     'conversations',
     'stories',
-
+    'cache',
 ]
 
 MIDDLEWARE = [
@@ -212,6 +213,3 @@ DATABASES = {
 }
 
 AZURE_STORAGE_CONNECTION_STRING = env.str('AZURE_STORAGE_CONNECTION_STRING')
-
-
-

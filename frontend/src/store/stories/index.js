@@ -31,6 +31,7 @@ const initialState = () => {
     pages: {},
     permissionTypes: {},
     stories: {},
+    storiesList: [],
     tokenLoaded: false,
     shareModal: {
       active: false,
@@ -54,8 +55,8 @@ const stories = {
     storiesList: (state) => {
       return state.stories || []
     },
-    story: (state, getters) => (storyId) => {
-      return this.stories.getStoryById(storyId)
+    story: (state) => (storyId) => {
+      return state.stories[storyId]
     },
     outline: (state, getters) => (storyId) => {
       var story = getters.story(storyId)
@@ -67,29 +68,33 @@ const stories = {
         }
       }
     },
-    storiesByUser: (state, getters) => (userId) => {
-      return getters.storiesList.filter((cur) => {
-        var isUserStory = false
-        if (cur.collaborators?.length > 0) {
-          isUserStory = cur.collaborators.reduce((acc, ele) => {
-            if (!acc) {
-              acc = ele.user_id === userId
+    content: (state) => (storyId) => {
+      return state.content[storyId]
+    },
+    storiesByUser: (state) => (userId) => {
+      return Object.values(state.stories).filter((cur) => {
+        var collaborators = Object.values(state.collaborators).filter((ele) => cur.collaborators.includes(ele.id))
+        return collaborators.reduce((acc, ele) => {
+          if (!acc) {
+            if (ele.userId === userId) {
+              acc = true
             }
-            return acc
-          }, false)
-        }
-        return isUserStory
+          }
+          return acc
+        }, false)
       })
     },
     annotation: (state, getters) => (storyId) => {
-      var ret = {
-        isFavorite: false,
+      var collaborator = Object.values(state.collaborators).filter((cur) => {
+        return cur.storyId === storyId && cur.userId === getters.userId
+      })
+      if (collaborator.length > 0) {
+        return state.annotations[collaborator[0].annotationId]
+      } else {
+        return {
+          isFavorite: false,
+        }
       }
-      var story = getters.storiesList.getStoryById(storyId)
-      if (story?.annotations) {
-        ret = story.annotations.filter((cur) => cur.userId === getters.userId)[0]
-      }
-      return ret
     },
     shareModal: (state) => {
       return state.shareModal
@@ -104,6 +109,7 @@ const stories = {
   mutations: {
     SET_STORY (state, payload) {
       state.stories[payload.id] = payload
+      state.storiesList.push(payload.id)
     },
     PATCH_STORY (state, payload) {
       jsondiffpatch.patch(state.stories[payload.id], payload.diff)
@@ -165,12 +171,7 @@ const stories = {
       state.panels.slideNav = !state.panels.slideNav
     },
     SET_STORY_CONTENT (state, payload) {
-      var pageIds = payload.pages.map((cur) => cur.id)
-      payload.content.pages = pageIds
       state.content[payload.storyId] = payload.content
-      payload.pages.forEach((cur) => {
-        state.pages[cur.id] = cur
-      })
     },
     PATCH_STORY_CONTENT (state, payload) {
       if (payload.contentDelta) {
@@ -192,6 +193,7 @@ const stories = {
       story.ooxmlDocuments.forEach((cur) => delete state.ooxmlDocuments[cur])
       story.collaborators.forEach((cur) => delete state.collaborators[cur])
       delete state.stories[payload.id]
+      state.storiesList = state.storiesList.filter((cur) => cur !== payload.id)
     },
     SET_PERMISSION_TYPES (state, payload) {
       state.permissionTypes = payload

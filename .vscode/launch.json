@@ -38,6 +38,26 @@
             "justMyCode": true
         },
         {
+          "name": "No Threads Django Backend",
+          "type": "python",
+          "request": "launch",
+          "program": "${workspaceFolder}/api/manage.py",
+          "cwd": "${workspaceFolder}/api",
+          "args": [
+              "runserver",
+              "localhost:8081",
+              "--noreload",
+              "--nothreading",
+              "--settings",
+              "api.settings.development"
+          ],
+          "django": true,
+          "envFile": "${workspaceFolder}/.env",
+          "console": "internalConsole",
+          "internalConsoleOptions": "openOnSessionStart",
+          "justMyCode": false
+        },
+        {
             "name": "Celery Debug",
             "type": "python",
             "request": "launch",

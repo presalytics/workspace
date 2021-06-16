@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 
 class Story(BaseModel):
     pages: typing.Union[models.Manager, 'StoryPage']
-    outline: typing.Union[models.Manager, 'Outline']
+    outline: typing.Union['Outline']
     collaborators: typing.Union[models.Manager, 'StoryCollaborator']
     ooxml_documents: typing.Union[models.Manager, 'OoxmlDocument']
     is_public = models.BooleanField(default=False)
@@ -43,7 +43,7 @@ class OutlinePatches(BaseModel):
 
 @receiver(post_save, sender=OutlinePatches)
 def handle_outline_changes_post_save(**kwargs):
-    transaction.on_commit(sync_outlines_to_latest_patches.apply_async(args=tuple(), kwargs={'queue': 'workspace'}))  #type: ignore
+    transaction.on_commit(sync_outlines_to_latest_patches.apply_async(args=tuple(), queue='workspace'))  #type: ignore
     
 
 class StoryPage(BaseModel):
@@ -87,7 +87,7 @@ class OoxmlDocument(BaseModel):
     def create_with_file(cls, file, story, user):
         ooxml = OoxmlDocument.objects.create(story=story)
         ooxml.refresh_from_db()
-        upload_new_ooxml_document.apply_async(args=(file.file, file.filename, user.id, oomxl.id), kwargs={'queue': 'workspace'})  # type: ignore
+        upload_new_ooxml_document.apply_async(args=(file.file, file.filename, user.id, oomxl.id), queue='workspace')  # type: ignore
         return ooxml
 
 

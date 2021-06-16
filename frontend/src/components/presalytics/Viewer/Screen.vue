@@ -22,8 +22,8 @@
         @slideChangeTransitionEnd="handleAFterSlideChange"
       >
         <swiper-slide
-          v-for="(page, i) in pages"
-          :key="i"
+          v-for="(page, id) in pages"
+          :key="id"
           v-html="decodeContent(page)"
         />
         <div
@@ -50,6 +50,7 @@
   import { v4 as uuidv4 } from 'uuid'
   import 'swiper/css/swiper.min.css'
   import Worker from './screen.worker.js'
+  import DeepDiff from 'deep-diff'
 
   const worker = new Worker()
 
@@ -79,12 +80,15 @@
         },
       },
       svgResizeObserver: null,
-      workerQueueIds: [],
       screenShotMakerRef: null,
     }),
     computed: {
       swiper () {
-        return this.$refs.mySwiper.$swiper
+        if (this.$refs.mySwiper) {
+          return this.$refs.mySwiper.$swiper
+        } else {
+          return null
+        }
       },
       story () {
         if (this.storyId) {
@@ -101,22 +105,18 @@
         }
       },
       loading () {
-        if (this.story?.content?.pages) {
-          return this.story.content.pages.length === 0
-        } else {
-          return true
-        }
+        return this.content === null
       },
       content () {
-        if (this.story?.content) {
-          return this.story.content
+        if (this.storyId) {
+          return this.$store.getters['stories/content'](this.storyId)
         } else {
           return null
         }
       },
       scripts () {
         if (this.content) {
-          return this.story.content.scripts
+          return this.content.scripts
         } else {
           return []
         }
@@ -138,7 +138,7 @@
       },
       styles () {
         if (this.content) {
-          return this.story.content.styles
+          return this.content.styles
         } else {
           return []
         }
@@ -150,23 +150,15 @@
       },
       pages () {
         if (this.content) {
-          return this.story.content.pages
+          return this.content.pages
         } else {
           return []
         }
-      },
-      workerQueueLength () {
-        return this.workerQueueIds.length
       },
     },
     watch: {
       storyId: function (newVal, oldVal) {
         this.render()
-      },
-      workerQueueLength: function (newVal, oldVal) {
-        if (newVal === 0) {
-          this.resizeCurrentElement()
-        }
       },
     },
     mounted () {
@@ -207,6 +199,15 @@
       svgContainers.forEach((cur) => this.svgResizeObserver.observe(cur.parentNode))
 
       setTimeout(() => this.makeThumbnail(), 2000)
+
+      let oldData = JSON.parse(JSON.stringify(this.$data))
+
+      this.$watch(vm => vm.$computed, (newData) => {
+        console.log(DeepDiff.diff(oldData, newData))
+        oldData = JSON.parse(JSON.stringify(newData))
+      }, {
+        deep: true,
+      })
     },
     beforeDestroy () {
       if (this.svgResizeObserver) {
@@ -241,7 +242,6 @@
             ooxmlId: cur.dataset.objectId,
             objectType: cur.dataset.objectType,
           })
-          this.workerQueueIds.push(cur.dataset.objectId)
         })
       },
       handleOoxmlUpdate (ooxmlId, ooxmlBlob) {
@@ -251,7 +251,6 @@
           return cur.dataset.objectId === ooxmlId
         }).forEach((cur) => {
           this.appendObjectToSvgContainer(cur, blobUri)
-          this.workerQueueIds = this.workerQueueIds.filter((cur) => cur === ooxmlId)
         })
       },
       appendObjectToSvgContainer (svgContainerElement, blobUri) {
@@ -326,7 +325,6 @@
           nonce: nonce,
           src: src,
         })
-        this.workerQueueIds.push(nonce)
       },
       handleCachedIframe (nonce, blob) {
         var url = URL.createObjectURL(blob)
@@ -334,7 +332,6 @@
         if (frame && url) {
           frame.src = url
         }
-        this.workerQueueIds = this.workerQueueIds.filter((cur) => cur === nonce)
       },
       resizeCurrentElement () {
         if (this.$el) {
@@ -355,30 +352,32 @@
         if (!slideIndex) {
           slideIndex = this.swiper.activeIndex
         }
-        return this.outline.pages[slideIndex].id || null
+        return this.$store.state.stories.outlines[this.outline]?.document.pages[slideIndex]?.id
       },
       makeThumbnail () {
-        var element = this.$el.querySelector('.swiper-slide-active')
-        var pageId = this.getPageIdFromSlideIndex()
-        var vm = this
-        if (vm && pageId) {
-          html2canvas(element, {
-            allowTaint: true,
-            taintTest: false,
-            useCORS: true,
-            scale: 1,
-            logging: true,
-          }).then(function (canvas) {
-            // var dataUrl = canvas.toDataURL()
-            document.body.appendChild(canvas)
-            // vm.addUriToOutline(pageId, dataUrl, vm.storyId)
-            // worker.postMessage({
-            //   request: 'makeThumbnail',
-            //   dataUrl: dataUrl,
-            //   pageId: pageId,
-            //   storyId: vm.storyId,
-            // })
-          })
+        if (!this.loading) {
+          var element = this.$el.querySelector('.swiper-slide-active')
+          var pageId = this.getPageIdFromSlideIndex()
+          var vm = this
+          if (vm && pageId) {
+            html2canvas(element, {
+              allowTaint: true,
+              taintTest: false,
+              useCORS: true,
+              scale: 1,
+              logging: true,
+            }).then(function (canvas) {
+              // var dataUrl = canvas.toDataURL()
+              document.body.appendChild(canvas)
+              // vm.addUriToOutline(pageId, dataUrl, vm.storyId)
+              // worker.postMessage({
+              //   request: 'makeThumbnail',
+              //   dataUrl: dataUrl,
+              //   pageId: pageId,
+              //   storyId: vm.storyId,
+              // })
+            })
+          }
         }
       },
       addUriToOutline (pageId, dataUri, storyId) {

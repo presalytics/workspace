@@ -185,11 +185,14 @@
       }
     },
     computed: {
+      userList () {
+        return this.$store.state.users.userList
+      },
       audienceList () {
-        var db = this.$store.getters['users/userDb']
-        return db.map((cur) => {
-          cur.fullname = this.getFullname(cur)
-          return cur
+        return this.userList.map((cur) => {
+          var user = this.$store.state.users.users[cur]
+          user.fullname = this.getFullname(user)
+          return user
         }).filter((cur) => cur.app_metadata.api_user_id !== this.$store.getters.userId)
       },
       filteredAudienceList () {

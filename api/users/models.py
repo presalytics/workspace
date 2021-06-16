@@ -109,7 +109,7 @@ class PresalyticsUser(AbstractUser):
     def get_related_users(self):
         dtos = list()
         stories = Story.objects.filter(collaborators__user=self)
-        story_users = StoryCollaborator.objects.filter(story__in=stories).select_related('user').distinct()
+        story_users = set(sc.user for sc in StoryCollaborator.objects.filter(story__in=stories))
         for user in story_users:
             if user != self:
                 try:

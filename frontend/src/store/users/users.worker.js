@@ -1,7 +1,15 @@
 import { HttpPlugin } from '../../plugins/http'
 
+var jsondiffpatch = require('jsondiffpatch').create({
+  objectHash: function (obj) {
+    return obj.id
+  },
+  cloneDiffValues: true,
+})
+
 var accessToken = ''
 var csrf = ''
+var currentUsers = {}
 
 var accessTokenCallbackFn = () => {
   return accessToken
@@ -55,6 +63,30 @@ var getUser = async (userId) => {
   })
 }
 
+var genericNewEntityHandler = (currents, setMutationName, patchMutationName, newObject) => {
+  if (currents[newObject.id]) {
+    var diff = jsondiffpatch.diff(currents[newObject.id], newObject)
+    if (diff) {
+      self.postMessage({
+        type: patchMutationName,
+        payload: {
+          id: newObject.id,
+          diff: diff,
+        },
+      })
+      currents[newObject.id] = newObject
+    }
+  } else if (Object.keys(newObject).length !== 0) {
+    self.postMessage({
+      type: setMutationName,
+      payload: newObject,
+    })
+    currents[newObject.id] = newObject
+  }
+}
+
+var handleUserUpdate = (userData) => genericNewEntityHandler(currentUsers, 'SET_USER', 'PATCH_USER', userData)
+
 self.onmessage = async (e) => {
   switch (e.data.request) {
     case ('accessToken'): {
@@ -63,6 +95,7 @@ self.onmessage = async (e) => {
       break
     }
     case ('initUsers'): {
+      currentUsers = e.data.users
       var relations = await getRelationships()
       var myId = relations.relationships[0].user_id
       var myRelation = {
@@ -74,7 +107,8 @@ self.onmessage = async (e) => {
         var userId = cur.related_user_id
         var usr = await getUser(userId)
         if (usr) {
-          self.postMessage({ type: 'ADD_USER', payload: usr })
+          usr.id = usr.app_metadata.api_user_id
+          handleUserUpdate(usr)
         }
       })
     }

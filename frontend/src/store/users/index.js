@@ -1,7 +1,13 @@
 import Vue from '../../main'
 import Worker from './users.worker'
 import Cookies from 'js-cookie'
-import remove from 'lodash/remove'
+
+var jsondiffpatch = require('jsondiffpatch').create({
+  objectHash: function (obj) {
+    return obj.id
+  },
+  cloneDiffValues: true,
+})
 
 const workerActions = new Worker()
 
@@ -9,7 +15,8 @@ const initialState = () => {
   return {
     loading: false,
     tokenLoaded: false,
-    users: [],
+    users: {},
+    userList: [],
     table: {
       columns: [],
       timeWindow: 'month',
@@ -22,11 +29,10 @@ const users = {
   state: initialState,
   getters: {
     userDb: (state) => {
-      return state.users || []
+      return state.userList
     },
-    getUser: (state, getters) => (userId) => {
-      var matches = getters.userDb.filter((cur) => cur.app_metadata.api_user_id === userId)
-      return matches[0] || {}
+    getUser: (state) => (userId) => {
+      return state.users[userId]
     },
     search: (state, getters) => (searchText) => {
       return getters.userDb.filter((cur) => {
@@ -48,12 +54,12 @@ const users = {
     SET_TOKEN_LOADED (state, payload) {
       state.tokenLoaded = payload
     },
-    ADD_USER (state, payload) {
-      remove(state.users, (ele) => ele.app_metadata.api_user_id === payload.app_metadata.api_user_id)
-      state.users.push(payload)
+    SET_USER (state, payload) {
+      state.users[payload.id] = payload
+      state.userList.push(payload.id)
     },
-    INIT_USERS (state, payload) {
-      state.users = payload
+    PATCH_USER (state, payload) {
+      jsondiffpatch.patch(state.users[payload.id], payload.delta)
     },
     RESET_STATE (state) {
       const initial = initialState()
@@ -75,8 +81,11 @@ const users = {
     },
   },
   actions: {
-    async initUsers ({ commit, dispatch }) {
-      workerActions.postMessage({ request: 'initUsers' })
+    async initUsers ({ commit, state }) {
+      workerActions.postMessage({
+        request: 'initUsers',
+        users: state.users,
+      })
     },
     async setToken ({ state }, accessToken) {
       workerActions.postMessage({

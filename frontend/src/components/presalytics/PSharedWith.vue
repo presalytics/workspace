@@ -57,7 +57,8 @@
       },
       getPictureUrl (collaborator) {
         var url = null
-        var usr = this.$store.getters['users/getUser'](collaborator.user_id)
+        var userId = this.$store.state.stories.collaborators[collaborator].userId
+        var usr = this.$store.getters['users/getUser'](userId)
         if (usr) {
           url = usr.picture
         }

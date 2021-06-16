@@ -30,7 +30,7 @@
         return this.$store.getters['stories/story'](this.storyId)
       },
       outline () {
-        return JSON.parse(this.story.outline)
+        return this.$store.state.stories.outlines[this.story.outline]
       },
       pages () {
         return this.outline.pages

@@ -1,10 +1,15 @@
 import logging
-from django.http.response import HttpResponseBadRequest
+import typing
+import base64
+import json
+from django.http.response import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import HttpResponse
 from rest_framework import generics, views, parsers, response, request
-from api.permissions import PresaltyicsBuilderPermission, PresalyticsViewerPermission
+from presalytics.story.renderers import ClientSideRenderer
+from presalytics.story.outline import StoryOutline
+from api.permissions import PresaltyicsBuilderPermission, PresalyticsInternalPermssion, PresalyticsViewerPermission
 from api.services.azure import AzureBlobService
-from .models import PermissionTypes, Story, UserAnnotations
+from .models import PermissionTypes, Story, StoryCollaborator, UserAnnotations
 from . import serializers, permissions
 
 
@@ -100,12 +105,20 @@ class OutlinePatchCreateView(generics.CreateAPIView):
     serializer_class = serializers.OutlinePatchSerializer
 
 class CollaboratorsCreateListView(generics.ListCreateAPIView):
-    permission_classes = [permissions.CollaboratorPermssion, PresaltyicsBuilderPermission]
+    permission_classes = [permissions.CollaboratorPermssion|PresalyticsInternalPermssion]
     serializer_class = serializers.StoryCollaboratorSerializer
 
 class CollaboratorsDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.CollaboratorPermssion, PresaltyicsBuilderPermission]
+    permission_classes = [permissions.CollaboratorPermssion]
     serializer_class = serializers.StoryCollaboratorSerializer
+
+class CollaboratorsListAllView(generics.ListAPIView):
+    permission_classes = [PresalyticsViewerPermission]
+    serializer_class = serializers.StoryCollaboratorSerializer
+
+    def get_queryset(self):
+        return StoryCollaborator.objects.filter(user=self.request.user)
+
 
 class PermissionTypesListView(generics.ListAPIView):
     permission_classes = [PresalyticsViewerPermission]
@@ -115,6 +128,24 @@ class PermissionTypesListView(generics.ListAPIView):
         return PermissionTypes.objects.all()
 
 
+
+
+class RenderStoryView(views.APIView):
+    permission_classes = [permissions.StoryPermission]
+
+    def get(self, request, id):
+        story: Story = Story.objects.get(pk=id)
+        client_info = {
+            "token": request.user.token,
+            "cache_tokens": False,
+            "delegate_login": True
+        }
+        pages = request.GET.get('pages', None)
+        outline = story.outline.document
+        if not isinstance(outline, StoryOutline):
+            outline = StoryOutline.load(json.dumps(outline))
+        data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package()
+        return JsonResponse(data)
 
 
 
