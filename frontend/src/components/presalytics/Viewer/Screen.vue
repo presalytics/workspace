@@ -45,12 +45,11 @@
 
 <script>
   import Cookies from 'js-cookie'
-  import html2canvas from 'html2canvas'
   import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
   import { v4 as uuidv4 } from 'uuid'
   import 'swiper/css/swiper.min.css'
+  import { toPng } from 'html-to-image'
   import Worker from './screen.worker.js'
-  import DeepDiff from 'deep-diff'
 
   const worker = new Worker()
 
@@ -199,15 +198,6 @@
       svgContainers.forEach((cur) => this.svgResizeObserver.observe(cur.parentNode))
 
       setTimeout(() => this.makeThumbnail(), 2000)
-
-      let oldData = JSON.parse(JSON.stringify(this.$data))
-
-      this.$watch(vm => vm.$computed, (newData) => {
-        console.log(DeepDiff.diff(oldData, newData))
-        oldData = JSON.parse(JSON.stringify(newData))
-      }, {
-        deep: true,
-      })
     },
     beforeDestroy () {
       if (this.svgResizeObserver) {
@@ -237,6 +227,7 @@
         this.sendAccessTokenToWorker()
         var svgContainers = Array.from(this.$el.querySelectorAll('.svg-container'))
         svgContainers.forEach((cur) => {
+          // this.directSvgAppend(cur)
           worker.postMessage({
             request: 'ooxmlsvg',
             ooxmlId: cur.dataset.objectId,
@@ -267,9 +258,28 @@
         svgContainerElement.parentNode.appendChild(overlay)
         this.removePreloader(svgContainerElement.parentNode)
       },
+      directSvgAppend (svgContainerElement) {
+        var proxyUrl = Buffer.from('/' + svgContainerElement.dataset.objectType + '/Svg/' + svgContainerElement.dataset.objectId).toString('base64')
+        var url = '/api/workspace/secure-proxy/ooxml/' + proxyUrl
+        var overlay = document.createElement('div')
+        overlay.classList.add('svg-overlay')
+        var svgObject = document.createElement('object')
+        svgObject.setAttribute('type', 'image/svg+xml')
+        svgObject.setAttribute('data', url)
+        svgObject.setAttribute('style', 'z-index:-1')
+        var fallbackMsg = document.createElement('p')
+        fallbackMsg.innerHTML = 'This object Failed to render. Please upgrade your browser to the latest version'
+        svgObject.appendChild(fallbackMsg)
+        svgContainerElement.appendChild(svgObject)
+        svgContainerElement.parentNode.appendChild(overlay)
+        this.removePreloader(svgContainerElement.parentNode)
+      },
       resizeSvgContainer (parentElement) {
         var svgContainer = parentElement.querySelector('.svg-container')
         if (svgContainer.getElementsByTagName('object').length > 0) {
+          if (!svgContainer.getElementsByTagName('object')[0].contentDocument) {
+            return
+          }
           var svgElement = svgContainer.getElementsByTagName('object')[0].contentDocument.rootElement
           if (!svgElement) {
             return
@@ -359,24 +369,33 @@
           var element = this.$el.querySelector('.swiper-slide-active')
           var pageId = this.getPageIdFromSlideIndex()
           var vm = this
-          if (vm && pageId) {
-            html2canvas(element, {
-              allowTaint: true,
-              taintTest: false,
-              useCORS: true,
-              scale: 1,
-              logging: true,
-            }).then(function (canvas) {
-              // var dataUrl = canvas.toDataURL()
-              document.body.appendChild(canvas)
-              // vm.addUriToOutline(pageId, dataUrl, vm.storyId)
-              // worker.postMessage({
-              //   request: 'makeThumbnail',
-              //   dataUrl: dataUrl,
-              //   pageId: pageId,
-              //   storyId: vm.storyId,
-              // })
-            })
+          var isPreloader = !!element.querySelector('.preloader-container')
+          if (vm && pageId && !isPreloader) {
+            toPng(element)
+              .then(function (dataUrl) {
+                var img = new Image()
+                img.src = dataUrl
+                document.body.appendChild(img)
+              })
+            // html2canvas(element, {
+            //   allowTaint: true,
+            //   useCORS: true,
+            //   scale: 1,
+            //   logging: true,
+            //   foreignObjectRendering: true,
+            //   removeContainer: true,
+            //   async: true,
+            // }).then(function (canvas) {
+            //   // var dataUrl = canvas.toDataURL()
+            //   document.body.appendChild(canvas)
+            //   // vm.addUriToOutline(pageId, dataUrl, vm.storyId)
+            //   // worker.postMessage({
+            //   //   request: 'makeThumbnail',
+            //   //   dataUrl: dataUrl,
+            //   //   pageId: pageId,
+            //   //   storyId: vm.storyId,
+            //   // })
+            // })
           }
         }
       },

@@ -28,67 +28,6 @@ spec:
         operator: "Equal"
         value: "spot"
         effect: "NoSchedule"
-      initContainers:
-      - name: workspace-migrations
-        image: presalytics/workspace-api:latest
-        command: ["python3", "manage.py", "migrate"]
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        env:
-        - name: DJANGO_DEBUG
-          value: 'True'
-        - name: DB_REQUIRE_SSL
-          value: 'True'
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: db-password
-        - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: db-host
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: db-user
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: redis-password
-        - name: REDIS_HOST
-          value: redis.api.svc.cluster.local
-        - name: WORKSPACE_CLIENT_URL
-          value: https://workspace.presalytics.io
-        - name: CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: api-client-id
-        - name: CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: api-client-secret
-        - name: DJANGO_SETTINGS_MODULE
-          value: api.settings.development
-        - name: ALLOWED_HOSTS
-          value: workspace-api.presalytics.io,workspace-api.public.svc.cluster.local
-        - name: DJANGO_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: workspace
-              key: django-secret-key
-        - name: HOST_STORY
-          value: https://testing.presalytics.io/story
       containers:
       - name: workspace-api
         image: presalytics/workspace-api:latest
@@ -99,7 +38,7 @@ spec:
             cpu: "250m"
           limits:
             memory: "2Gi"
-            cpu: "1000m"
+            cpu: "500m"
         ports:
           - containerPort: 80
         env:
@@ -144,14 +83,12 @@ spec:
               name: workspace
               key: api-client-secret
         - name: ALLOWED_HOSTS
-          value: workspace-api.presalytics.io,workspace-api.public.svc.cluster.local
+          value: workspace-api.presalytics.io,workspace-api.public.svc.cluster.local,app.presalytics.io,worksapce.api.presalytics.io
         - name: DJANGO_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: workspace
               key: django-secret-key
-        - name: HOST_STORY
-          value: https://testing.presalytics.io/story
         - name: AZURE_STORAGE_CONNECTION_STRING
           valueFrom:
             secretKeyRef:

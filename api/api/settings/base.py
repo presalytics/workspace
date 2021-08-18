@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'conversations',
     'stories',
     'cache',
+    'secure_proxy',
 ]
 
 MIDDLEWARE = [
@@ -204,10 +205,10 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'story'),
         'USER': os.environ['STORY__DB_USER'],
         'PASSWORD': os.environ['STORY__DB_PASSWORD'],
-        'HOST': os.environ['DB_HOST'],
+        'HOST': os.environ['STORY__DB_HOST'],
         'PORT': 5432,
         'OPTIONS': {
-            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
+            'sslmode': 'require' if env.bool('STORY__DB_REQUIRE_SSL', True)  else 'allow'
         }
     }
 }
