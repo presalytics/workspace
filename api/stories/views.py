@@ -8,7 +8,6 @@ from rest_framework import generics, views, parsers, response, request
 from presalytics.story.renderers import ClientSideRenderer
 from presalytics.story.outline import StoryOutline
 from api.permissions import PresaltyicsBuilderPermission, PresalyticsInternalPermssion, PresalyticsViewerPermission
-from api.services.azure import AzureBlobService
 from .models import PermissionTypes, Story, StoryCollaborator, UserAnnotations
 from . import serializers, permissions
 
@@ -66,32 +65,6 @@ class UserAnnotationsView(generics.RetrieveUpdateDestroyAPIView):
 class UserAnnoationsCreateView(generics.CreateAPIView):
     serializer_class = serializers.UserAnnotationSerialzer
 
-
-class ThumbnailView(views.APIView):
-    permission_classes = [permissions.PageReadEditPermission]
-    parser_classes = [parsers.FileUploadParser]
-    serializer_class = serializers.PageSerializer
-
-    def get(self, request: request.Request, pk):
-        try:
-            storage = AzureBlobService()
-            image_file = storage.get_image(str(pk))
-            return HttpResponse(image_file, content_type="image/png")
-        except Exception as ex:
-            logger.exception(ex)
-            return HttpResponseBadRequest()
-
-
-    def post(self, request, pk, format=None, ):
-        try:
-            file_data = request.data['file']
-            storage = AzureBlobService()
-            storage.put_image(str(pk), file_data.file)
-            return response.Response(status=204)
-        except Exception as ex:
-            logger.exception(ex)
-            return HttpResponseBadRequest()
-
 class OutlineGetView(generics.RetrieveAPIView):
     permission_classes = [permissions.OutlinePermission]
     serializer_class = serializers.OutlineSerializer
@@ -144,7 +117,7 @@ class RenderStoryView(views.APIView):
         outline = story.outline.document
         if not isinstance(outline, StoryOutline):
             outline = StoryOutline.load(json.dumps(outline))
-        data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package()
+        data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package() # type: ignore
         return JsonResponse(data)
 
 
