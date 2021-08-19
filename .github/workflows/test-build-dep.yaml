@@ -44,6 +44,10 @@ jobs:
         working-directory: api
     steps:
     - uses: actions/checkout@master
+    - name: Add git version to manifests
+      run: |
+        pip3 install gitpython
+        python3 scripts/update_hashes.py
     - name: Build and push Docker image
       uses: docker/build-push-action@v1
       with:
@@ -76,6 +80,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+    - name: Add git version to manifests
+      run: |
+        pip3 install gitpython
+        python3 scripts/update_hashes.py
     - name: Create .env.production
       run: printenv > .env.production
     - name: Build and push Docker image

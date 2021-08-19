@@ -1,49 +1,32 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: workspace-api
-  namespace: api
-  labels: 
+  labels:
     app: workspace-api
     app.kubernetes.io/part-of: workspace
+  name: workspace-api
+  namespace: api
 spec:
   template:
     metadata:
-      namespace: api
-      labels: 
+      labels:
         app: workspace-api
         app.kubernetes.io/part-of: workspace
-        version: "2021-8-19.0"
+        version: 04360dc6c0ff65cca38b0dcdaf4dd0d37410a6f7
+      namespace: api
     spec:
-      tolerations:
-      - key: "kubernetes.azure.com/scalesetpriority"
-        operator: "Equal"
-        value: "spot"
-        effect: "NoSchedule"
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
+          - preference:
               matchExpressions:
               - key: spot
                 operator: In
                 values:
-                - "true"
+                - 'true'
+            weight: 1
       containers:
-      - name: workspace-api
-        image: presalytics/workspace-api:latest
-        imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "2Gi"
-            cpu: "500m"
-        ports:
-          - containerPort: 80
-        env:
+      - env:
         - name: DJANGO_DEBUG
           value: 'True'
         - name: DB_REQUIRE_SSL
@@ -51,23 +34,23 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: db-password
+              name: workspace
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: db-host
+              name: workspace
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: db-user
+              name: workspace
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: redis-password
+              name: workspace
         - name: REDIS_HOST
           value: key-value-store.redis.svc.cluster.local
         - name: WORKSPACE_CLIENT_URL
@@ -77,17 +60,34 @@ spec:
         - name: CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: api-client-id
+              name: workspace
         - name: CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: api-client-secret
+              name: workspace
         - name: ALLOWED_HOSTS
           value: workspace-api.presalytics.io,workspace-api.public.svc.cluster.local,app.presalytics.io,worksapce.api.presalytics.io
         - name: DJANGO_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: workspace
               key: django-secret-key
+              name: workspace
+        image: presalytics/workspace-api:latest
+        imagePullPolicy: Always
+        name: workspace-api
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 128Mi
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.azure.com/scalesetpriority
+        operator: Equal
+        value: spot

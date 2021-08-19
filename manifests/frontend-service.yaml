@@ -1,48 +1,48 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: workspace-frontend
-  namespace: public
-  labels: 
+  labels:
     app: workspace-frontend
     app.kubernetes.io/part-of: workspace
+  name: workspace-frontend
+  namespace: public
 spec:
   template:
     metadata:
-      namespace: public
-      labels: 
+      annotations:
+        autoscaling.knative.dev/enable-scale-to-zero: 'false'
+        autoscaling.knative.dev/minScale: '1'
+      labels:
         app: workspace-frontend
         app.kubernetes.io/part-of: workspace
-        version: "2021-8-19.1"
-      annotations:
-        autoscaling.knative.dev/enable-scale-to-zero: "false"
-        autoscaling.knative.dev/minScale: "1"
+        version: 04360dc6c0ff65cca38b0dcdaf4dd0d37410a6f7
+      namespace: public
     spec:
-      tolerations:
-      - key: "kubernetes.azure.com/scalesetpriority"
-        operator: "Equal"
-        value: "spot"
-        effect: "NoSchedule"
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
+          - preference:
               matchExpressions:
               - key: spot
                 operator: In
                 values:
-                - "true"
+                - 'true'
+            weight: 1
       containers:
-      - name: workspace
-        image: presalytics/workspace:latest
+      - image: presalytics/workspace:latest
         imagePullPolicy: Always
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "759m"
+        name: workspace
         ports:
-          - containerPort: 80
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 759m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 128Mi
+      tolerations:
+      - effect: NoSchedule
+        key: kubernetes.azure.com/scalesetpriority
+        operator: Equal
+        value: spot
