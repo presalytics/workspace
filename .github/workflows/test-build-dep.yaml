@@ -109,7 +109,6 @@ jobs:
         namespace: api
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
-          manifests/frontend-service.yaml
           manifests/api-service.yaml
 
   deploy-frontend:
@@ -134,4 +133,3 @@ jobs:
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
           manifests/frontend-service.yaml
-          manifests/api-service.yaml
