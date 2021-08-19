@@ -13,11 +13,12 @@ if __name__ == '__main__':
         try:
             data = {}
             with open(file) as f:
-                data = yaml.load(f)
+                data = yaml.load(f, Loader=yaml.FullLoader)
             if data['apiVersion'] == 'serving.knative.dev/v1' and data['kind'] == 'Service':
-                data['spec']['template']['metadata']['labels']['version'] = sha
+                data['spec']['template']['metadata']['labels']['gitHash'] = sha
             with open(file, "w") as f:
                 f.write(yaml.dump(data, default_flow_style=False))
+            print("Version label of manifest {0} updated to {1}".format(manifest, sha))
         except Exception as ex:
             print("Hash update operation failed")
             print("Error: " + ex.args[1])
