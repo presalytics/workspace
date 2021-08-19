@@ -82,6 +82,8 @@ jobs:
     - uses: actions/checkout@master
     - name: Add git version to manifests
       run: |
+        echo $GITHUB_WORKSPACE
+        cd $GITHUB_WORKSPACE
         pip3 install gitpython
         python3 scripts/update_hashes.py
     - name: Create .env.production
