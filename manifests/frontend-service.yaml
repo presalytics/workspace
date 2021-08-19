@@ -1,20 +1,48 @@
+apiVersion: serving.knative.dev/v1
 kind: Service
-apiVersion: v1
 metadata:
-  name: workspace
+  name: site
   namespace: public
-  labels:
-    app: workspace
-    app.kubernetes.io/part-of: presalytics
-    app.kubernetes.io/name: workspace
+  labels: 
+    app: site
+    app.kubernetes.io/part-of: site
 spec:
-  type: ClusterIP
-  selector:
-    app: workspace
-    app.kubernetes.io/name: workspace
-    app.kubernetes.io/part-of: presalytics
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
-    name: http
+  template:
+    metadata:
+      namespace: public
+      labels: 
+        app: site
+        app.kubernetes.io/part-of: site
+        version: "2021-8-16.0"
+      annotations:
+        autoscaling.knative.dev/enable-scale-to-zero: "false"
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: spot
+                operator: In
+                values:
+                - "true"
+      containers:
+      - name: workspace
+        image: presalytics/workspace:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "759m"
+        ports:
+          - containerPort: 80

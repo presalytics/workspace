@@ -110,7 +110,5 @@ jobs:
         namespace: ${{ env.NAMESPACE }}
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
-          manifests/frontend-deployment.yaml
           manifests/frontend-service.yaml
-          manifests/api-deployment.yaml
           manifests/api-service.yaml
