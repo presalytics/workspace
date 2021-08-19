@@ -2,21 +2,18 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: site
-  namespace: public
+  namespace: api
   labels: 
-    app: site
-    app.kubernetes.io/part-of: site
+    app: workspace-api
+    app.kubernetes.io/part-of: workspace
 spec:
   template:
     metadata:
-      namespace: public
+      namespace: api
       labels: 
-        app: site
-        app.kubernetes.io/part-of: site
+        app: woekspace-api
+        app.kubernetes.io/part-of: workspace
         version: "2021-8-16.0"
-      annotations:
-        autoscaling.knative.dev/enable-scale-to-zero: "false"
-        autoscaling.knative.dev/minScale: "1"
     spec:
       tolerations:
       - key: "kubernetes.azure.com/scalesetpriority"

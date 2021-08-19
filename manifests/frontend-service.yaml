@@ -1,18 +1,18 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: site
+  name: workspace-frontend
   namespace: public
   labels: 
-    app: site
-    app.kubernetes.io/part-of: site
+    app: workspace-frontend
+    app.kubernetes.io/part-of: workspace
 spec:
   template:
     metadata:
       namespace: public
       labels: 
-        app: site
-        app.kubernetes.io/part-of: site
+        app: workspace-frontend
+        app.kubernetes.io/part-of: workspace
         version: "2021-8-16.0"
       annotations:
         autoscaling.knative.dev/enable-scale-to-zero: "false"
