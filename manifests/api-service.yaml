@@ -11,7 +11,7 @@ spec:
     metadata:
       namespace: api
       labels: 
-        app: woekspace-api
+        app: workspace-api
         app.kubernetes.io/part-of: workspace
         version: "2021-8-19.0"
     spec:
