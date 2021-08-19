@@ -9,9 +9,8 @@ on:
 env:
   FRONTEND_REGISTRY_NAME: 'presalytics/workspace'
   API_REGISTRY_NAME: 'presalytics/workspace-api'
-  CLUSTER_NAME: 'prod'
+  CLUSTER_NAME: 'production'
   CLUSTER_RESOURCE_GROUP: 'presalytics-prod'
-  NAMESPACE: 'public'
 
 jobs:
   # test-api:
@@ -89,9 +88,9 @@ jobs:
         tag_with_ref: true
         tag_with_sha: true
 
-  deploy:
+  deploy-api:
     if: github.ref == 'refs/heads/master'
-    needs: [build-api, build-frontend]
+    needs: [build-api]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -107,7 +106,31 @@ jobs:
     - name: Deploy to k8s
       uses: Azure/k8s-deploy@v1.4
       with:
-        namespace: ${{ env.NAMESPACE }}
+        namespace: api
+        # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
+        manifests: |
+          manifests/frontend-service.yaml
+          manifests/api-service.yaml
+
+  deploy-frontend:
+    if: github.ref == 'refs/heads/master'
+    needs: [build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Azure Kubernetes set context
+      # https://github.com/Azure/aks-set-context/
+      uses: azure/aks-set-context@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+        cluster-name: ${{ env.CLUSTER_NAME }}
+      id: login
+      # https://github.com/Azure/k8s-deploy/
+    - name: Deploy to k8s
+      uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: public
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
           manifests/frontend-service.yaml
