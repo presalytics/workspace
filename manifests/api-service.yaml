@@ -9,6 +9,9 @@ metadata:
 spec:
   template:
     metadata:
+      annotations:
+        autoscaling.knative.dev/enable-scale-to-zero: 'false'
+        autoscaling.knative.dev/minScale: '1'
       labels:
         app: workspace-api
         app.kubernetes.io/part-of: workspace
@@ -73,6 +76,11 @@ spec:
             secretKeyRef:
               key: django-secret-key
               name: workspace
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-storage
+              key: connection-string
         image: presalytics/workspace-api:latest
         imagePullPolicy: Always
         name: workspace-api
