@@ -12,7 +12,6 @@ spec:
       labels:
         app: workspace-api
         app.kubernetes.io/part-of: workspace
-        gitHash: 04360dc6c0ff65cca38b0dcdaf4dd0d37410a6f7
       namespace: api
     spec:
       affinity:
