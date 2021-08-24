@@ -27,7 +27,7 @@ spec:
                 - 'true'
             weight: 1
       containers:
-      - image: presalytics/workspace:latest
+      - image: presalytics/workspace-frontend:master
         imagePullPolicy: Always
         name: workspace
         ports:
