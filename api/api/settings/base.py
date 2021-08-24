@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'conversations',
     'stories',
     'cache',
-    'secure_proxy',
 ]
 
 MIDDLEWARE = [
