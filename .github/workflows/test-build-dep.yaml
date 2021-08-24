@@ -139,6 +139,10 @@ jobs:
         cd $GITHUB_WORKSPACE
         pip3 install gitpython
         python3 scripts/update_hashes.py
+    - name: test updates
+      run: |
+        cd $GITHUB_WORKSPACE
+        cat manifests/frontend-service.yaml
     - name: Azure Kubernetes set context
       # https://github.com/Azure/aks-set-context/
       uses: azure/aks-set-context@v1
@@ -167,6 +171,10 @@ jobs:
         cd $GITHUB_WORKSPACE
         pip3 install gitpython
         python3 scripts/update_hashes.py
+    - name: test updates
+      run: |
+        cd $GITHUB_WORKSPACE
+        cat manifests/frontend-service.yaml
     - name: Azure Kubernetes set context
       # https://github.com/Azure/aks-set-context/
       uses: azure/aks-set-context@v1
