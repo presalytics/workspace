@@ -15,7 +15,6 @@ spec:
       labels:
         app: workspace-api
         app.kubernetes.io/part-of: workspace
-      namespace: api
     spec:
       affinity:
         nodeAffinity:
