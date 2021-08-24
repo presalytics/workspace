@@ -144,7 +144,7 @@ jobs:
       uses: azure/aks-set-context@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        resource-group: presaalytics-prod
+        resource-group: presalytics-prod
         cluster-name: production
       id: login
       # https://github.com/Azure/k8s-deploy/
@@ -172,7 +172,7 @@ jobs:
       uses: azure/aks-set-context@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-        resource-group: presaalytics-prod
+        resource-group: presalytics-prod
         cluster-name: production
       id: login
       # https://github.com/Azure/k8s-deploy/
