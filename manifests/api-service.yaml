@@ -80,7 +80,7 @@ spec:
             secretKeyRef:
               name: azure-storage
               key: connection-string
-        image: presalytics/workspace-api:latest
+        image: presalytics/workspace-api:master
         imagePullPolicy: Always
         name: workspace-api
         ports:
