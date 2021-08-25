@@ -2,9 +2,9 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   labels:
-    app: workspace-frontend
+    app: app
     app.kubernetes.io/part-of: workspace
-  name: workspace-frontend
+  name: app
   namespace: public
 spec:
   template:
@@ -13,7 +13,7 @@ spec:
         autoscaling.knative.dev/enable-scale-to-zero: 'false'
         autoscaling.knative.dev/minScale: '1'
       labels:
-        app: workspace-frontend
+        app: app
         app.kubernetes.io/part-of: workspace
     spec:
       affinity:
@@ -29,7 +29,7 @@ spec:
       containers:
       - image: presalytics/workspace-frontend:master
         imagePullPolicy: Always
-        name: workspace
+        name: app
         ports:
         - containerPort: 80
         resources:
