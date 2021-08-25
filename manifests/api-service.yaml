@@ -2,9 +2,9 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   labels:
-    app: workspace-api
+    app: workspace
     app.kubernetes.io/part-of: workspace
-  name: workspace-api
+  name: workspace
   namespace: api
 spec:
   template:
@@ -13,7 +13,7 @@ spec:
         autoscaling.knative.dev/enable-scale-to-zero: 'false'
         autoscaling.knative.dev/minScale: '1'
       labels:
-        app: workspace-api
+        app: workspace
         app.kubernetes.io/part-of: workspace
     spec:
       affinity:
@@ -69,7 +69,7 @@ spec:
               key: api-client-secret
               name: workspace
         - name: ALLOWED_HOSTS
-          value: workspace-api.presalytics.io,workspace-api.api.svc.cluster.local,app.presalytics.io,workspace.api.presalytics.io,
+          value: workspace-api.presalytics.io,workspace-api.api.svc.cluster.local,app.presalytics.io,workspace.api.presalytics.io,workspace.api.svc.cluster.local
         - name: DJANGO_SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -82,7 +82,7 @@ spec:
               key: connection-string
         image: presalytics/workspace-api:master
         imagePullPolicy: Always
-        name: workspace-api
+        name: workspace
         ports:
         - containerPort: 80
         resources:
