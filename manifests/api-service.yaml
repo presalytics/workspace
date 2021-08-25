@@ -35,18 +35,15 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              key: db-password
-              name: workspace
+              key: password
+              name: db
         - name: DB_HOST
           valueFrom:
-            secretKeyRef:
+            configMapKeyRef:
               key: db-host
-              name: workspace
+              name: api
         - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: db-user
-              name: workspace
+          value: workspace_bot
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
