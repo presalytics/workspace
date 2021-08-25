@@ -43,7 +43,7 @@ spec:
               key: db-host
               name: api
         - name: DB_USER
-          value: workspace_bot
+          value: workspace_bot@presalytics_prod
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
