@@ -72,10 +72,13 @@ class PresalyticsUser(AbstractUser):
     def token(self) -> typing.Optional[str]:
         token = None
         session = self.session_set.filter(expire_date__gt=datetime.datetime.now()).order_by('-expire_date').first()  #type: ignore
-        token = session.get_decoded().get('access_token', None)
-        if not token:
-            session.delete()
-        return token
+        if session:
+            token = session.get_decoded().get('access_token', None)
+            if not token:
+                session.delete()
+            return token
+        else:
+            return None
 
 
     def update_roles(self, roles_list: typing.Sequence[str]) -> bool:
@@ -106,27 +109,26 @@ class PresalyticsUser(AbstractUser):
             changes = True
         return changes
     
-    def get_related_users(self):
-        dtos = list()
+    def get_related_users(self) -> typing.Sequence['PresalyticsUser']:
+        
+        usrs: typing.Sequence['PresalyticsUser'] = list()
+        
         stories = Story.objects.filter(collaborators__user=self)
         story_users = set(sc.user for sc in StoryCollaborator.objects.filter(story__in=stories))
         for user in story_users:
-            if user != self:
-                try:
-                    new_dto = UserRelationshipDto(user_id=self.id, related_user_id=user.id)
-                    dtos.append(new_dto)
-                except ValueError:
-                    pass
+            if user != self and user not in usrs:
+                usrs.append(user)
         conversations = Conversation.objects.filter(participants=self).all()
         participants = list(itertools.chain(*[list(c.participants) for c in conversations]))
         for p in participants:
-            if str(p.id) != str(self.id):
-                try:
-                    new_dto = UserRelationshipDto(user_id=self.id, related_user_id=str(p.id))
-                    dtos.append(new_dto)
-                except ValueError:
-                    pass
-        return dtos
+            if p != self and p not in usrs:
+                usrs.append(p)
+        return usrs
+
+    def get_related_user_dtos(self) -> typing.Sequence['UserRelationshipDto']:
+        user_list = self.get_related_users()
+        return [UserRelationshipDto(user_id=self.id, related_user_id=u.id) for u in user_list]
+
 
 
 class Scope(models.Model):
