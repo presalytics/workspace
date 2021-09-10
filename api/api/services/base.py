@@ -72,9 +72,10 @@ class ServiceBase(object):
             if not scopes:
                 scopes = self.oidc.default_scopes
             token = self.oidc.client_credentials_token(scope=scopes)  # type: ignore
-            logger.info("Token with key {0} retrieved from Login Endpoint.".format(key))
-            if r and token.get("expires_in", None):
-                expire_seconds = token["expires_in"] - 10
-                r.put(key, token, expire_seconds=expire_seconds)
+            if token:
+                logger.info("Token with key {0} retrieved from Login Endpoint.".format(key))
+                if r and token.get("expires_in", None):
+                    expire_seconds = token["expires_in"] - 10
+                    r.put(key, token, expire_seconds=expire_seconds)
 
         return token

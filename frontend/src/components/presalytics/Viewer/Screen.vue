@@ -170,17 +170,17 @@
             break
           }
           case ('ooxmlSvgBlob'): {
-            //console.log('Received Ooxml Object Response') // esline-disable-line
+            // console.log('Received Ooxml Object Response') // esline-disable-line
             this.handleOoxmlUpdate(data.ooxmlId, data.blob)
             break
           }
           case ('cachedIframeBlob'): {
-            //console.log('Received Cached IFrame Response') // esline-disable-line
+            // console.log('Received Cached IFrame Response') // esline-disable-line
             this.handleCachedIframe(data.nonce, data.blob)
             break
           }
           case ('updateOutline'): {
-            //console.log('Received Outline Update Response') // esline-disable-line
+            // console.log('Received Outline Update Response') // esline-disable-line
             this.$store.dispatch('stories/setStoryOutline', { storyId: data.storyId, outline: data.outline })
           }
         }

@@ -11,7 +11,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from rest_framework import views, exceptions, response
 from api.permissions import PresalyticsInternalPermssion, PresalyticsViewerPermission
-from api.services.website import WebsiteService
+from api.services.users import UserService
 from user_sessions.models import Session
 
 
@@ -77,9 +77,9 @@ class UserInfoView(View):
             allowed_users = [str(x.related_user_id) for x in related_users]
             allowed_users.append(str(request.user.id))
             if user_id in allowed_users:
-                web = WebsiteService()
+                user_service = UserService()
                 try:
-                    user_info = web.user(user_id)
+                    user_info = user_service.user(user_id)
                 except ValueError:
                     return HttpResponseNotFound()
                 except Exception as ex:

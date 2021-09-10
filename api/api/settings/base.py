@@ -66,7 +66,6 @@ MIDDLEWARE = [
     'user_sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.PresalyticsAuthenticationMidddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'api.middleware.GlobalRequestMiddleware'
@@ -161,6 +160,8 @@ CELERY_DEFAULT_EXCHANGE = CELERY_DEFAULT_QUEUE
 
 PRESALYTICS_SITE_URL = os.environ.get('PRESALYTICS_SITE_URL', 'https://presalytics.io/')
 FRONTEND_BASE_URL = os.environ.get('WORKSPACE_CLIENT_URL', 'https://workspace.presalytics.io/')
+USERS_URL = "{0}://{1}/".format(os.environ.get('USERS_PROTOCOL'), os.environ.get('USERS_HOST'))
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
