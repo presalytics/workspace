@@ -42,8 +42,6 @@ var getSvg = async (ooxmlId) => {
 }
 
 var accessToken = ''
-var csrf = ''
-
 var wait = (ms) => {
   return new Promise(resolve => {
     setTimeout(resolve, ms)
@@ -144,7 +142,6 @@ var createThumbnail = async (pageId, dataUrl) => {
     Authorization: 'Bearer ' + accessToken,
   }
   headers['Content-Disposition'] = 'form-data; name="image"; filename="' + filename + '"'
-  headers['X-CSRFToken'] = csrf
   await manageApiErrors(async () => {
     return await fetch('/api/workspace/stories/page/' + pageId + '/thumbnail', {
       method: 'POST',
@@ -171,7 +168,6 @@ self.onmessage = async ({ data }) => {
     }
     case ('accessToken'): {
       accessToken = data.accessToken
-      csrf = data.csrf
       break
     }
     case ('cachedFrame'): {

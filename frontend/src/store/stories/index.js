@@ -1,6 +1,5 @@
 import Vue from '../../main'
 import Worker from './story.worker'
-import Cookies from 'js-cookie'
 
 const workerActions = new Worker()
 
@@ -237,7 +236,6 @@ const stories = {
       workerActions.postMessage({
         request: 'accessToken',
         accessToken: accessToken,
-        csrf: Cookies.get('csrftoken'),
       })
     },
     async toggleIsFavorite ({ commit, state, getters }, storyId) {
@@ -279,7 +277,9 @@ const stories = {
 workerActions.onmessage = e => {
   const vm = Vue
   if (e.data.type === 'REFRESH_AUTH') {
-    vm.$auth.getTokenSilently()
+    vm.$auth.getTokenSilently().then(token => {
+      workerActions.postMessage({ accessToken: token })
+    })
   } else {
     vm.$store.commit('stories/' + e.data.type, e.data.payload)
     if (e.data.type === 'UPDATE_WORKSPACE') {

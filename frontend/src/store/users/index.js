@@ -1,6 +1,5 @@
 import Vue from '../../main'
 import Worker from './users.worker'
-import Cookies from 'js-cookie'
 
 var jsondiffpatch = require('jsondiffpatch').create({
   objectHash: function (obj) {
@@ -91,7 +90,6 @@ const users = {
       workerActions.postMessage({
         request: 'accessToken',
         accessToken: accessToken,
-        csrf: Cookies.get('csrftoken'),
       })
     },
     initTable ({ commit }, columnList) {
@@ -103,7 +101,9 @@ const users = {
 workerActions.onmessage = e => {
   const vm = Vue
   if (e.data.type === 'REFRESH_AUTH') {
-    vm.$auth.getTokenSilently()
+    vm.$auth.getTokenSilently().then(token => {
+      workerActions.postMessage({ accessToken: token })
+    })
   } else {
     vm.$store.commit('users/' + e.data.type, e.data.payload)
   }

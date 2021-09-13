@@ -22,23 +22,6 @@
 <script>
   export default {
     name: 'Login',
-    computed: {
-      isRegistered () {
-        return !!this.$store.state.workspace.agentId
-      },
-      isAuthenticated () {
-        return this.$auth.isAuthenticated
-      },
-      user () {
-        return this.$auth.user
-      },
-      auth () {
-        return this.$auth
-      },
-      logoutUri () {
-        return this.$auth.auth0Client.options.redirect_uri
-      },
-    },
     methods: {
       // Log the user in
       login () {

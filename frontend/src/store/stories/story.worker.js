@@ -1,6 +1,5 @@
 import { normalize, schema } from 'normalizr'
 import { HttpPlugin } from '../../plugins/http'
-
 var jsondiffpatch = require('jsondiffpatch').create({
   objectHash: function (obj) {
     return obj.id
@@ -8,8 +7,8 @@ var jsondiffpatch = require('jsondiffpatch').create({
   cloneDiffValues: true,
 })
 
-var accessToken = ''
-var csrf = ''
+const http = new HttpPlugin({ worker: self })
+
 var currentStories = {}
 var currentAnnotations = {}
 var currentPages = {}
@@ -46,62 +45,16 @@ const story = new schema.Entity('story', {
   ooxmlDocuments: [ooxmlDocument],
 })
 
-var accessTokenCallbackFn = () => {
-  return accessToken
-}
-
-var csrfCallbackFn = () => {
-  return csrf
-}
-
-var manageApiErrors = async (wrappedAsyncFn) => {
-  var result
-  try {
-    result = await wrappedAsyncFn()
-  } catch (err) {
-    if (err.status === 401 || err.status === 500) {
-      csrf = null
-      accessToken = null
-      self.postMessage({ type: 'REFRESH_AUTH' })
-      await new Promise((resolve) => {
-        var intptr = setInterval(() => {
-          if (csrf && accessToken) {
-            clearInterval(intptr)
-            resolve()
-          }
-        }, 50)
-      })
-      result = await wrappedAsyncFn()
-    } else {
-      result = null
-    }
-  }
-  return result
-}
-
 var updateAnnotation = async (annotation) => {
-  return await manageApiErrors(async () => {
-    return await http.putData(http.hosts.api, 'stories/annotations/' + annotation.id + '/', annotation)
-  })
+    return await http.putData('/api/stories/annotations/' + annotation.id + '/', annotation)
 }
 
 var renderStory = async (storyId) => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'stories/' + storyId + '/render')
-  })
+    return await http.getData('/api/stories/' + storyId + '/render')
 }
-
-const httpOptions = {
-  accessTokenCallback: accessTokenCallbackFn,
-  csrfCallback: csrfCallbackFn,
-}
-
-const http = new HttpPlugin(httpOptions)
 
 var getStories = async () => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'stories/')
-  })
+    return await http.getData('/api/stories/')
 }
 
 var genericNewEntityHandler = (currents, setMutationName, patchMutationName, newObject) => {
@@ -173,9 +126,7 @@ var handleRefreshedStoriesList = (newStoriesList) => {
 }
 
 var refreshPermissionTypes = async () => {
-  var permissionTypes = await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'stories/permission_types')
-  })
+  var permissionTypes = await http.getData('/api/stories/permission_types')
   if (permissionTypes.length > 0) {
     self.postMessage({ type: 'SET_PERMISSION_TYPES', payload: permissionTypes })
   }
@@ -191,17 +142,12 @@ var syncGlobals = (data) => {
   currentPages = data.pages || {}
 }
 
-self.onmessage = async (e) => {
+self.addEventListener('message', async (e) => {
   switch (e.data.request) {
     case ('initStories'): {
       syncGlobals(e.data)
       var stories = await getStories()
       handleRefreshedStoriesList(stories)
-      break
-    }
-    case ('accessToken'): {
-      accessToken = e.data.accessToken
-      csrf = e.data.csrf
       break
     }
     case ('toggleIsFavorite'): {
@@ -229,4 +175,4 @@ self.onmessage = async (e) => {
       break
     }
   }
-}
+})

@@ -44,7 +44,6 @@
 </template>
 
 <script>
-  import Cookies from 'js-cookie'
   import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
   import { v4 as uuidv4 } from 'uuid'
   import 'swiper/css/swiper.min.css'
@@ -413,7 +412,6 @@
         worker.postMessage({
           request: 'accessToken',
           accessToken: this.$store.getters.accessToken,
-          csrf: Cookies.get('csrftoken'),
         })
       },
     },

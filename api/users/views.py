@@ -13,48 +13,10 @@ from rest_framework import views, exceptions, response
 from api.permissions import PresalyticsInternalPermssion, PresalyticsViewerPermission
 from api.services.users import UserService
 from user_sessions.models import Session
+from presalytics.lib.util import dict_to_camelCase
 
 
 logger = logging.getLogger(__name__)
-
-
-class SessionView(TemplateView):
-
-    template_name = 'session.html' 
-
-    def get_context_data(self, **kwargs):
-
-        context = super().get_context_data(**kwargs)
-        context['target_origin'] = settings.FRONTEND_BASE_URL
-        return context
-
-    def post(self, request, **kwargs):
-        try:
-            if request.user.is_authenticated:
-                data = json.loads(request.body)
-                for key, val in data.items():
-                    request.session[key] = val
-                request.session.save()
-                return HttpResponse(status=204)
-            else:
-                return JsonResponse({'message': 'No matching user session found.'}, status=400)
-        except Exception as ex:
-            logger.exception(ex)
-            return JsonResponse({'message': 'The data sent to the server could not be parsed.'}, status=400)
-
-
-    def delete(self, request, **kwargs):
-        if request.user.is_authenticated:
-            try:
-                request.user.session_set.delete()
-            except Exception:
-                pass
-        else:
-            try:
-                request.session.delete()
-            except Exception:
-                pass
-        return HttpResponse(status=204)
 
 
 class UserRelationshipView(View):
@@ -97,20 +59,22 @@ class ResourcesView(views.APIView):
     
     def get(self, request, id):
         try:
-            user = PresalyticsUser.objects.get(id)
+            user = PresalyticsUser.objects.get(pk=id)  # throws error is not found
+
+            from stories.models import StoryCollaborator, Story
+            from conversations.models import Conversation
+
+            scs =  StoryCollaborator.objects.filter(user=user)
+            story_ids = [sc.story_id for sc in scs]
             resources = []
-            if user:
-                from api.stories.models import StoryCollaborator, Story
-                from api.conversations.models import Conversation
-                scs =  StoryCollaborator.objects.filter(user=user)
-                story_ids = [sc.story_id for sc in scs]
-                resources = []
-                resources.extend([{"resource_id": id, "resource_type": "story"} for id in story_ids])
-                users = PresalyticsUser.objects.filter(story_id__in=story_ids).distinct()
-                resources.extend([{"resource_id": u.id, "resource_type": "user"} for u in users])
-                convos = Conversation.objects.filter(participants__in=user).distinct()
-                resources.extend([{"resource_id": c.id, "resource_type": "conversation"} for c in convos])
-                # TODO: add teams and organizations when models are added
+            resources.extend([{"resource_id": id, "resource_type": "story"} for id in story_ids])
+            users = PresalyticsUser.objects.filter(storycollaborator__story_id__in=story_ids).distinct()
+            resources.extend([{"resource_id": u.id, "resource_type": "user"} for u in users])
+            convos = Conversation.objects.filter(participants=user).distinct()
+            resources.extend([{"resource_id": c.id, "resource_type": "conversation"} for c in convos])
+            # TODO: add teams and organizations when models are added
+            resp = [dict_to_camelCase(r) for r in resources]
+            return JsonResponse(resp, safe=False)
         except PresalyticsUser.DoesNotExist:
             raise exceptions.NotFound()
 

@@ -10,25 +10,32 @@ module.exports = {
         changeOrigin: true,
         logLevel: 'debug'
       },
-      '/api/story': {
-        target: process.env.VUE_APP_STORY_HOST,
+      '/api/events': {
+        target: process.env.VUE_APP_EVENTS_HOST,
         pathRewrite: function(path, req) {
-          return path.replace(/^(\/api\/story)/,"")
+          return path.replace(/^(\/api\/events)/,"")
         },
         changeOrigin: true,
         logLevel: 'debug'
       },
-      '/api/workspace': {
-        target: process.env.VUE_APP_WORKSPACE_API_URL,
+      '/api/event-store': {
+        target: process.env.VUE_APP_EVENT_STORE_HOST,
         pathRewrite: function(path, req) {
-          return path.replace(/^(\/api\/workspace)/,"")
+          return path.replace(/^(\/api\/event-store)/,"")
+        },
+        changeOrigin: true,
+        logLevel: 'debug'
+      },
+      '/api': {
+        target: process.env.VUE_APP_WORKSPACE_HOST,
+        pathRewrite: function(path, req) {
+          return path.replace(/^(\/api)/,"")
         },
         changeOrigin: true,
         logLevel: 'debug',
       },
     }
   },
-
   transpileDependencies: ['vuetify'],
 
   pluginOptions: {
@@ -39,8 +46,11 @@ module.exports = {
       enableInSFC: false,
     },
   },
+  configureWebpack: {
+    devtool: 'source-map'
+  },
   chainWebpack: config => {
-
+    config.devtool('source-map')
     config.module.rule('eslint').use('eslint-loader').options({
       fix: true,
     })

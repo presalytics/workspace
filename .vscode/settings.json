@@ -23,5 +23,15 @@
     },
     "[javascript]": {
       "editor.tabSize": 2
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/*.code-search": true,
+      "**/venv": true, 
+      "**/node_modules/**": true,
+      "chunk-*": true,
+      "frontend/dist/**": true,
+      ".git/**": true
     }
 }

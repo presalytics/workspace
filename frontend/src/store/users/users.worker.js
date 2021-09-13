@@ -1,5 +1,7 @@
 import { HttpPlugin } from '../../plugins/http'
 
+const http = new HttpPlugin({ worker: self })
+
 var jsondiffpatch = require('jsondiffpatch').create({
   objectHash: function (obj) {
     return obj.id
@@ -7,60 +9,14 @@ var jsondiffpatch = require('jsondiffpatch').create({
   cloneDiffValues: true,
 })
 
-var accessToken = ''
-var csrf = ''
 var currentUsers = {}
 
-var accessTokenCallbackFn = () => {
-  return accessToken
-}
-
-var csrfCallbackFn = () => {
-  return csrf
-}
-
-var manageApiErrors = async (wrappedAsyncFn) => {
-  var result
-  try {
-    result = await wrappedAsyncFn()
-  } catch (err) {
-    if (err.status === 401 || err.status === 500) {
-      csrf = null
-      accessToken = null
-      self.postMessage({ type: 'REFRESH_AUTH' })
-      await new Promise((resolve) => {
-        var intptr = setInterval(() => {
-          if (csrf && accessToken) {
-            clearInterval(intptr)
-            resolve()
-          }
-        }, 50)
-      })
-      result = await wrappedAsyncFn()
-    } else {
-      result = null
-    }
-  }
-  return result
-}
-
-const httpOptions = {
-  accessTokenCallback: accessTokenCallbackFn,
-  csrfCallback: csrfCallbackFn,
-}
-
-const http = new HttpPlugin(httpOptions)
-
 var getRelationships = async () => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'user/relationships/')
-  })
+    return await http.getData('/api/user/relationships/')
 }
 
 var getUser = async (userId) => {
-  return await manageApiErrors(async () => {
-    return await http.getData(http.hosts.api, 'user/user-info/' + userId + '/')
-  })
+    return await http.getData('/api/user/user-info/' + userId + '/')
 }
 
 var genericNewEntityHandler = (currents, setMutationName, patchMutationName, newObject) => {
@@ -87,13 +43,8 @@ var genericNewEntityHandler = (currents, setMutationName, patchMutationName, new
 
 var handleUserUpdate = (userData) => genericNewEntityHandler(currentUsers, 'SET_USER', 'PATCH_USER', userData)
 
-self.onmessage = async (e) => {
+self.addEventListener('message', async (e) => {
   switch (e.data.request) {
-    case ('accessToken'): {
-      accessToken = e.data.accessToken
-      csrf = e.data.csrf
-      break
-    }
     case ('initUsers'): {
       currentUsers = e.data.users
       var relations = await getRelationships()
@@ -113,4 +64,4 @@ self.onmessage = async (e) => {
       })
     }
   }
-}
+})
