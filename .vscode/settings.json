@@ -33,5 +33,12 @@
       "chunk-*": true,
       "frontend/dist/**": true,
       ".git/**": true
-    }
+    },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "eslint.workingDirectories": [
+      "./app"
+    ],
+    "eslint.lintTask.options": "--ext .js,.vue --fix src"
 }

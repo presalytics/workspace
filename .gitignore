@@ -11,3 +11,10 @@ presalytics_workspace/log
 .env.*
 auth_config.json
 *.sqlite3
+yarn-error.log
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local

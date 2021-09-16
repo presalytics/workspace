@@ -8,15 +8,30 @@
             "name": "Vue.js Frontend",
             "request": "launch",
             "runtimeArgs": [
-                "run",
                 "dev",
             ],
-            "runtimeExecutable": "npm",
+            "runtimeExecutable": "yarn",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "type": "pwa-node",
-            "cwd": "${workspaceFolder}/frontend"
+            "cwd": "${workspaceFolder}/app"
+        },
+        {
+          "type": "chrome",
+          "request": "launch",
+          "name": "Debug Chrome",
+          "url": "http://localhost:3000",
+          "webRoot": "${workspaceFolder}/app",
+          "sourceMaps": true,
+          "breakOnLoad": true,
+          "sourceMapPathOverrides": {
+            "webpack:/*": "${webRoot}/*",
+            "/./*": "${webRoot}/*",
+            "/src/*": "${webRoot}/*",
+            "/*": "*",
+            "/./~/*": "${webRoot}/node_modules/*"
+          }
         },
         {
             "name": "Django Backend",
@@ -58,46 +73,12 @@
           "justMyCode": false
         },
         {
-            "name": "Celery Debug",
-            "type": "python",
-            "request": "launch",
-            "envFile": "${workspaceFolder}/.env",
-            "console": "internalConsole",
-            "internalConsoleOptions": "openOnSessionStart",
-            "justMyCode": true,
-            "module": "celery",
-            "cwd": "${workspaceFolder}/api",
-            "args": [
-                "-A",
-                "api.celery",
-                "worker",
-                "--loglevel=DEBUG",
-                "-P",
-                "solo",
-                "-Q",
-                "workspace",
-                "-n",
-                "workspace-worker"
-            ]
-        },
-        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
-        },
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Vue: Chrome",
-            "url": "http://localhost:8081",
-            "webRoot": "${workspaceFolder}/frontend/src",
-            "breakOnLoad": true,
-            "sourceMapPathOverrides": {
-              "webpack:///src/*": "${webRoot}/*"
-            },
         },
         {
           "type": "python",
@@ -135,22 +116,6 @@
           ],
           "console": "internalConsole",
           "justMyCode": false
-        },
-        {
-          "type": "chrome",
-          "request": "launch",
-          "name": "vuejs: chrome",
-          "url": "http://localhost:8080",
-          "webRoot": "${workspaceFolder}/frontend",
-          "sourceMaps": true,
-          "breakOnLoad": true,
-          "sourceMapPathOverrides": {
-            "webpack:/*": "${webRoot}/*",
-            "/./*": "${webRoot}/*",
-            "/src/*": "${webRoot}/*",
-            "/*": "*",
-            "/./~/*": "${webRoot}/node_modules/*"
-          }
         },
     ]
 }
