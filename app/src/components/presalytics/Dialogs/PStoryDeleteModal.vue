@@ -1,0 +1,72 @@
+<template>
+  <p-modal-base
+    v-model="modalProps"
+    :name="name"
+    color="error"
+    :title="title"
+  >
+    <v-card-text>
+      Are you sure you want to delete the story
+      <strong class="font-weight-bold">
+        {{ storyTitle }}
+      </strong>?
+      <br>
+      <span class="font-weight-thin text-body-2">
+        Story Id: {{ storyId }}
+      </span>
+    </v-card-text>
+
+    <template #actions>
+      <v-btn
+        color="error"
+        @click="deleteStory"
+      >
+        Yes, Delete Story
+      </v-btn>
+    </template>
+  </p-modal-base>
+</template>
+
+<script>
+  import PModalBase from './PModalBase.vue'
+
+  export default {
+    components: {
+      PModalBase,
+    },
+    data: () => ({
+      title: 'Delete Story?',
+      name: 'PStoryDeleteModal',
+      modalProps: {},
+    }),
+    computed: {
+      story () {
+        var vm = this
+        if (this.storyId) {
+          return vm.$store.getters['stories/story'](this.storyId)
+        } else {
+          return null
+        }
+      },
+      storyTitle () {
+        try {
+          return this.story.title
+        } catch {
+          return ''
+        }
+      },
+      storyId () {
+        try {
+          return this.$props.modalProps.storyId
+        } catch {
+          return null
+        }
+      },
+    },
+    methods: {
+      deleteStory () {
+        alert('TODO: write delete story method')
+      },
+    },
+  }
+</script>
