@@ -1,7 +1,12 @@
 import { HttpPlugin } from '../../plugins/http'
 import { create } from 'jsondiffpatch'
 
-const http = new HttpPlugin({ worker: self })
+const http = new HttpPlugin({ 
+  worker: self,
+  errorHandlers: {
+    404: () => new Promise((resolve) => resolve({retry: false, result: null}))
+  }
+})
 
 var jsondiffpatch = create({
   objectHash: function (obj) {

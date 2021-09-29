@@ -19,7 +19,6 @@ export default class Auth0Plugin{
     if (instance) {
       return instance
     } else {
-      console.log(Vue)
       instance = new Auth0Plugin(options)
     }
     Vue.prototype.$auth = instance

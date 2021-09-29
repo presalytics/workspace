@@ -24,9 +24,7 @@ export default {
             if (cur.show) {
               cur.properties = payload.properties || {}
             } else {
-              setTimeout(() => {
                 cur.properties = null
-              }, 2000)
             }
           } else {
             cur.show = false

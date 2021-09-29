@@ -1,9 +1,15 @@
-class HttpError extends Error {
+export class HttpError extends Error {
   constructor (message, status, info) {
     super(message)
     this.status = status
     this.info = info
   }
+}
+
+export const responseTypes = {
+  JSON: "json",
+  TEXT: "text",
+  BLOB: "blob"
 }
 
 export default class HttpPlugin {
@@ -20,7 +26,7 @@ export default class HttpPlugin {
     }
     this.accessToken = null
     this.authGetTokenFn = options.getTokenFn
-    this.accessTokenCallback = this._defaultAccessTokenCallback
+    this.accessTokenCallback = options.accessTokenCallback || this._defaultAccessTokenCallback
     this.errorHandlers = {
       ...this.defaultErrorHandlers(),
       ...options.errorHandlers,
@@ -41,7 +47,10 @@ export default class HttpPlugin {
 
   defaultErrorHandlers() {
     return {
-      401: this._defaultAccessTokenCallback
+      401: async () => {
+      await this.accessTokenCallback()
+      return {retry: true}
+      }
     }
   }
 
@@ -50,8 +59,13 @@ export default class HttpPlugin {
       return await this._call(...callArgs)
     } catch (err) {
       if (err.status in this.errorHandlers) {
-        await this.errorHandlers[err.status].bind(this)()
-        return await this._call(...callArgs)
+        let correction = await this.errorHandlers[err.status].bind(this)()
+        if (correction?.retry) {
+          return await this._call(...callArgs)
+        } else {
+          if (Object.prototype.hasOwnProperty.call(correction, 'result')) return correction.result
+          throw(err)
+        }
       } else {
         if (this.propagate_exceptions) {
           throw (err)
@@ -80,7 +94,7 @@ export default class HttpPlugin {
       this.accessToken = await new Promise((resolve) => {
         const listener = this.worker.addEventListener('message', function (e) {
           if (e.data?.accessToken) {
-            this.removeEventListener('message', listener)
+            this.worker.removeEventListener('message', listener)
             resolve(e.data.accessToken)
           }
         })
@@ -91,11 +105,25 @@ export default class HttpPlugin {
     return this.accessToken
   }
 
-  async _handleResponse (response) {
+  async _handleResponse (response, responseType = responseTypes.JSON) {
     if (response.status === 204) {
       return 'success'
     } else if (response.ok) {
-      return await response.json()
+      switch(responseType) {
+        case (responseTypes.JSON): {
+          return await response.json()
+        }
+        case (responseTypes.BLOB): {
+          return await response.blob()
+        }
+        case (responseTypes.TEXT): {
+          return await response.text()
+        }
+        default: {
+          throw new HttpError("Requested repsonseType not understood by HttpPlugin", response.status, null)
+        }
+      }
+
     } else {
       var message = await response.text() || 'An error occured while fetching data'
       var errInfo = {}
@@ -108,7 +136,7 @@ export default class HttpPlugin {
     }
   }
 
-  async _call (path, method, data = null, additionalHeaders = {}) {
+  async _call (path, method, data = null, additionalHeaders = {}, responseType = responseTypes.JSON) {
     const baseHeaders = await this._getHeaders()
     const headers = {
       ...baseHeaders,
@@ -124,7 +152,7 @@ export default class HttpPlugin {
     }
     const response = await fetch(path, options)
       try {
-        return await this._handleResponse(response)
+        return await this._handleResponse(response, responseType)
       } catch (err) {
         err.httpInfo = err.httpInfo || {}
         err.httpInfo.path = path
@@ -136,28 +164,26 @@ export default class HttpPlugin {
       }
     }
 
-  async getData (path, additionalHeaders = {}) {
-    const resp = await this.callWrapper([path, 'GET', null, additionalHeaders])
+  async getData (path, additionalHeaders = {}, responseType = responseTypes.JSON) {
+    const resp = await this.callWrapper([path, 'GET', null, additionalHeaders, responseType])
     return resp
   }
 
-  async postData (path, data, additionalHeaders = {}) {
-    const resp = await this.callWrapper([path, 'POST', data, additionalHeaders])
+  async postData (path, data, additionalHeaders = {}, responseType = responseTypes.JSON) {
+    const resp = await this.callWrapper([path, 'POST', data, additionalHeaders, responseType])
     return resp
   }
 
-  async putData (path, data, additionalHeaders = {}) {
-    return await this.callWrapper([path, 'PUT', data, additionalHeaders])
+  async putData (path, data, additionalHeaders = {}, responseType = responseTypes.JSON) {
+    return await this.callWrapper([path, 'PUT', data, additionalHeaders, responseType])
   }
 
-  async deleteData (path, additionalHeaders = {}) {
-    return await this.callWrapper([path, 'DELETE', null, additionalHeaders])
+  async deleteData (path, additionalHeaders = {}, responseType = responseTypes.JSON) {
+    return await this.callWrapper([path, 'DELETE', null, additionalHeaders, responseType])
   }
 }
 
 HttpPlugin.install = (Vue, options = {}) => {
-  options.getTokenFn = Vue.prototype.$auth.getTokenSilently
+  options.getTokenFn = Vue.prototype.$auth.getTokenSilently.bind(Vue.prototype.$auth)
   Vue.prototype.$http = new HttpPlugin(options)
 }
-
-export { HttpPlugin, HttpError }

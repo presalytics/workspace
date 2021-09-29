@@ -73,37 +73,16 @@
         }
       }
     },
-
     created() {
-      let vm = this
-      userWorker.addEventListener('message', function(e) {
-        if (e.data.type === 'REFRESH_AUTH') {
-          vm.refreshAuth()
-        } else {
-          vm.$store.commit('users/' + e.data.type, e.data.payload)
-        }
-      })
-
-      eventWorker.addEventListener('message', function(e) {
-        if (e.data.type === 'REFRESH_AUTH') {
-          vm.refreshAuth()
-        } else {
-          vm.$store.commit('apiEvents/' + e.data.type, e.data.payload)
-        }
-      })
-
-      storyWorker.addEventListener('message', function(e) {
-        if (e.data.type === 'REFRESH_AUTH') {
-          vm.refreshAuth()
-        } else {
-          vm.$store.commit('stories/' + e.data.type, e.data.payload)
-          if (e.data.type === 'UPDATE_WORKSPACE') {
-            vm.$store.dispatch('stories/syncIds', e.data.payload)
-          }
-        }
-      })
-
+      userWorker.addEventListener('message', this.userEventListener)
+      eventWorker.addEventListener('message', this.apiEventsEventListener)
+      storyWorker.addEventListener('message', this.storyEventListener)
       this.$auth.init()
+    },
+    beforeDestroy() {
+      userWorker.removeEventListener('message', this.userEventListener)
+      eventWorker.removeEventListener('message', this.apiEventsEventListener)
+      storyWorker.removeEventListener('message', this.storyEventListener)
     },
     methods: {
       async refreshAuth() {
@@ -112,7 +91,31 @@
         userWorker.postMessage(message)
         eventWorker.postMessage(message)
         storyWorker.postMessage(message)
-      }
+      },
+      userEventListener(e) {
+        if (e.data.type === 'REFRESH_AUTH') {
+          this.refreshAuth()
+        } else {
+          this.$store.commit('users/' + e.data.type, e.data.payload)
+        }
+      },
+      apiEventsEventListener(e) {
+        if (e.data.type === 'REFRESH_AUTH') {
+          this.refreshAuth()
+        } else {
+          this.$store.commit('apiEvents/' + e.data.type, e.data.payload)
+        }
+      },
+      storyEventListener(e) {
+        if (e.data.type === 'REFRESH_AUTH') {
+          this.refreshAuth()
+        } else {
+          this.$store.commit('stories/' + e.data.type, e.data.payload)
+          if (e.data.type === 'UPDATE_WORKSPACE') {
+            this.$store.dispatch('stories/syncIds', e.data.payload)
+          }
+        }
+      },
     }
   }
 </script>

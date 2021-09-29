@@ -1,4 +1,5 @@
 import { HttpPlugin } from '../../plugins/http'
+import SignalRConnectionManager from './hub-connection'
 
 const http = new HttpPlugin({ worker: self })
 
@@ -44,3 +45,10 @@ self.addEventListener('message', async (e) => {
     }
   }
 })
+
+const eventClient = new SignalRConnectionManager({
+  inboundEventHandler: (evt) => self.postMessage({type: 'ADD_EVENTS', cloudEvent: evt}),
+  accessTokenFn: http.accessTokenCallback.bind(http)
+})
+
+eventClient.startConnection()

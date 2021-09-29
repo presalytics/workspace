@@ -39,7 +39,8 @@ class PageSerializer(BaseModelSerializer):
         return page.refresh_from_db()
 
 class OutlineSerializer(BaseModelSerializer):
-    document = serializers.SerializerMethodField('get_document')
+    # document = serializers.SerializerMethodField('get_document')
+
 
     def get_document(self, instance):
         if type(instance.document) == StoryOutline:
@@ -50,6 +51,18 @@ class OutlineSerializer(BaseModelSerializer):
     class Meta:
         model = Outline
         fields = ('story_id', 'document', 'latest_patch_sequence') + BaseModelSerializer.Meta.fields
+        extra_kwargs = {
+            'latest_patch_sequence': {
+                'required': False
+            },
+            'story_id': {
+                'required': False
+            },
+            'document': {
+                'required': True,
+                'read_only': False
+            }
+        }
     
 
 
@@ -67,9 +80,11 @@ class PermissionTypeSerializer(BaseModelSerializer):
 
 class StoryCollaboratorSerializer(BaseModelSerializer):
     permission_name = serializers.SerializerMethodField('get_permission_name')
-    annotation = UserAnnotationSerialzer()
+    annotation = UserAnnotationSerialzer(source='first.annotation')
 
     def get_permission_name(self, instance):
+        if not isinstance(instance, StoryCollaborator):
+            instance = instance.first()
         return instance.permission_type.name
 
     class Meta:
@@ -133,7 +148,7 @@ class StorySerializer(BaseModelSerializer):
 
 
 class PostStoryOutlineSerializer(serializers.ModelSerializer):
-    outline = OutlineSerializer(read_only=True, required=False)
+    outline = OutlineSerializer(read_only=False, required=False)
     annotations = UserAnnotationSerialzer(read_only=True, required=False)
     collaborators = StoryCollaboratorSerializer(read_only=True, required=False)
     pages = PageSerializer(read_only=True, required=False)
@@ -141,25 +156,20 @@ class PostStoryOutlineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Story
         fields = ('outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages') + BaseModelSerializer.Meta.fields
-        extra_kwargs = {
-            'is_public': {
-                'validators': False
-            },
-            'title': {
-                'validators': False
-            }
-        }
 
     def create(self, validated_data):
-        outline_json = validated_data.pop('outline')
-        story = Story.objects.create(is_public=False, title=outline_json.get('title', 'New Story'))
-        Outline.objects.create(story=story, document=outline_json, latest_patch_sequence=0)
+        outline_json = validated_data.get('outline').get('document')
+        story = Story.objects.create(
+            id=validated_data.get('id', None), 
+            is_public=validated_data.get('is_public', None), 
+            title=outline_json.get('title', 'New Story')
+        )
+        Outline.objects.create(id=story.id, story=story, document=outline_json, latest_patch_sequence=0)
         permission = PermissionTypes.objects.get(name='creator')
         StoryCollaborator.objects.create(permission_type=permission, user=self.context['request'].user, story=story)
-        UserAnnotations.objects.create(story=story, user=self.context['request'].user, is_favorite=False)
         for page in outline_json.get('pages', []):
             page_id = page.get('id', None)
-            page = StoryPage.objects.create(story=story, created_from=page_id)
+            page = StoryPage.objects.create(id=page_id, story=story)
         story.save()
         story.refresh_from_db()
         return story

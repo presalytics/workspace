@@ -33,16 +33,33 @@
           md="8"
         >
           <div class="float-right">
-            <v-btn
-              color="success"
-              text
-              @click="toggleCreateModal"
+            <v-menu
+              top
+              :close-on-click="closeOnClick"
             >
-              <v-icon left>
-                mdi-plus
-              </v-icon>
-              Create
-            </v-btn>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="success"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon left>
+                    mdi-plus
+                  </v-icon>
+                  Create
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in createActions"
+                  :key="index"
+                  @click="createActionClick(item.action)"
+                >
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
             <v-btn
               text
               @click="toggleColumnModal"
@@ -101,6 +118,7 @@
     <p-story-share-modal />
     <p-story-delete-modal />
     <p-story-column-manage-modal />
+    <p-upload-pptx-modal />
   </base-material-card>
 </template>
 
@@ -117,6 +135,7 @@
   import PStoryDeleteModal from './Dialogs/PStoryDeleteModal.vue'
   import PStoryColumnManageModal from './Dialogs/PStoryColumnManageModal.vue'
   import MaterialCard from '@/components/base/MaterialCard.vue'
+  import PUploadPptxModal from './Dialogs/PUploadPptxModal.vue'
 
   export default {
     components: {
@@ -130,6 +149,7 @@
       PStoryDeleteModal,
       PStoryColumnManageModal,
       BaseMaterialCard: MaterialCard,
+      PUploadPptxModal,
     },
     data () {
       return {
@@ -178,6 +198,13 @@
         loading: true,
         searchText: '',
         debouncedText: '',
+        createActions: [
+          {
+            title: 'Upload Presentation (.pptx)',
+            action: 'upload-pptx'
+          }
+        ],
+        closeOnClick: true
       }
     },
     computed: {
@@ -317,6 +344,17 @@
           }
         }, null)
       },
+      createActionClick(actionName) {
+        switch (actionName) {
+          case('upload-pptx'): {
+            this.toggleUploadPptxModal()
+            break
+          }
+        }
+      },
+      toggleUploadPptxModal() {
+        this.toggleModal({ name: 'PUploadPptxModal' })
+      }
     },
   }
 </script>

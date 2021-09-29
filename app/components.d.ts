@@ -17,6 +17,7 @@ declare module 'vue' {
     MaterialStatsCard: typeof import('./src/components/base/MaterialStatsCard.vue')['default']
     MaterialTabs: typeof import('./src/components/base/MaterialTabs.vue')['default']
     MaterialTestimony: typeof import('./src/components/base/MaterialTestimony.vue')['default']
+    OoxmlWidget: typeof import('./src/components/presalytics/Viewer/Widgets/OoxmlWidget.vue')['default']
     PAlert: typeof import('./src/components/presalytics/Dialogs/PAlert.vue')['default']
     PAudienceCard: typeof import('./src/components/presalytics/PAudienceCard.vue')['default']
     PAudienceColumnManageModal: typeof import('./src/components/presalytics/Dialogs/PAudienceColumnManageModal.vue')['default']
@@ -36,16 +37,19 @@ declare module 'vue' {
     PStoryDeleteModal: typeof import('./src/components/presalytics/Dialogs/PStoryDeleteModal.vue')['default']
     PStoryShareModal: typeof import('./src/components/presalytics/Dialogs/PStoryShareModal.vue')['default']
     PStoryViewCounter: typeof import('./src/components/presalytics/PStoryViewCounter.vue')['default']
+    PUploadPptxModal: typeof import('./src/components/presalytics/Dialogs/PUploadPptxModal.vue')['default']
     PUserActivitySparkline: typeof import('./src/components/presalytics/PUserActivitySparkline.vue')['default']
     PUserCard: typeof import('./src/components/presalytics/PUserCard.vue')['default']
     PUserNotificationToggle: typeof import('./src/components/presalytics/PUserNotificationToggle.vue')['default']
     PUserRecentEvents: typeof import('./src/components/presalytics/PUserRecentEvents.vue')['default']
     PUserViewCounter: typeof import('./src/components/presalytics/PUserViewCounter.vue')['default']
+    Sandbox: typeof import('./src/components/presalytics/Viewer/Sandbox.vue')['default']
     Screen: typeof import('./src/components/presalytics/Viewer/Screen.vue')['default']
     StoryViewer: typeof import('./src/components/presalytics/Viewer/StoryViewer.vue')['default']
     Subheading: typeof import('./src/components/base/Subheading.vue')['default']
     Toolbar: typeof import('./src/components/presalytics/Viewer/Toolbar.vue')['default']
     VComponent: typeof import('./src/components/base/VComponent.vue')['default']
+    WidgetPage: typeof import('./src/components/presalytics/Viewer/Pages/WidgetPage.vue')['default']
   }
 }
 

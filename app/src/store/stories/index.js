@@ -10,14 +10,6 @@ var jsondiffpatch = create({
   cloneDiffValues: true,
 })
 
-class InvalidOutlineError extends Error {
-   constructor (message, outline, storyId) {
-     super(message)
-     this.outline = outline
-     this.storyId = storyId
-   }
-}
-
 const initialState = () => {
   return {
     annotations: {},
@@ -59,16 +51,7 @@ const stories = {
     },
     outline: (state, getters) => (storyId) => {
       var story = getters.story(storyId)
-      if (story) {
-        try {
-          return story.outline
-        } catch (err) {
-          throw new InvalidOutlineError('This story outline could not be parsed', story.outline, story.id)
-        }
-      }
-    },
-    content: (state) => (storyId) => {
-      return state.content[storyId]
+      return state.outlines[story.outline]
     },
     storiesByUser: (state) => (userId) => {
       return Object.values(state.stories).filter((cur) => {
