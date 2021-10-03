@@ -94,7 +94,7 @@ export default class HttpPlugin {
       this.accessToken = await new Promise((resolve) => {
         const listener = this.worker.addEventListener('message', function (e) {
           if (e.data?.accessToken) {
-            this.worker.removeEventListener('message', listener)
+            this.removeEventListener('message', listener)
             resolve(e.data.accessToken)
           }
         })

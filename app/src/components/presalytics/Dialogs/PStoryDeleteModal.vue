@@ -1,5 +1,6 @@
 <template>
   <p-modal-base
+    ref="base"
     v-model="modalProps"
     :name="name"
     color="error"
@@ -10,10 +11,6 @@
       <strong class="font-weight-bold">
         {{ storyTitle }}
       </strong>?
-      <br>
-      <span class="font-weight-thin text-body-2">
-        Story Id: {{ storyId }}
-      </span>
     </v-card-text>
 
     <template #actions>
@@ -41,31 +38,18 @@
     }),
     computed: {
       story () {
-        var vm = this
-        if (this.storyId) {
-          return vm.$store.getters['stories/story'](this.storyId)
-        } else {
-          return null
-        }
+        return this.modalProps?.storyId ? this.$store.getters['stories/story'](this.modalProps.storyId) : null
       },
       storyTitle () {
-        try {
-          return this.story.title
-        } catch {
-          return ''
-        }
-      },
-      storyId () {
-        try {
-          return this.$props.modalProps.storyId
-        } catch {
-          return null
-        }
+        return this.story ? this.story.title : ""
       },
     },
     methods: {
-      deleteStory () {
-        alert('TODO: write delete story method')
+      async deleteStory () {
+        await this.$http.deleteData('/api/stories/' + this.modalProps.storyId)
+        this.$store.dispatch('stories/deleteStory', this.story)
+        this.$dispatcher.emit("story.deleted", this.story)
+        this.$refs.base.dismiss()
       },
     },
   }

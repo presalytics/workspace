@@ -165,7 +165,6 @@ const stories = {
     },
     STORY_DELETE (state, payload) {
       var story = state.stories[payload.id]
-      story.annotations.forEach((cur) => delete state.annotations[cur])
       delete state.outlines[story.outline.id]
       story.pages.forEach((cur) => {
         var page = state.pages[cur]
@@ -173,7 +172,11 @@ const stories = {
         delete state.pages[cur]
       })
       story.ooxmlDocuments.forEach((cur) => delete state.ooxmlDocuments[cur])
-      story.collaborators.forEach((cur) => delete state.collaborators[cur])
+      story.collaborators.forEach((cur) => {
+        let annotationId = state.collaborators[cur].annotation
+        delete state.annotations[annotationId]
+        delete state.collaborators[cur]
+      })
       delete state.stories[payload.id]
       state.storiesList = state.storiesList.filter((cur) => cur !== payload.id)
     },
@@ -254,6 +257,12 @@ const stories = {
         dispatch('setStoryOutline', { storyId: storyId, outline: outline })
       }
     },
+    addStory () {
+      alert('Create add story action!')
+    },
+    deleteStory ({ commit }, story) {
+      commit('STORY_DELETE', story)
+    }
   },
 }
 

@@ -8,8 +8,8 @@ app_name = 'stories'
 
 urlpatterns = [
     path('', views.StoryView.as_view(), name='create'),
-    path('<uuid:id>', views.StoryDetailView.as_view(), name='detail'),
-    path('<uuid:id>/render', views.RenderStoryView.as_view(), name='render'),
+    path('<uuid:pk>', views.StoryDetailView.as_view(), name='detail'),
+    path('<uuid:pk>/render', views.RenderStoryView.as_view(), name='render'),
     path('comments', views.CommentCreateView.as_view(), name='comment_create'),
     path('comments/<uuid:pk>', views.CommentsView.as_view(), name='comments'),
     path('annotations', views.UserAnnoationsCreateView.as_view(), name='annotation_create'),

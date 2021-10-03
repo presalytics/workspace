@@ -9,6 +9,7 @@ import vuetify from './plugins/vuetify'
 import i18n from './i18n'
 import auth from './plugins/auth0'
 import { ErrorHandler } from './plugins/errorHandler'
+import dispatcher from './plugins/dispatcher'
 
 const authOptions = {
   domain: import.meta.env.VITE_APP_AUTH0_DOMAIN,
@@ -31,8 +32,11 @@ Vue.use(auth, {
 })
 
 Vue.use(http, {authGetTokenFn: () => store.getters.accessToken})
-
 Vue.use(ErrorHandler)
+Vue.use(dispatcher, {
+  storeDispatchFn: store.dispatch,
+  userIdFn: () => store.getters.userId
+})
 
 Vue.config.productionTip = false
 

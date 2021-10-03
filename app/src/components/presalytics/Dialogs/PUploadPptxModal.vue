@@ -41,6 +41,7 @@
 <script>
 import { v4 as uuidv4 } from 'uuid'
 import PModalBase from './PModalBase.vue'
+import { create as createjsondiffpatch, formatters } from 'jsondiffpatch'
 
 export default {
   name: 'PUploadPptxModal',
@@ -55,19 +56,37 @@ export default {
     modalProps: {},
     startMessage: "Upload a .pptx file to create a story",
     timeoutPtr: null,
-    filename: null
+    filename: null,
+    jsondiffpatch: null
   }),
+  created() {
+    this.jsondiffpatch =  createjsondiffpatch({
+      objectHash: function (obj) {
+        return obj.id
+      },
+      cloneDiffValues: true,
+    })
+  },
   methods: {
     async handleFileSelect(file) {
       try {
         if (file) {
           this.disabled = true
+          let storyId = uuidv4()
+          this.setProgress(5, 'Creating story...')
+          let story = await this.$http.postData('/api/stories/', {
+            outline: {
+              document: {},
+            },
+            id: storyId,
+            isPublic: false,
+            title: this.filename.name
+          })
           this.setProgress(10, 'Uploading File for processing...')
           let formData = new FormData();
           formData.append("files", file, file.name)
           let accessToken = await this.$auth.getTokenSilently()
-          let storyId = uuidv4()
-          formData.append("storyId", storyId) 
+          formData.append("storyId", story.id) 
           let uploadResponse = await fetch('/api/ooxml/Documents', {
             method: 'POST',
             headers: {
@@ -76,7 +95,7 @@ export default {
             body: formData
           })
           if (uploadResponse.status != 200) {
-            this.setProgress(0, 'File upload failuire', 'danger')
+            this.setProgress(0, 'File upload failure', 'danger')
             this.disabled = false
             throw new Error('File upload failure.')
           } else {
@@ -84,26 +103,20 @@ export default {
           }
           let ooxmlTrees = await uploadResponse.json()
           let outline = await this.createOutlineFromUploadedPptx(ooxmlTrees[0])
+          let diff = this.diffOutlines({}, outline)
+          await this.$http.postData('/api/stories/outline/' + story.id + '/patch', diff)
           this.setProgress(90, 'Outline finalized.  Saving new Story to API...')
-          let story = await this.$http.postData('/api/stories/', {
-            outline: {
-              document: outline,
-            },
-            id: storyId,
-            isPublic: false,
-            title: outline.title
-          })
-          console.log(story)  // eslint-disable-line
+          story = await this.$http.getData('/api/stories/' + story.id)
+          this.$dispatcher.emit("story.created", story)
           this.setProgress(100, 'Story created.  Redirecting...')
-          // TODO: Emit story created event to api
           let vm = this
           setTimeout(() => {
-            vm.$router.push('/stories/' + storyId)
-          }, 2000)
-
+            vm.$router.push('/stories/view/' + storyId)
+          }, 4000)
         }
       } catch (err) {
         this.setProgress(50, 'An error occured creating your outline.  Please try again', 'red')
+        console.error(err)
       } finally {
         let vm = this
         this.timeoutPtr = setTimeout(() => vm.reset(), 5000)
@@ -171,10 +184,10 @@ export default {
         title: repoData.name,
         description: '',
         info: {
-          createdAt: Date.now(),
+          dateCreated: new Date().toISOString(),
           createdBy: this.$store.getters.userId,
           filename: repoData.document.filename,
-          modifiedAt: Date.now(),
+          dateModified: new Date().toISOString(),
           modifiedBy: this.$store.getters.userId, 
         },
         storyId: repoData.document.storyId,
@@ -183,6 +196,14 @@ export default {
       }
 
     },
+    diffOutlines(original, updated) {
+      const delta = this.jsondiffpatch.diff(original, updated)
+      const rfc = formatters.jsonpatch.format(delta)
+      return {
+        jsondiffpatch: delta,
+        rfc_6902_patch: rfc
+      }
+    }
   } 
 }
 </script>

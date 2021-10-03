@@ -1,4 +1,4 @@
-import { HttpPlugin } from '../../plugins/http'
+import HttpPlugin from '@/plugins/http'
 import { create } from 'jsondiffpatch'
 
 const http = new HttpPlugin({ 
@@ -50,24 +50,28 @@ var genericNewEntityHandler = (currents, setMutationName, patchMutationName, new
 var handleUserUpdate = (userData) => genericNewEntityHandler(currentUsers, 'SET_USER', 'PATCH_USER', userData)
 
 self.addEventListener('message', async (e) => {
-  switch (e.data.request) {
-    case ('initUsers'): {
-      currentUsers = e.data.users
-      var relations = await getRelationships()
-      var myId = relations.relationships[0].user_id
-      var myRelation = {
-        user_id: myId,
-        related_user_id: myId,
-      }
-      relations.relationships.push(myRelation)
-      relations.relationships.map(async (cur) => {
-        var userId = cur.related_user_id
-        var usr = await getUser(userId)
-        if (usr) {
-          usr.id = usr.app_metadata.api_user_id
-          handleUserUpdate(usr)
+  try {
+    switch (e.data.request) {
+      case ('initUsers'): {
+        currentUsers = e.data.users
+        var relations = await getRelationships()
+        var myId = relations.relationships[0].user_id
+        var myRelation = {
+          user_id: myId,
+          related_user_id: myId,
         }
-      })
+        relations.relationships.push(myRelation)
+        relations.relationships.map(async (cur) => {
+          var userId = cur.related_user_id
+          var usr = await getUser(userId)
+          if (usr) {
+            usr.id = usr.app_metadata.api_user_id
+            handleUserUpdate(usr)
+          }
+        })
+      }
     }
+  } catch (err) {
+    console.error(err) // eslint-disable-line
   }
 })

@@ -1,10 +1,12 @@
 import collections
+from inspect import Attribute
 import typing
 import json
 from django.core.exceptions import RequestAborted
 from rest_framework import serializers
 from django.conf import settings
 from django.apps import apps
+from django.db.models import Max
 from presalytics.story.outline import StoryOutline
 from api.serailizers import BaseModelSerializer
 from .models import OoxmlDocument, Story, StoryPage, Comment, UserAnnotations, Outline, OutlinePatches, StoryCollaborator, PermissionTypes
@@ -22,6 +24,13 @@ class UserAnnotationSerialzer(BaseModelSerializer):
     class Meta:
         model = UserAnnotations
         fields = ('is_favorite',) + BaseModelSerializer.Meta.fields
+
+    def get_attribute(self, instance):
+        try:
+            return super().get_attribute(instance)
+        except AttributeError:
+            self.source_attrs = ['first', 'annotation']
+            return super().get_attribute(instance)
 
 
 class PageSerializer(BaseModelSerializer):
@@ -69,7 +78,18 @@ class OutlineSerializer(BaseModelSerializer):
 class OutlinePatchSerializer(BaseModelSerializer):
     class Meta:
         model = OutlinePatches
-        fields = ('outline_id', 'jsondiffpatch', 'rfc_6902_patch') + BaseModelSerializer.Meta.fields
+        fields = ('jsondiffpatch', 'rfc_6902_patch') + BaseModelSerializer.Meta.fields
+
+    def create(self, validated_data):
+        outline_id = str(self.context['view'].kwargs['pk'])
+        current_outline = Outline.objects.get(pk=outline_id)
+        new_outline = current_outline.apply_patch(validated_data['rfc_6902_patch'])
+        return OutlinePatches.objects.create(
+            patch_is_applied=True,
+            sequence=new_outline.latest_patch_sequence,
+            outline_id=outline_id,
+            **validated_data
+        )
 
 
 class PermissionTypeSerializer(BaseModelSerializer):
@@ -80,7 +100,7 @@ class PermissionTypeSerializer(BaseModelSerializer):
 
 class StoryCollaboratorSerializer(BaseModelSerializer):
     permission_name = serializers.SerializerMethodField('get_permission_name')
-    annotation = UserAnnotationSerialzer(source='first.annotation')
+    annotation = UserAnnotationSerialzer()
 
     def get_permission_name(self, instance):
         if not isinstance(instance, StoryCollaborator):
@@ -90,7 +110,6 @@ class StoryCollaboratorSerializer(BaseModelSerializer):
     class Meta:
         model = StoryCollaborator
         fields = ('user_id', 'story_id', 'permission_type_id', 'permission_name', 'annotation') + BaseModelSerializer.Meta.fields
-
 
 class OoxmlDocumentSerializer(BaseModelSerializer):
     class Meta:

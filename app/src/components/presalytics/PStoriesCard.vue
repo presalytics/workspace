@@ -79,6 +79,8 @@
           <v-data-table
             :headers="headers"
             :items="filteredStoriesList"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
             multi-sort
           >
             <template #item.isFavorite="{ item }">
@@ -204,7 +206,9 @@
             action: 'upload-pptx'
           }
         ],
-        closeOnClick: true
+        closeOnClick: true,
+        sortBy: 'updatedAt',
+        sortDesc: true,
       }
     },
     computed: {

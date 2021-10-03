@@ -15,7 +15,7 @@
 
     <v-list>
       <v-list-item
-        v-for="(item, index) in items"
+        v-for="(item, index) in shownItems"
         :key="index"
         class="menuItem"
         @click="handleMenuAction(item.action)"
@@ -52,14 +52,27 @@
     },
     data: () => ({
       items: [
-        { title: 'View Story', action: 'viewStory' },
-        { title: 'Share', action: 'shareStory' },
-        { title: 'Copy Story Id to Clipboard', action: 'copyId' },
-        { title: 'See Story Events', action: 'viewStoryEvents' },
-        { title: 'Delete Story', action: 'deleteStory' },
+        { title: 'View Story', action: 'viewStory', allowedPermissions: ['viewer', 'creator', 'editor', 'admin', 'promoter'] },
+        { title: 'Share', action: 'shareStory', allowedPermissions: ['creator', 'editor', 'admin', 'promoter'] },
+        { title: 'Copy Story Id to Clipboard', action: 'copyId', allowedPermissions: ['viewer', 'creator', 'editor', 'admin', 'promoter'] },
+        { title: 'See Story Events', action: 'viewStoryEvents',allowedPermissions: ['creator', 'editor', 'admin', 'promoter'] },
+        { title: 'Delete Story', action: 'deleteStory', allowedPermissions: ['creator', 'admin', 'promoter'] },
       ],
       closeOnContentClick: true,
     }),
+    computed: {
+      collaborator() {
+        return this.story.item.collaborators
+          .map( (cur) => this.$store.state.stories.collaborators[cur])
+          .filter( (cur) => cur.userId = this.$store.getters.userId)[0]
+      },
+      userPermissionType() {
+        return this.collaborator.permissionName
+      },
+      shownItems() {
+        return this.items.filter( (cur) => cur.allowedPermissions.includes(this.userPermissionType))
+      }
+    },
     methods: {
       ...mapActions('alerts', ['setAlert']),
       ...mapMutations('dialogs', {

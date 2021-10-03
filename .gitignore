@@ -11,3 +11,4 @@ presalytics_workspace/log
 .env.*
 auth_config.json
 *.sqlite3
+/app/dist

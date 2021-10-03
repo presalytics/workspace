@@ -1,4 +1,4 @@
-import { HttpPlugin } from '../../plugins/http'
+import  HttpPlugin from '@/plugins/http'
 import SignalRConnectionManager from './hub-connection'
 
 const http = new HttpPlugin({ worker: self })
@@ -32,17 +32,25 @@ var getEvents = async (query) => {
 }
 
 self.addEventListener('message', async (e) => {
-  switch (e.data.request) {
-    case ('getStoryEvents'): {
-      var storyId = e.data.storyId
-      await getEvents({ storyId: storyId })
-      break
+  try {
+    switch (e.data.request) {
+      case ('getStoryEvents'): {
+        var storyId = e.data.storyId
+        await getEvents({ storyId: storyId })
+        break
+      }
+      case ('initEvents'): {
+        var userId = e.data.userId
+        await getEvents({ userId: userId })
+        break
+      }
+      case ('sendEvent'): {
+        eventClient.sendEvent(e.data.eventData)
+        break
+      }
     }
-    case ('initEvents'): {
-      var userId = e.data.userId
-      await getEvents({ userId: userId })
-      break
-    }
+  } catch(err) {
+    console.error(err)  // eslint-disable-line
   }
 })
 

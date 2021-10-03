@@ -1,4 +1,5 @@
 import Worker from './apiEvents.worker?worker'
+import { CloudEvent } from 'cloudevents'
 
 const workerActions = new Worker()
 
@@ -60,6 +61,13 @@ const apiEvents = {
     async initEvents (context, userId) {
       workerActions.postMessage({ request: 'initEvents', userId: userId })
     },
+    async sendEvent (context, eventData) {
+      if (eventData instanceof CloudEvent) {
+        workerActions.postMessage({request: 'sendEvent', eventData: eventData.toJSON()})
+      } else {
+        throw new Error('eventData must be of type CloudEvent.  See https://github.com/cloudevents/sdk-javascript')
+      }
+    }
   },
 }
 

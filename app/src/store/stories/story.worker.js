@@ -1,5 +1,5 @@
 import { normalize, schema } from 'normalizr'
-import { HttpPlugin } from '../../plugins/http'
+import HttpPlugin from '@/plugins/http'
 import { create } from 'jsondiffpatch'
 
 var jsondiffpatch = create({
@@ -145,36 +145,40 @@ var syncGlobals = (data) => {
 }
 
 self.addEventListener('message', async (e) => {
-  switch (e.data.request) {
-    case ('initStories'): {
-      syncGlobals(e.data)
-      var stories = await getStories()
-      handleRefreshedStoriesList(stories)
-      break
-    }
-    case ('toggleIsFavorite'): {
-      var annotation = e.data.annotation
-      annotation.isFavorite = !annotation.isFavorite
-      var updatedAnno = await updateAnnotation(annotation)
-      if (updatedAnno) {
-        self.postMessage({ type: 'UPDATE_ANNOTATION', payload: updatedAnno })
+  try {
+    switch (e.data.request) {
+      case ('initStories'): {
+        syncGlobals(e.data)
+        var stories = await getStories()
+        handleRefreshedStoriesList(stories)
+        break
       }
-      break
-    }
-    case ('render'): {
-      var content = await renderStory(e.data.storyId)
-      if (content) {
-        var payload = {
-          storyId: e.data.storyId,
-          content: content,
+      case ('toggleIsFavorite'): {
+        var annotation = e.data.annotation
+        annotation.isFavorite = !annotation.isFavorite
+        var updatedAnno = await updateAnnotation(annotation)
+        if (updatedAnno) {
+          self.postMessage({ type: 'UPDATE_ANNOTATION', payload: updatedAnno })
         }
-        self.postMessage({ type: 'SET_STORY_CONTENT', payload: payload })
+        break
       }
-      break
+      case ('render'): {
+        var content = await renderStory(e.data.storyId)
+        if (content) {
+          var payload = {
+            storyId: e.data.storyId,
+            content: content,
+          }
+          self.postMessage({ type: 'SET_STORY_CONTENT', payload: payload })
+        }
+        break
+      }
+      case ('permissionTypes'): {
+        await refreshPermissionTypes()
+        break
+      }
     }
-    case ('permissionTypes'): {
-      await refreshPermissionTypes()
-      break
-    }
+  } catch(err) {
+    console.error(err)  // eslint-disable-line
   }
 })

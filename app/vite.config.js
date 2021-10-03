@@ -11,7 +11,6 @@ export default (({ mode }) => {
   process.env = {...process.env, ...loadEnv(mode, process.cwd())}
 
   return defineConfig({
-    base: mode === 'development' ? 'http://localhost:8080/' : 'https://app.presalytics.io/',
     plugins: [
       Inspect(),
       eslintPlugin({cache: false}),
@@ -34,6 +33,8 @@ export default (({ mode }) => {
     ],
     define: {
       'process.env': {},
+      'process.platform': null,
+      'process.version': null,
     },
     optimizeDeps: {
       include: [
@@ -41,6 +42,9 @@ export default (({ mode }) => {
         '@microsoft/signalr/dist/webworker/signalr.js',
         'cloudevents',
       ]
+    },
+    resolve: { 
+      dedupe: ['vue'] 
     },
     server: {
       port: 8080,

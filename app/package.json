@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.0",
   "scripts": {
-    "serve": "vite preview",
+    "serve": "vite preview --port 8080",
     "build": "vite build",
     "dev": "vite",
     "lint": "eslint --ext .js,.vue --fix src",
@@ -25,6 +25,7 @@
     "mpld3": "^0.5.5",
     "normalizr": "^3.6.1",
     "swiper": "^5.4.5",
+    "tiny-emitter": "^2.1.0",
     "uuid": "^8.3.2",
     "vite-plugin-inspect": "^0.3.6",
     "vue": "^2.6.11",

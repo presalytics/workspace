@@ -1,5 +1,9 @@
 import Worker from './users.worker?worker'
 import {create} from 'jsondiffpatch'
+// import DummyWorker from './dummyworker.js?worker'
+
+// const dummy = new DummyWorker();
+// console.log(dummy) // eslint-disable-line
 
 var jsondiffpatch = create({
   objectHash: function (obj) {
@@ -8,7 +12,7 @@ var jsondiffpatch = create({
   cloneDiffValues: true,
 })
 
-const workerActions = new Worker()
+const workerActions = new Worker({type: "module"})
 
 const initialState = () => {
   return {

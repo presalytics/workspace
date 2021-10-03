@@ -40,7 +40,7 @@ class StoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [PresalyticsViewerPermission, permissions.StoryPermission]
 
     def get_queryset(self):
-        return Story.objects.filter(collaborators__in=self.request.user)
+        return Story.objects.filter(collaborators__user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)

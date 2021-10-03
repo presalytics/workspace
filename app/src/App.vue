@@ -104,6 +104,7 @@
           this.refreshAuth()
         } else {
           this.$store.commit('apiEvents/' + e.data.type, e.data.payload)
+          this.$dipatcher.handleEvent(e.data)
         }
       },
       storyEventListener(e) {

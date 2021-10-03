@@ -11,6 +11,7 @@ export default class SignalRConnectionManager {
     this.eventHandler = options.inboundEventHandler
     this.accessTokenFn = options.accessTokenFn
     this.hubUrl = import.meta.env.VITE_APP_HUB_URL || import.meta.env.VITE_APP_EVENTS_HOST + "/hub"
+    this.debug = import.meta.env.DEV
 
     this.connection =  new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {accessTokenFactory: options.accessTokenFn})
@@ -21,6 +22,7 @@ export default class SignalRConnectionManager {
 
     this.connection.on('HandleEvent', (message) => {
       let ce = new CloudEvent(message)
+      if (this.debug) console.log("API Event received", message)  // eslint-disable-line
       this.broadcast(ce)
     })
   }
@@ -37,6 +39,7 @@ export default class SignalRConnectionManager {
 
   sendEvent (eventData) {
     let ce = new CloudEvent(eventData)
+    if (this.debug) console.log("Sending Event to API", eventData) // eslint-disable-line
     this.connection.invoke("SendEvent", ce)
   }
 

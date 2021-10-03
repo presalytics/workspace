@@ -15,7 +15,14 @@ class StoryBasePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
 
         story: models.Story = self.get_story(obj)
-        if request.user in story.collaborators.objects.all():  # type: ignore
+        if story.collaborators.filter(user=request.user).count() > 0:  # type: ignore
+            if request.method == 'DELETE':
+                c: models.StoryCollaborator = story.collaborators.filter(user=request.user).first()  # type: ignore
+                permission_type_name = c.permission_type.name
+                if permission_type_name in ['creator', 'owner']:
+                    return True
+                else:
+                    return False
             return True
         return False
 

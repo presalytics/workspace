@@ -1,11 +1,14 @@
 import typing
+import jsonpatch
 from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db import transaction
-from presalytics.story.outline import OutlineDecoder, OutlineEncoder
+from rest_framework.exceptions import APIException
+from presalytics.story.outline import OutlineDecoder, OutlineEncoder, StoryOutline
+from presalytics.lib.exceptions import ValidationError
 from api.models import BaseModel
 from stories.tasks import (
     sync_outlines_to_latest_patches,
@@ -32,6 +35,29 @@ class Outline(BaseModel):
     latest_patch_sequence = models.IntegerField(null=False)
     document = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder)
 
+    class InvalidPatchBadRequest(APIException):
+        status_code = 400
+        default_detail = "The submitted patch results in an invalid out document.  Please adjust your request and try again."
+        default_code = "bad_request"
+
+    def apply_patch(self, rfc_6902_patch):
+        try:
+            outline_dct = self.document
+            if isinstance(outline_dct, StoryOutline):
+                outline_dct = outline_dct.to_dict()
+            updated_outline_dct = jsonpatch.apply_patch(outline_dct, rfc_6902_patch)
+            updated_outline = StoryOutline.deserialize(updated_outline_dct)
+            updated_outline.validate()
+            self.document = updated_outline
+            self.latest_patch_sequence += 1
+            self.save()
+            return self
+        except ValidationError:
+            raise self.InvalidPatchBadRequest()
+
+
+
+
 class OutlinePatches(BaseModel):
 
     outline = models.ForeignKey(Outline, models.CASCADE, related_name='patches')
@@ -40,11 +66,6 @@ class OutlinePatches(BaseModel):
     sequence = models.IntegerField()
     patch_is_applied = models.BooleanField(default=False)
 
-
-@receiver(post_save, sender=OutlinePatches)
-def handle_outline_changes_post_save(**kwargs):
-    transaction.on_commit(sync_outlines_to_latest_patches.apply_async(args=tuple(), queue='workspace'))  #type: ignore
-    
 
 class StoryPage(BaseModel):
     comments: typing.Union[models.Manager, 'Comment']
