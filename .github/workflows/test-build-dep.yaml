@@ -122,8 +122,8 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        file: ./frontend/Dockerfile
-        context: ./frontend
+        file: ./app/Dockerfile
+        context: ./app
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
   deploy-api:
