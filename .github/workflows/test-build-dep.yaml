@@ -98,7 +98,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Create .env.production
       run: |
-        cd ${$GITHUB_WORKSPACE}/app
+        cd $GITHUB_WORKSPACE/app
         printenv > .env.production
     - name: Docker meta
       id: meta
