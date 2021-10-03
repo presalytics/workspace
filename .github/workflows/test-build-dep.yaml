@@ -5,13 +5,6 @@ on:
   pull_request:
     branches: [ develop, master ]
 
-# Environment variables available to all jobs and steps in this workflow
-env:
-  FRONTEND_REGISTRY_NAME: 'presalytics/workspace'
-  API_REGISTRY_NAME: 'presalytics/workspace-api'
-  CLUSTER_NAME: 'production'
-  CLUSTER_RESOURCE_GROUP: 'presalytics-prod'
-
 jobs:
   # test-api:
   #   runs-on: "ubuntu-latest"
@@ -75,32 +68,29 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
 
-  build-frontend:
+  build-app:
     runs-on: ubuntu-latest
     defaults:
       run: 
-        working-directory: frontend
+        working-directory: app
     env:
-
+      VITE_APP_AUTH0_DOMAIN: login.presalytics.io
+      VITE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      VITE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
+      VITE_APP_I18N_LOCALE: en
+      VITE_APP_I18N_FALLBACK_LOCALE: en
+      VITE_APP_ENCRYPTION_KEY: ${{ secrets.CLIENT_ENCRYPTION_KEY }}
+      VITE_APP_AUTH0_SCOPE: 'email profile offline_acesss'
+      VITE_APP_OOXML_AUTOMATION_HOST: https://ooxml-automation.api.presalytics.io
+      VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
+      VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
+      VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
+      VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
 
     steps:
     - uses: actions/checkout@master
-    - name: Make envfile
-      uses: SpicyPizza/create-envfile@v1
-      with:
-        envkey_VITE_APP_AUTH0_DOMAIN: login.presalytics.io
-        envkey_VITE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        envkey_VITE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
-        envkey_VITE_APP_I18N_LOCALE: en
-        envkey_VITE_APP_I18N_FALLBACK_LOCALE: en
-        envkey_VITE_APP_AUTH0_SCOPE: 'email profile offline_acesss'
-        envkey_VITE_APP_OOXML_AUTOMATION_HOST: https://ooxml-automation.api.presalytics.io
-        envkey_VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
-        envkey_VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
-        envkey_VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
-        envkey_VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
-        directory: ./app
-        file_name: .env.production
+    - name: Create .env.production
+      run: printenv > .env.production
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v3
@@ -145,7 +135,7 @@ jobs:
     - name: test updates
       run: |
         cd $GITHUB_WORKSPACE
-        cat manifests/frontend-service.yaml
+        cat manifests/app-service.yaml
     - name: Azure Kubernetes set context
       # https://github.com/Azure/aks-set-context/
       uses: azure/aks-set-context@v1
@@ -163,9 +153,9 @@ jobs:
         manifests: |
           manifests/api-service.yaml
 
-  deploy-frontend:
+  deploy-app:
     if: github.ref == 'refs/heads/master'
-    needs: [build-frontend]
+    needs: [build-app]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -177,7 +167,7 @@ jobs:
     - name: test updates
       run: |
         cd $GITHUB_WORKSPACE
-        cat manifests/frontend-service.yaml
+        cat manifests/app-service.yaml
     - name: Azure Kubernetes set context
       # https://github.com/Azure/aks-set-context/
       uses: azure/aks-set-context@v1
@@ -193,4 +183,4 @@ jobs:
         namespace: public
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
-          manifests/frontend-service.yaml
+          manifests/app-service.yaml
