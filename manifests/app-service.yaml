@@ -4,8 +4,6 @@ metadata:
   labels:
     app: app
     app.kubernetes.io/part-of: workspace
-  annotations:
-    autoscaling.knative.dev/scaleDownDelay: "15m"
   name: app
   namespace: public
 spec:

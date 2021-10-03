@@ -4,8 +4,6 @@ metadata:
   labels:
     app: workspace
     app.kubernetes.io/part-of: workspace
-  annotations:
-    autoscaling.knative.dev/scaleDownDelay: "15m"
   name: workspace
   namespace: api
 spec:
@@ -14,6 +12,8 @@ spec:
       labels:
         app: workspace
         app.kubernetes.io/part-of: workspace
+      annotations:
+        autoscaling.knative.dev/scaleDownDelay: "15m"
     spec:
       affinity:
         nodeAffinity:
