@@ -96,8 +96,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - name: Create .env.production
-      run: printenv > ./.env.production
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v3
