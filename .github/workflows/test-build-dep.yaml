@@ -85,7 +85,7 @@ jobs:
       VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
       VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
       VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
-      VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
+      VITE_APP_HUB_URL: https://events.api.presalytics.io/hub
 
     steps:
     - uses: actions/checkout@master
