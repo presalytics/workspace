@@ -81,26 +81,26 @@ jobs:
       run: 
         working-directory: frontend
     env:
-      VITE_APP_AUTH0_DOMAIN: login.presalytics.io
-      VITE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      VITE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
-      VITE_APP_I18N_LOCALE: en
-      VITE_APP_I18N_FALLBACK_LOCALE: en
-      VITE_APP_ENCRYPTION_KEY: ${{ secrets.CLIENT_ENCRYPTION_KEY }}
-      VITE_APP_AUTH0_SCOPE: 'email profile offline_acesss'
-      VITE_APP_OOXML_AUTOMATION_HOST: https://ooxml-automation.api.presalytics.io
-      VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
-      VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
-      VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
-      VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
+
 
     steps:
     - uses: actions/checkout@master
-    - name: Create .env.production
-      run: |
-        cd $GITHUB_WORKSPACE
-        cd app
-        printenv > .env.production
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v1
+      with:
+        envkey_VITE_APP_AUTH0_DOMAIN: login.presalytics.io
+        envkey_VITE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        envkey_VITE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
+        envkey_VITE_APP_I18N_LOCALE: en
+        envkey_VITE_APP_I18N_FALLBACK_LOCALE: en
+        envkey_VITE_APP_AUTH0_SCOPE: 'email profile offline_acesss'
+        envkey_VITE_APP_OOXML_AUTOMATION_HOST: https://ooxml-automation.api.presalytics.io
+        envkey_VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
+        envkey_VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
+        envkey_VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
+        envkey_VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
+        directory: ./app
+        file_name: .env.production
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v3
