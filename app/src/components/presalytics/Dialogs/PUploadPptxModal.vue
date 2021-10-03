@@ -116,7 +116,7 @@ export default {
         }
       } catch (err) {
         this.setProgress(50, 'An error occured creating your outline.  Please try again', 'red')
-        console.error(err)
+        console.error(err)  //eslint-disable-line
       } finally {
         let vm = this
         this.timeoutPtr = setTimeout(() => vm.reset(), 5000)

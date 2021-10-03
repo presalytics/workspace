@@ -81,18 +81,18 @@ jobs:
       run: 
         working-directory: frontend
     env:
-      VUE_APP_AUTH0_DOMAIN: login.presalytics.io
-      VUE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      VUE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
-      VUE_APP_AUTH0_SCOPE: 'openid profile offline_access'
-      VUE_APP_I18N_LOCALE: en
-      VUE_APP_I18N_FALLBACK_LOCALE: en
-      VUE_APP_ENCRYPTION_KEY: ${{ secrets.CLIENT_ENCRYPTION_KEY }}
-      VUE_APP_STORY_HOST: https://testing.presalytics.io/story
-      VUE_APP_SITE_HOST: https://presalytics.io
-      VUE_APP_OOXML_AUTOMATION_HOST: https://api.presalytics.io/ooxml-automation
-      VUE_APP_WORKSPACE_API_URL: https://workspace-api.presalytics.io
-      VUE_APP_EVENTS_API_URL: https://api.presalytics.io/
+      VITE_APP_AUTH0_DOMAIN: login.presalytics.io
+      VITE_APP_AUTH0_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      VITE_APP_AUTH0_AUDIENCE: https://api.presalytics.io/
+      VITE_APP_I18N_LOCALE: en
+      VITE_APP_I18N_FALLBACK_LOCALE: en
+      VITE_APP_ENCRYPTION_KEY: ${{ secrets.CLIENT_ENCRYPTION_KEY }}
+      VITE_APP_AUTH0_SCOPE: 'email profile offline_acesss'
+      VITE_APP_OOXML_AUTOMATION_HOST: https://ooxml-automation.api.presalytics.io
+      VITE_APP_EVENTS_HOST: https://events.api.presalytics.io
+      VITE_APP_EVENT_STORE_HOST: https://event-store.api.presalytics.io
+      VITE_APP_WORKSPACE_HOST: https://workspace.api.presalytics.io
+      VITE_APP_HUB_URL: http://events.api.presalytics.io/hub
 
     steps:
     - uses: actions/checkout@master
