@@ -1,17 +1,11 @@
-FROM tiangolo/uwsgi-nginx:python3.6
+FROM python:3.6-slim-buster
 
-COPY . /app/api
+WORKDIR /app
 
-WORKDIR /app/api
+COPY ./requirements.txt /app/requirements.txt
 
-RUN apt-get update \
-    && apt-get install -y ca-certificates \
-    && update-ca-certificates
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-RUN pip3 install --upgrade uwsgi \
-    && apt-get install -y --no-install-recommends libssl-dev \
-    && pip3 install -r requirements.txt \
-    && mkdir /var/log/uwsgi \
-    && touch /tmp/uwsgi.sock \
-    && cp ./uwsgi.ini ..
+COPY . /app
 
+CMD ["gunicorn", "--conf", "gunicorn_conf.py", "--bind", "0.0.0.0:80", "api.wsgi:application"]
