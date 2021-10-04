@@ -13,10 +13,10 @@ spec:
   http:
   - match:
     - uri:
-        prefix: "/api/doc-converter"
+        prefix: "/api/doc-converter/"
     rewrite:
       authority: doc-converter.api.svc.cluster.local
-      uri: ""
+      uri: "/"
     route:
       - destination:
           host: knative-local-gateway.istio-system.svc.cluster.local
@@ -25,10 +25,10 @@ spec:
         weight: 100
   - match:
     - uri:
-        prefix: "/api/event-store"
+        prefix: "/api/event-store/"
     rewrite:
       authority: event-store.api.svc.cluster.local
-      uri: ""
+      uri: "/"
     route:
       - destination:
           host: knative-local-gateway.istio-system.svc.cluster.local
@@ -37,10 +37,10 @@ spec:
         weight: 100
   - match:
     - uri:
-        prefix: "/api/events"
+        prefix: "/api/events/"
     rewrite:
       authority: events.api.svc.cluster.local
-      uri: ""
+      uri: "/"
     route:
       - destination:
           host: knative-local-gateway.istio-system.svc.cluster.local
@@ -49,10 +49,10 @@ spec:
         weight: 100
   - match:
     - uri:
-        prefix: "/api/ooxml"
+        prefix: "/api/ooxml/"
     rewrite:
       authority: ooxml-automation.api.svc.cluster.local
-      uri: ""
+      uri: "/"
     route:
       - destination:
           host: knative-local-gateway.istio-system.svc.cluster.local
@@ -61,10 +61,10 @@ spec:
         weight: 100
   - match:
     - uri:
-        prefix: "/api"
+        prefix: "/api/"
     rewrite:
       authority: workspace.api.svc.cluster.local
-      uri: ""
+      uri: "/"
     route:
       - destination:
           host: knative-local-gateway.istio-system.svc.cluster.local
