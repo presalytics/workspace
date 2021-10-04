@@ -37,7 +37,7 @@ LOGGING = {
         'root': {
             'handlers': ['syslog'],
             'level': LOG_LEVEL,
-            'propagate': True,
+            'propagate': True, 
         },
         'django': {
             'level': LOG_LEVEL,

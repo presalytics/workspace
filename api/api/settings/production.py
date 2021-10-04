@@ -64,7 +64,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
-            'propagate': True,
+            'propagate': True, 
         },
         'root': {
             'handlers': ['syslog'],
