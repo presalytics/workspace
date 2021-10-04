@@ -18,7 +18,7 @@ var getEvents = async (query) => {
   var page = 1
   while (moreEvts) {
     query.page = page
-    var evts = await http.getData('/api/event-store?' + querify(query))
+    var evts = await http.getData('/api/event-store/?' + querify(query))
     if (evts.length > 0) {
       self.postMessage({ type: 'ADD_EVENTS', payload: evts })
     }

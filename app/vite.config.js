@@ -49,28 +49,28 @@ export default (({ mode }) => {
     server: {
       port: 8080,
       proxy: {
-        '/api/ooxml': {
+        '/api/ooxml/': {
           target: process.env.VITE_APP_OOXML_AUTOMATION_HOST,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^(\/api\/ooxml)/,""),
+          rewrite: (path) => path.replace(/^(\/api\/ooxml)/,"/"),
           logLevel: 'debug',
         },
-        '/api/events': {
+        '/api/events/': {
           target: process.env.VITE_APP_EVENTS_HOST,
-          rewrite: (path) => path.replace(/^(\/api\/events)/,""),
+          rewrite: (path) => path.replace(/^(\/api\/events)/,"/"),
           changeOrigin: true,
           ws: true,
           logLevel: 'debug',
         },
-        '/api/event-store': {
+        '/api/event-store/': {
           target: process.env.VITE_APP_EVENT_STORE_HOST,
-          rewrite: (path) => path.replace(/^(\/api\/event-store)/,""),
+          rewrite: (path) => path.replace(/^(\/api\/event-store)/,"/"),
           changeOrigin: true,
           logLevel: 'debug',
         },
         '/api': {
           target: process.env.VITE_APP_WORKSPACE_HOST,
-          rewrite: (path) => path.replace(/^(\/api)/,""),
+          rewrite: (path) => path.replace(/^(\/api)/,"/"),
           changeOrigin: true,
           logLevel: 'debug',
         },
