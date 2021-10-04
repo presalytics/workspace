@@ -27,6 +27,16 @@ spec:
             weight: 1
       containers:
       - env:
+        - name: USERS_PROTOCOL
+          valueFrom:
+            configmapKeyRef:
+              key: users-protocol
+              name: api
+        - name: USERS_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: users-host
+              name: api
         - name: DJANGO_DEBUG
           value: 'True'
         - name: DB_REQUIRE_SSL
