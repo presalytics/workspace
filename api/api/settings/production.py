@@ -1,5 +1,6 @@
 from .base import *
 import logging
+import sys
 from wsgi_microservice_middleware import RequestIdFilter, RequestIdJsonLogFormatter
 LOG_LEVEL = logging.INFO
 
@@ -52,6 +53,12 @@ LOGGING = {
             'facility': 'local0',
             'address': '/dev/log',
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'verbose'
+        }
     },
     'loggers': {
         'django.request': {

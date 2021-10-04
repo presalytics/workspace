@@ -1,4 +1,5 @@
 import logging
+import sys
 from wsgi_microservice_middleware import RequestIdFilter
 from .base import *
 
@@ -25,6 +26,12 @@ LOGGING = {
             'class': 'logging.handlers.SysLogHandler',
             'formatter': 'default',
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'verbose'
+        }
     },
     'loggers': {
         'root': {
