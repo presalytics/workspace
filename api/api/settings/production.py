@@ -57,7 +57,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'stream': sys.stdout,
-            'formatter': 'verbose'
+            'formatter': 'default'
         }
     },
     'loggers': {
