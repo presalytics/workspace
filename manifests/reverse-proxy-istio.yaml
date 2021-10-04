@@ -1,0 +1,84 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: workspace-ext
+  namespace: istio-system
+spec:
+  hosts:
+  - "app.presalytics.io"
+  gateways:
+  - presalytics-gateway
+  - knative-ingress-gateway.knative-serving.svc.cluster.local
+  http:
+  - match:
+    - uri:
+        prefix: "/api/doc-converter"
+    rewrite:
+      authority: doc-converter.api.svc.cluster.local
+      uri: ""
+    route:
+      - destination:
+          host: knative-local-gateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
+  - match:
+    - uri:
+        prefix: "/api/event-store"
+    rewrite:
+      authority: event-store.api.svc.cluster.local
+      uri: ""
+    route:
+      - destination:
+          host: knative-local-gateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
+  - match:
+    - uri:
+        prefix: "/api/events"
+    rewrite:
+      authority: events.api.svc.cluster.local
+      uri: ""
+    route:
+      - destination:
+          host: knative-local-gateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
+  - match:
+    - uri:
+        prefix: "/api/ooxml"
+    rewrite:
+      authority: ooxml-automation.api.svc.cluster.local
+      uri: ""
+    route:
+      - destination:
+          host: knative-local-gateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
+  - match:
+    - uri:
+        prefix: "/api"
+    rewrite:
+      authority: workspace.api.svc.cluster.local
+      uri: ""
+    route:
+      - destination:
+          host: knative-local-gateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
+  - match:
+    - uri:
+        prefix: "/"
+    rewrite:
+      authority: app.public.presalytics.io
+    route:
+      - destination:
+          host: istio-ingressgateway.istio-system.svc.cluster.local
+          port:
+            number: 80
+        weight: 100
