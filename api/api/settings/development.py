@@ -5,7 +5,7 @@ from .base import *
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 
 LOGGING = {
     'version': 1,
