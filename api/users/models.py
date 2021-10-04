@@ -114,7 +114,12 @@ class PresalyticsUser(AbstractUser):
         usrs: typing.Sequence['PresalyticsUser'] = list()
         
         stories = Story.objects.filter(collaborators__user=self)
-        story_users = set(sc.user for sc in StoryCollaborator.objects.filter(story__in=stories))
+        collaborators = StoryCollaborator.objects.filter(story__in=stories).all()
+        story_users = []
+        for sc in collaborators:
+            if hasattr(sc, 'user'):
+                if sc.user not in story_users:
+                    story_users.append(sc.user)
         for user in story_users:
             if user != self and user not in usrs:
                 usrs.append(user)
