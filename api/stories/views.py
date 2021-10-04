@@ -4,7 +4,7 @@ import base64
 import json
 from django.http.response import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import HttpResponse
-from rest_framework import generics, views, parsers, response, request
+from rest_framework import generics, views, parsers, response, request, exceptions, status
 from presalytics.story.renderers import ClientSideRenderer
 from presalytics.story.outline import StoryOutline
 from api.permissions import PresaltyicsBuilderPermission, PresalyticsInternalPermssion, PresalyticsViewerPermission
@@ -120,6 +120,52 @@ class RenderStoryView(views.APIView):
         data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package() # type: ignore
         return JsonResponse(data)
 
+
+class StoryAuthorizationView(views.APIView):
+
+    class StoryNotFoundException(exceptions.APIException):
+        status_code = 404
+        default_detail = "The story could not be found"
+        default_code = "not_found"
+
+    class StoryUnauthorizedExecption(exceptions.APIException):
+        status_code = 401
+        default_detail = "Unauthorized"
+        default_code = "unauthorized"
+
+    class InvalidPermissionTypeException(exceptions.APIException):
+        status_code = 400
+        default_detail = "Your access request contained an invalid permission type name"
+        default_code = "bad_request"
+
+    def get_queryset(self):
+        return Story.objects.all()
+
+    def get(self, request, pk, user_id, permission):
+        try:
+            story: Story = Story.objects.get(pk=pk)
+            collaborator = story.collaborators.filter(user_id=user_id)[0]  # type: ignore
+            if collaborator:
+                if getattr(collaborator.permission_type, permission, False):
+                    return response.Response(None, status=status.HTTP_204_NO_CONTENT)
+                else:
+                    if not hasattr(collaborator.permission_type, permission):
+                        raise AttributeError
+                    else:
+                        return response.Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return response.Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)
+        except Story.DoesNotExist:
+            raise self.StoryNotFoundException()
+        except IndexError:
+            return response.Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)
+        except AttributeError:
+            raise self.InvalidPermissionTypeException()
+        except Exception:
+            raise self.StoryUnauthorizedExecption()
+
+        
+        
 
 
 

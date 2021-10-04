@@ -20,5 +20,6 @@ urlpatterns = [
     path('<uuid:story_id>/collaborators', views.CollaboratorsCreateListView.as_view(), name='collaborators_create'),
     path('<uuid:story_id>/collaborators/<uuid:collaborator_id>', views.CollaboratorsDetailView.as_view(), name='collaborators_detail'),
     path('collaborators', views.CollaboratorsListAllView.as_view(), name='collaborators_all'),
-    path('permission_types', views.PermissionTypesListView.as_view(), name='permission_types')
+    path('permission_types', views.PermissionTypesListView.as_view(), name='permission_types'),
+    path('<uuid:pk>/collaborators/authorize/<uuid:user_id>/<str:permission>', views.StoryAuthorizationView.as_view(), name='story_authorization'),
 ]

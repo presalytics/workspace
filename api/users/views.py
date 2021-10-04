@@ -100,7 +100,7 @@ class RelatedUserView(views.APIView):
     
     class ResourceNotFoundException(exceptions.APIException):
         status_code = 404
-        default_detail = "The resource iwth the resourceId contained in your request could not be found"
+        default_detail = "The resource with the resourceId contained in your request could not be found"
         default_code = "not_found"
     
     def _get_story_related_users(self, id):
