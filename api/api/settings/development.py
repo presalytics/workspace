@@ -32,5 +32,10 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': True,
         },
+        'django': {
+            'level': LOG_LEVEL,
+            'handlers': ['console', 'wsgi', 'syslog'],
+            'propagate': True,
+        }  
     }
 }
