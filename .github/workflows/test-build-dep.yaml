@@ -184,4 +184,10 @@ jobs:
         # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
         manifests: |
           manifests/app-service.yaml
+    - name: Deploy reverse proxy
+      uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: istio-system
+        # Specify what manifest file or files to use - for now, the comms manifest files are in the manifests folder in the comms repo
+        manifests: |
           manifests/reverse-proxy-istio.yaml
