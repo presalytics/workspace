@@ -209,7 +209,7 @@
         })
         this.$store.dispatch('stories/setStoryOutline', { storyId: storyId, outline: outline })
       },
-      toggleFullscreen() {
+      toggleFullscreen() { 
         if (
               document.fullscreenElement ||
               document.webkitFullscreenElement ||
