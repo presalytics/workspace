@@ -157,6 +157,9 @@
       handleActionPanelToggle () {
         this.actionPanelIsMini = !this.actionPanelIsMini
       },
+      toggleFullscreen() {
+        
+      }
     },
   }
 </script>
