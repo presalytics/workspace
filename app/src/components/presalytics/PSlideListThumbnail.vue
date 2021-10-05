@@ -1,5 +1,7 @@
 <template>
-  <div class="story-list-item">
+  <div 
+    class="story-list-item"
+  >
     <div
       v-if="expanded"
       class="story-list-index-container"
@@ -10,26 +12,21 @@
       <v-spacer />
     </div>
     <div class="story-list-thumbnail-container">
-      <div
-        v-if="loading"
-        class="skeleton-wrapper"
-      >
-        <v-skeleton-loader
-          type="image"
-          class="thumbnail-skeleton-loader"
+      <div class="skeleton-wrapper">
+        <ooxml-widget
+          :widget="page.widgets[0]"
         />
       </div>
-      <v-img
-        v-else
-        :src="thumbnailUrl"
-        aspect-ratio="aspectRatio"
-      />
     </div>
   </div>
 </template>
 
 <script>
+  import OoxmlWidget from './Viewer/Widgets/OoxmlWidget.vue'
   export default {
+    components: {
+      OoxmlWidget
+    },
     props: {
       storyId: {
         type: String,
@@ -53,10 +50,10 @@
         return this.$store.getters['stories/story'](this.storyId)
       },
       outline () {
-        return JSON.parse(this.story.outline)
+        return this.$store.state.stories.outlines[this.story.outline]
       },
       page () {
-        return this.outline.pages[this.pageIndex]
+        return this.outline.document.pages[this.pageIndex]
       },
       thumbnailUrl () {
         return this.page.thumbnail
@@ -107,6 +104,8 @@
     display: flex
     height: 100%
     width: 100%
+    padding: 5px
+    border-radius: 5px
   .thumbmail-skeleton-loader
     padding-bottom: 56.25%
     width: 100% !important
@@ -130,5 +129,7 @@
     padding-right: 0.5rem
     font-wieght: 900
     font-size: .75rem
+  .story-list-item:hover
+    background-color: #eee
 
 </style>

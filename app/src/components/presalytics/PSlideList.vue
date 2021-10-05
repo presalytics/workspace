@@ -15,9 +15,11 @@
 </template>
 
 <script>
+  import PSlideListThumbnail from './PSlideListThumbnail.vue'
+
   export default {
     components: {
-      PSlideListThumbnail: () => import('./PSlideListThumbnail.vue'),
+      PSlideListThumbnail,
     },
     props: {
       storyId: {
@@ -33,7 +35,7 @@
         return this.$store.state.stories.outlines[this.story.outline]
       },
       pages () {
-        return this.outline.pages
+        return this.outline.document.pages
       },
     },
   }
