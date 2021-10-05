@@ -11,7 +11,7 @@
         class="svg-object"
       >
         <v-img
-          :src="imgBlobUrl"
+          :src="pngBlobUrl"
           contain
         >
           <p>This widget failed to render.  Are you you sure to put the right Id in your outline?</p>
@@ -84,11 +84,11 @@ export default {
           break
         }
         case ('SVG_BLOB'): {
-          this.svgBlobUrl = URL.createObjectURL(e.data.svgBlob)
+          this.svgBlobUrl = URL.createObjectURL(e.data.blob)
           break
         }
         case ('IMG_BLOB'): {
-          this.imgBlobUrl = URL.createObjectURL(e.data.imgBlob)
+          this.pngBlobUrl = URL.createObjectURL(e.data.blob)
           break
         }
       }
@@ -135,7 +135,7 @@ export default {
 
 <style lang="sass">
   .svg-container
-    postition: relative
+    position: relative
     height: 100%
     width: 100%
   .svg-overlay

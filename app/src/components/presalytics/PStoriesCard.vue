@@ -216,7 +216,7 @@
         var vm = this
         var storyIds = vm.$store.state.stories.storiesList
         return storyIds.map((cur) => {
-          var story = vm.$store.getters['stories/story'](cur)
+          var story = JSON.parse(JSON.stringify(vm.$store.getters['stories/story'](cur)))
           story.userRole = this.getUserRole(story)
           return story
         })

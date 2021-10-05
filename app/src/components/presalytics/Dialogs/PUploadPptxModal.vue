@@ -164,7 +164,7 @@ export default {
           widgets: [
             {
               name: cur.name,
-              kind: 'ooxml-file-widget',
+              kind: 'ooxml-file-object',
               data: {
                 filename: repoData.document.filename,
                 object_name: cur.name,

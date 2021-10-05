@@ -41,6 +41,7 @@ export default (({ mode }) => {
         'normalizr',
         '@microsoft/signalr/dist/webworker/signalr.js',
         'cloudevents',
+        'dexie',
       ]
     },
     resolve: { 

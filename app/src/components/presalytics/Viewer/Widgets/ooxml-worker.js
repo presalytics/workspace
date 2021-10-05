@@ -1,6 +1,4 @@
 import Dexie from 'dexie'
-import HttpPlugin, { responseTypes } from '@/plugins/http'
-
 
 let activePorts = {}
 
@@ -18,10 +16,6 @@ const getAcessToken = async () => {
   })
 }
 
-const http = new HttpPlugin({
-  worker: self,
-  accessTokenCallback: getAcessToken
-})
 const db = new Dexie('ooxmlDb')
 const refreshDelta = 1000 * 60 * 5 // refresh on reload five mins
 
@@ -45,15 +39,19 @@ const getRecord = async (ooxmlId) => {
 const createRecord = async (ooxmlId, data = {}) => {
   if (!data.svgBlob && !data.imgBlob) throw new Error('Either the "svgBlob" or "imgBlob" must of part of data')
   data.timestamp = Date.now()
-  return await db.ooxml.add(data)
+  data.ooxmlId = ooxmlId
+  let id = await db.ooxml.add(data)
+  let record = await db.ooxml.get(id)
+  return record
 }
 
-const updateRecord = async (ooxmlId, data = {}) => {
+const updateRecord = async (recordId, data = {}) => {
 
-  let record = await getRecord(ooxmlId)
-  if (!record) throw new Error('Record with ooxmlId ' +  ooxmlId + ' does not exist')
+  let record = await db.ooxml.get(recordId)
+  if (!record) throw new Error('Record with id ' +  recordId + ' does not exist')
   data.timestamp = Date.now()
-  return await db.ooxml.update(record.id, data)
+  await db.ooxml.update(record.id, data)
+  return await getRecord(record.ooxmlId)
 }
 
 const getOrCreate = async (objectType, ooxmlId, forceUpdate = false) => {
@@ -70,8 +68,9 @@ const getOrCreate = async (objectType, ooxmlId, forceUpdate = false) => {
     if (record) {
       record = await updateRecord(record.id, data)
     } else {
-      record = await createRecord(ooxmlId. data)
+      record = await createRecord(ooxmlId, data)
     }
+    record = await getRecord(ooxmlId)
   }
   return record 
 }
@@ -82,19 +81,43 @@ const recordIsExpired = (record) => {
   return delta > refreshDelta
 }
 
-
-var getSvgFromApi = async (objectType, ooxmlId) => {
-  return await http.getData('/api/ooxml/' + objectType + '/Svg/' + ooxmlId, {
-    redirect: 'follow',
-    cache: 'no-store',
-  }, responseTypes.BLOB)
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-var getImgFromApi = async (objectType, ooxmlId) => {
-  return await http.getData('/api/ooxml/' + objectType + '/Png/' + ooxmlId, {
-    redirect: 'follow',
-    cache: 'no-store'
-  }, responseTypes.BLOB)
+const getSvgFromApi = async (objectType, ooxmlId) => {
+  return await getFromApi(objectType, ooxmlId, "Svg")
+}
+
+const getImgFromApi = async (objectType, ooxmlId) => {
+  return await getFromApi(objectType, ooxmlId, "Png")
+}
+
+var getFromApi = async (objectType, ooxmlId, ImgType) => {
+  const accessToken = await getAcessToken()
+  const getter = async () => {
+    return await fetch('/api/ooxml/' + objectType + '/' + ImgType + '/' + ooxmlId, {
+      redirect: 'follow',
+      cache: 'no-store',
+      headers: {
+        Authorization: 'Bearer ' + accessToken 
+      }
+    })
+  }
+  let loop = true
+  let blob = null
+  while (loop) {
+    let resp = await getter()
+    if (resp.status == 202) {
+      await sleep(1000)
+    } else if (resp.status == 200) {
+      blob = await resp.blob()
+      loop = false
+    } else {
+      throw new Error('Error downloading image from ooxml api', resp)
+    }
+  }
+  return blob
 }
 
 self.onconnect = function(e) {
