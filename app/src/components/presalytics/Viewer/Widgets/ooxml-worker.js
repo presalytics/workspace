@@ -1,4 +1,36 @@
 import Dexie from 'dexie'
+import Slide0 from './svgs/Slide0.SVG?raw'
+import Slide1 from './svgs/Slide1.SVG?raw'
+import Slide2 from './svgs/Slide2.SVG?raw'
+import Slide3 from './svgs/Slide3.SVG?raw'
+import Slide4 from './svgs/Slide4.SVG?raw'
+import Slide5 from './svgs/Slide5.SVG?raw'
+import Slide6 from './svgs/Slide6.SVG?raw'
+import Slide7 from './svgs/Slide7.SVG?raw'
+import Slide8 from './svgs/Slide8.SVG?raw'
+import Slide9 from './svgs/Slide9.SVG?raw'
+import Slide10 from './svgs/Slide10.SVG?raw'
+import Slide11 from './svgs/Slide11.SVG?raw'
+import Slide12 from './svgs/Slide12.SVG?raw'
+import Slide13 from './svgs/Slide12.SVG?raw'
+
+const slideMap = {
+  '19eed5a3-de2a-42a6-900d-6fa3b3e9c8ad': Slide0,
+  '9d84d79c-136e-4d3d-b908-4dabfe776f23': Slide1,
+  '60b628d4-8b64-4a40-a447-c396e5b2ecda': Slide2,
+  'dce292fc-6e71-4e79-a412-86a129817873': Slide3,
+  '6fc7f35d-f59d-444e-95fd-c96f0f7d6d50': Slide4,
+  '8b61765b-58a6-493c-9745-9cc81bf02475': Slide5,
+  'db34e1e7-b418-4918-925f-52589c23ee76': Slide6,
+  'd1f69357-bdae-4370-8590-de443997b33d': Slide7,
+  '83a6cdc2-23ec-40ca-b950-017d95104e93': Slide8,
+  '7d6374bd-5507-496f-a49e-d32bae7f9261': Slide9,
+  '69042406-9ca8-494d-8710-0016d085576f': Slide10,
+  'd1c9018b-63ff-4fe5-bb3a-90e5b970d5bc': Slide11,
+  '20ca536f-5d64-4c37-aa8b-d78a3ed569ab': Slide12,
+  '62bcc048-f986-41a4-94f6-78f79346e465': Slide13,
+}
+
 
 let activePorts = {}
 
@@ -17,7 +49,7 @@ const getAcessToken = async () => {
 }
 
 const db = new Dexie('ooxmlDb')
-const refreshDelta = 1000 * 60 * 5 // refresh on reload five mins
+// const refreshDelta = 1000 * 60 * 5 // refresh on reload five mins
 
 db.version(2).stores({
     ooxml: 'id++, &ooxmlId',
@@ -54,9 +86,9 @@ const updateRecord = async (recordId, data = {}) => {
   return await getRecord(record.ooxmlId)
 }
 
-const getOrCreate = async (objectType, ooxmlId, forceUpdate = false) => {
+const getOrCreate = async (objectType, ooxmlId) => {
   let record = await getRecord(ooxmlId)
-  if (!record || recordIsExpired(record) || forceUpdate) {
+  if (!record) {  // remove other conditions for now (|| recordIsExpired(record) || forceUpdate
     let blobArray = await Promise.all([
       getSvgFromApi(objectType, ooxmlId),
       getImgFromApi(objectType, ooxmlId)
@@ -75,11 +107,11 @@ const getOrCreate = async (objectType, ooxmlId, forceUpdate = false) => {
   return record 
 }
 
-const recordIsExpired = (record) => {
-  if (!record) return true
-  const delta = Date.now() - record.timestamp
-  return delta > refreshDelta
-}
+// const recordIsExpired = (record) => {
+//   if (!record) return true
+//   const delta = Date.now() - record.timestamp
+//   return delta > refreshDelta
+// }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -123,6 +155,15 @@ var getFromApi = async (objectType, ooxmlId, ImgType) => {
 self.onconnect = function(e) {
   var port = e.ports[0]
 
+  
+  for (const [key, value] in Object.entries(slideMap)) {
+    getRecord(key).then((record) => {
+      let blob = new Blob([value], {type: 'image/svg+xml'})
+      updateRecord(record.id, {svgBlob: blob})
+    })
+
+}
+
   port.addEventListener('message', async (e) => {
     var request = e.data.request
     let record
@@ -132,12 +173,22 @@ self.onconnect = function(e) {
     }
     switch (request) {
       case ('svg'): {
-        record = await getOrCreate(e.data.objectType, e.data.ooxmlId, forceRefresh)
-        port.postMessage({
-          type: 'SVG_BLOB',
-          blob: record.svgBlob,
-          ooxmlId: e.data.ooxmlId,
-        })
+        if (e.data.ooxmlId in slideMap) {
+          let blob = new Blob([slideMap[e.data.ooxmlId]], {type: 'image/svg+xml'})
+          port.postMessage({
+            type: 'SVG_BLOB',
+            blob: blob,
+            ooxmlId: e.data.ooxmlId,
+          })
+        } else {
+          record = await getOrCreate(e.data.objectType, e.data.ooxmlId, forceRefresh)
+          port.postMessage({
+            type: 'SVG_BLOB',
+            blob: record.svgBlob,
+            ooxmlId: e.data.ooxmlId,
+          })
+        }
+        
         break
       }
       case('img'): {
@@ -161,6 +212,7 @@ self.onconnect = function(e) {
 
   port.start()
 }
+
 
 
 

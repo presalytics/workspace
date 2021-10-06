@@ -1,0 +1,299 @@
+{
+  "id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+  "info": {
+      "revision": null,
+      "createdBy": "b17edc73-2384-4551-a375-7228c93f3dab",
+      "modifiedBy": "b17edc73-2384-4551-a375-7228c93f3dab",
+      "dateCreated": "2021-10-06T17:57:45.863000+00:00",
+      "dateModified": "2021-10-06T17:57:45.863000+00:00",
+      "revisionNotes": null,
+      "additionalProperties": {
+          "filename": "Amplitude v3.pptx"
+      }
+  },
+  "pages": [
+      {
+          "id": "85633d0b-40f9-4f86-9be4-2f46c3926068",
+          "kind": "widget-page",
+          "name": "Title 9",
+          "widgets": [
+              {
+                  "id": "6626fd2c-2fa0-4897-a6a8-d857aac1bde3",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 9",
+                      "object_ooxml_id": "19eed5a3-de2a-42a6-900d-6fa3b3e9c8ad",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 9"
+              }
+          ]
+      },
+      {
+          "id": "c2c2ece1-3723-4760-a891-8d80ef7c3a58",
+          "kind": "widget-page",
+          "name": "Title 3",
+          "widgets": [
+              {
+                  "id": "35236b01-5105-4b88-978c-37ffb373ae7c",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 3",
+                      "object_ooxml_id": "9d84d79c-136e-4d3d-b908-4dabfe776f23",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 3"
+              }
+          ]
+      },
+      {
+          "id": "2ab0d8f3-da92-4be6-8e51-a2187f3b6811",
+          "kind": "widget-page",
+          "name": "Title 3",
+          "widgets": [
+              {
+                  "id": "2de5a9a7-e321-466e-890a-3332930bc581",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 3",
+                      "object_ooxml_id": "60b628d4-8b64-4a40-a447-c396e5b2ecda",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 3"
+              }
+          ]
+      },
+      {
+          "id": "4115c9aa-2232-4be7-a1e1-f2b4567d9a8d",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "26450f99-11ed-4a91-87e8-d03f4c0d01d1",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "dce292fc-6e71-4e79-a412-86a129817873",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "3f2da51c-5785-407b-a974-610750763b55",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "8081a85a-1c57-4d2b-81c5-29b3f2bc03cf",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "6fc7f35d-f59d-444e-95fd-c96f0f7d6d50",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "bf62b2ef-2da7-45b0-b62f-494133ca9d83",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "a560b9c2-0865-477b-b2fd-2dcc761239a2",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "8b61765b-58a6-493c-9745-9cc81bf02475",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "2a942c22-8507-4b23-b98b-928733b5fdb1",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "a1682046-8a56-4459-a46f-24e3c56427a5",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "db34e1e7-b418-4918-925f-52589c23ee76",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "ac4e7728-89ed-402c-a123-1831340b03b6",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "6e549304-f409-475a-9685-a96b62b7832a",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "d1f69357-bdae-4370-8590-de443997b33d",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "61c24f7a-d8a3-4269-a70f-5c4f6519e6ff",
+          "kind": "widget-page",
+          "name": "Title 3",
+          "widgets": [
+              {
+                  "id": "0e56f01d-05a2-4b47-8926-d4bb3f703522",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 3",
+                      "object_ooxml_id": "83a6cdc2-23ec-40ca-b950-017d95104e93",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 3"
+              }
+          ]
+      },
+      {
+          "id": "fa7476a8-48e5-4b44-a819-5373950fc6e5",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "5c437d15-11de-4c51-8cb5-23421148333c",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "7d6374bd-5507-496f-a49e-d32bae7f9261",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "821399fa-68bf-47e1-be43-fe07c754286d",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "8eb1da0d-319a-4f0d-87fb-3f5997d19855",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "69042406-9ca8-494d-8710-0016d085576f",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "bc1648e0-dd83-4fb4-84d7-82a05d5a5271",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "c4a3aaab-cf65-4d43-b07b-653bc2383985",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "d1c9018b-63ff-4fe5-bb3a-90e5b970d5bc",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "fcb4b5cb-3445-4d62-8a9a-5ce069bab137",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "0ef31541-d367-437e-b7f5-ceea5e355670",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "20ca536f-5d64-4c37-aa8b-d78a3ed569ab",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      },
+      {
+          "id": "495d75e4-1099-4750-a2b7-85552e31d821",
+          "kind": "widget-page",
+          "name": "Title 1",
+          "widgets": [
+              {
+                  "id": "2977cb9b-cb00-4b7b-bce5-5f41ec4ef673",
+                  "data": {
+                      "filename": "Amplitude v3.pptx",
+                      "story_id": "2a3e022d-3851-4d28-8cb0-05b1f398754a",
+                      "endpoint_id": "Slides",
+                      "object_name": "Title 1",
+                      "object_ooxml_id": "62bcc048-f986-41a4-94f6-78f79346e465",
+                      "document_ooxml_id": "3244a6cc-518c-4b52-8a70-8d6f1d62c61a"
+                  },
+                  "kind": "ooxml-file-object",
+                  "name": "Title 1"
+              }
+          ]
+      }
+  ],
+  "title": "Amplitude v3.pptx",
+  "description": "",
+  "outlineVersion": "0.6.0"
+}

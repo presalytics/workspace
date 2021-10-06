@@ -84,7 +84,9 @@ export default {
           break
         }
         case ('SVG_BLOB'): {
-          this.svgBlobUrl = URL.createObjectURL(e.data.blob)
+          if (e.data.ooxmlId == this.ooxmlId) {
+            this.svgBlobUrl = URL.createObjectURL(e.data.blob)
+          }
           break
         }
         case ('IMG_BLOB'): {

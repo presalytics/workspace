@@ -41,3 +41,8 @@
   }
 
 </script>
+
+<style lang="sass">
+  .v-list-item
+    padding: 0 !important
+</style>
