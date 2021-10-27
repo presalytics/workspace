@@ -69,12 +69,14 @@ export default {
   },
   methods: {
     async handleFileSelect(file) {
+      let storyId = uuidv4()
+      let story = null
+      let ooxmlTrees = null
       try {
         if (file) {
           this.disabled = true
-          let storyId = uuidv4()
           this.setProgress(5, 'Creating story...')
-          let story = await this.$http.postData('/api/stories/', {
+          story = await this.$http.postData('/api/stories/', {
             outline: {
               document: {},
             },
@@ -101,7 +103,7 @@ export default {
           } else {
             this.setProgress(25, 'File uploaded to server.  Creating story outline...')
           }
-          let ooxmlTrees = await uploadResponse.json()
+          ooxmlTrees = await uploadResponse.json()
           let outline = await this.createOutlineFromUploadedPptx(ooxmlTrees[0])
           let diff = this.diffOutlines({}, outline)
           await this.$http.postData('/api/stories/outline/' + story.id + '/patch', diff)
@@ -117,6 +119,13 @@ export default {
       } catch (err) {
         this.setProgress(50, 'An error occured creating your outline.  Please try again', 'red')
         console.error(err)  //eslint-disable-line
+        if (story) {
+          this.$http.deleteData('/api/stories/' + storyId)
+        }
+        if (ooxmlTrees) {
+          this.$http.deleteData('/api/ooxml/' + ooxmlTrees.id)
+        }
+
       } finally {
         let vm = this
         this.timeoutPtr = setTimeout(() => vm.reset(), 5000)

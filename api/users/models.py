@@ -175,4 +175,3 @@ class UserRelationshipDto(object):
             "user_id": str(self.user_id),
             "related_user_id": str(self.related_user_id)
         }
-

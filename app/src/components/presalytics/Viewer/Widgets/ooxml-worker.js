@@ -12,7 +12,7 @@ import Slide9 from './svgs/Slide9.SVG?raw'
 import Slide10 from './svgs/Slide10.SVG?raw'
 import Slide11 from './svgs/Slide11.SVG?raw'
 import Slide12 from './svgs/Slide12.SVG?raw'
-import Slide13 from './svgs/Slide12.SVG?raw'
+import Slide13 from './svgs/Slide13.SVG?raw'
 
 const slideMap = {
   '19eed5a3-de2a-42a6-900d-6fa3b3e9c8ad': Slide0,

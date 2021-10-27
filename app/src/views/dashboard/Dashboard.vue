@@ -7,300 +7,95 @@
     <v-row>
       <v-col
         cols="12"
-        lg="4"
-      >
-        <base-material-chart-card
-          :data="emailsSubscriptionChart.data"
-          :options="emailsSubscriptionChart.options"
-          :responsive-options="emailsSubscriptionChart.responsiveOptions"
-          color="#E91E63"
-          hover-reveal
-          type="Bar"
-        >
-          <template #reveal-actions>
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  color="info"
-                  icon
-                  v-on="on"
-                >
-                  <v-icon
-                    color="info"
-                  >
-                    mdi-refresh
-                  </v-icon>
-                </v-btn>
-              </template>
-
-              <span>Refresh</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  light
-                  icon
-                  v-on="on"
-                >
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </template>
-
-              <span>Change Date</span>
-            </v-tooltip>
-          </template>
-
-          <h4 class="card-title font-weight-light mt-2 ml-2">
-            Website Views
-          </h4>
-
-          <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            Last Campaign Performance
-          </p>
-
-          <template #actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">updated 10 minutes ago</span>
-          </template>
-        </base-material-chart-card>
-      </v-col>
-
-      <v-col
-        cols="12"
-        lg="4"
-      >
-        <base-material-chart-card
-          :data="dailySalesChart.data"
-          :options="dailySalesChart.options"
-          color="success"
-          hover-reveal
-          type="Line"
-        >
-          <template #reveal-actions>
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  color="info"
-                  icon
-                  v-on="on"
-                >
-                  <v-icon
-                    color="info"
-                  >
-                    mdi-refresh
-                  </v-icon>
-                </v-btn>
-              </template>
-
-              <span>Refresh</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  light
-                  icon
-                  v-on="on"
-                >
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </template>
-
-              <span>Change Date</span>
-            </v-tooltip>
-          </template>
-
-          <h4 class="card-title font-weight-light mt-2 ml-2">
-            Daily Sales
-          </h4>
-
-          <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            <v-icon
-              color="green"
-              small
-            >
-              mdi-arrow-up
-            </v-icon>
-            <span class="green--text">55%</span>&nbsp;
-            increase in today's sales
-          </p>
-
-          <template #actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">updated 4 minutes ago</span>
-          </template>
-        </base-material-chart-card>
-      </v-col>
-
-      <v-col
-        cols="12"
-        lg="4"
-      >
-        <base-material-chart-card
-          :data="dataCompletedTasksChart.data"
-          :options="dataCompletedTasksChart.options"
-          hover-reveal
-          color="info"
-          type="Line"
-        >
-          <template #reveal-actions>
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  color="info"
-                  icon
-                  v-on="on"
-                >
-                  <v-icon
-                    color="info"
-                  >
-                    mdi-refresh
-                  </v-icon>
-                </v-btn>
-              </template>
-
-              <span>Refresh</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-              <template #activator="{ attrs, on }">
-                <v-btn
-                  v-bind="attrs"
-                  light
-                  icon
-                  v-on="on"
-                >
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </template>
-
-              <span>Change Date</span>
-            </v-tooltip>
-          </template>
-
-          <h3 class="card-title font-weight-light mt-2 ml-2">
-            Completed Tasks
-          </h3>
-
-          <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            Last Last Campaign Performance
-          </p>
-
-          <template #actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">campaign sent 26 minutes ago</span>
-          </template>
-        </base-material-chart-card>
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <base-material-stats-card
-          color="info"
-          icon="mdi-twitter"
-          title="Followers"
-          value="+245"
-          sub-icon="mdi-clock"
-          sub-text="Just Updated"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <base-material-stats-card
-          color="primary"
-          icon="mdi-poll"
-          title="Website Visits"
-          value="75.521"
-          sub-icon="mdi-tag"
-          sub-text="Tracked from Google Analytics"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <base-material-stats-card
-          color="success"
-          icon="mdi-store"
-          title="Revenue"
-          value="$ 34,245"
-          sub-icon="mdi-calendar"
-          sub-text="Last 24 Hours"
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <base-material-stats-card
-          color="orange"
-          icon="mdi-sofa"
-          title="Bookings"
-          value="184"
-          sub-icon="mdi-alert"
-          sub-icon-color="red"
-          sub-text="Get More Space..."
-        />
-      </v-col>
-
-      <v-col
-        cols="12"
         md="6"
       >
         <base-material-card
-          color="warning"
+          color="primary"
           class="px-5 py-3"
         >
           <template #heading>
             <div class="display-2 font-weight-light">
-              Employees Stats
+              Links
             </div>
 
             <div class="subtitle-1 font-weight-light">
-              New employees on 15th September, 2016
+              Documentation, Management, and Repos
             </div>
           </template>
           <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :items="items"
-            />
+            <v-list
+              subheader
+              two-line
+            >
+              <v-subheader>
+                Repos
+              </v-subheader>
+
+              <v-list-item
+                v-for="repo in repos"
+                :key="repo.link"
+              >
+                <v-list-item-avatar>
+                  <v-icon
+                    color="black"
+                  >
+                    mdi-github
+                  </v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title v-text="repo.title" />
+
+                  <v-list-item-subtitle v-text="repo.description" />
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-btn 
+                    icon
+                    text
+                    color="success"
+                    @click="openInNewTab(repo.link)"
+                  >
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-subheader inset>
+                Other links
+              </v-subheader>
+              <v-list-item
+                v-for="item in mgmt"
+                :key="item.link"
+              >
+                <v-list-item-avatar>
+                  <v-icon
+                    color="success"
+                  >
+                    mdi-view-dashboard
+                  </v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.title" />
+
+                  <v-list-item-subtitle v-text="item.description" />
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-btn 
+                    icon
+                    text
+                    color="success"
+                    @click="openInNewTab(repo.link)"
+                  >
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
           </v-card-text>
         </base-material-card>
       </v-col>
-
       <v-col
         cols="12"
         md="6"
@@ -326,13 +121,13 @@
                 <v-icon class="mr-2">
                   mdi-code-tags
                 </v-icon>
-                Website
+                UI Features
               </v-tab>
               <v-tab>
                 <v-icon class="mr-2">
                   mdi-cloud
                 </v-icon>
-                Server
+                APIs
               </v-tab>
             </v-tabs>
           </template>
@@ -394,17 +189,61 @@
 
 <script>
   import  MaterialCard from '@/components/base/MaterialCard.vue'
-  import MaterialChartCard from '@/components/base/MaterialChartCard.vue'
-  import MaterialStatsCard from '@/components/base/MaterialStatsCard.vue'
+  // import MaterialChartCard from '@/components/base/MaterialChartCard.vue'
+  // import MaterialStatsCard from '@/components/base/MaterialStatsCard.vue'
   export default {
     name: 'Dashboard',
     components: {
       BaseMaterialCard: MaterialCard,
-      BaseMaterialChartCard: MaterialChartCard,
-      BaseMaterialStatsCard: MaterialStatsCard
+      // BaseMaterialChartCard: MaterialChartCard,
+      // BaseMaterialStatsCard: MaterialStatsCard
     },
     data () {
       return {
+        repos: [
+          {
+            title: "Workspace (this App)",
+            link: "https://github.com/presalytics/workspace",
+            description: "Frontend and user data api"
+          },
+          {
+            title: "Python Client",
+            link: "https://github.com/presalytics/python-client",
+            description: "API client and CLI"
+          },
+          {
+            title: "Ooxml Automation",
+            link: "https://github.com/presalytics/ooxml-automation",
+            description: "Presentation software automation API"
+          },
+          {
+            title: "Doc Converter",
+            description: "Convert pptx to svg on the fly",
+            link: "https://github.com/presalytics/doc-converter",
+          },
+          {
+            title: "Events",
+            description: "Event store and websocket hub",
+            link: "https://github.com/presalytics/events",
+          },
+          {
+            title: "Amplitude",
+            description: "Forward SSE events to Amplitude",
+            link: "https://github.com/presalytics/amplitude",
+          }
+        ],
+        mgmt: [
+          {
+            title: "Invision",
+            description: "Wireframes and product notes",
+            link: "https://presalytics.invisionapp.com/freehand/Presalyticsio-website-UZhW2pWad",
+          },
+          {
+            title: "Trello",
+            description: "Project anagement",
+            link: "https://trello.com/b/HXtQD1QT/development"
+          }
+        ],
         dailySalesChart: {
           data: {
             labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
@@ -550,43 +389,51 @@
         tasks: {
           0: [
             {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
-              value: true,
-            },
-            {
-              text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
+              text: 'MAJOR: Fix server-side re-rendering of SVGs error. Doc-converter',
               value: false,
             },
             {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-              value: false,
-            },
-            {
-              text: 'Create 4 Invisible User Experiences you Never Knew About',
+              text: 'Fix Concurrent Queuing problem in OOxml automation for thread safety',
               value: true,
             },
+             {
+              text: 'Major: Figure out why out presentations render locally but not in production.  Likely uncaught error on main thread',
+              value: false
+            }
           ],
           1: [
             {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-              value: true,
-            },
-            {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
+              text: 'Finish widgets on action and work panes in Story View page',
               value: false,
             },
+            {
+              text: 'Add Events page and timeline widgets',
+              value: false,
+            },
+            {
+              text: 'Add Notifications page with user configuration options',
+              value: false,
+            },
+            {
+              text: 'Add an admin panel to modify how events and notifications are displayed to users.  Internal + external',
+              value: false
+            },
+            {
+              text: 'Update dashboard page to a configurable welcome screen with pluggable widgets (see office365 admin example)',
+              value: false
+            }
           ],
           2: [
             {
-              text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
+              text: 'MAJOR: Add notifications database and dependent Serverless functions ',
               value: false,
             },
             {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
+              text: 'MAJOR: Write tests for event streaming to allow re-create evene-base real-time updates',
               value: true,
             },
             {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
+              text: 'DELAY: Build websocket for "Agent" service behind Corporate VPNs',
               value: true,
             },
           ],
@@ -603,6 +450,9 @@
       complete (index) {
         this.list[index] = !this.list[index]
       },
+      openInNewTab(url) {
+        window.open(url, '_blank').focus();
+      }
     },
   }
 </script>

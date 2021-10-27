@@ -58,7 +58,10 @@ INSTALLED_APPS = [
     'users',
     'conversations',
     'stories',
-    'cache',
+    'account',
+    'organization',
+    'events',
+    'teams'
 ]
 
 MIDDLEWARE = [

@@ -104,7 +104,7 @@ export default class Auth0Plugin{
     })
     this.isAuthenticated = false
     this.accessToken = null
-    if (this.storeDispatchFn) this.storeDispatchFn('auth/deleteAuthorization')
+    if (this.storeDispatchFn) this.storeDispatchFn('logout')
   }
       /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
   getRedirectUri (o) {

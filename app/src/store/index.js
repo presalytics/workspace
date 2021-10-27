@@ -71,6 +71,10 @@ export default new Vuex.Store({
       commit('stories/RESET_STATE')
       commit('users/RESET_STATE')
     },
+    logout ({ dispatch }) {
+      dispatch('reset')
+      dispatch('auth/deleteAuthorization')
+    }
   },
   modules: {
     auth,

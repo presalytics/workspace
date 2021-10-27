@@ -18,7 +18,7 @@ from django.urls import path
 from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularJSONAPIView, SpectacularSwaggerView
 from .views import home
 
 urlpatterns = [
@@ -28,7 +28,11 @@ urlpatterns = [
     url(r'', include('user_sessions.urls', 'user_sessions')),
     url(r'^conversations/', include('conversations.urls', namespace='conversations')),
     url(r'^stories/', include('stories.urls', namespace='stories')),
+    url(r'^organizations/', include('organization.urls', namespace='organization')),
+    url(r'^events/', include('events.urls', namespace='events')),
+    url(r'^teams/', include('teams.urls', namespace='teams')),
+    url(r'^accounts/', include('account.urls', namespace='account')),
     url(r'^cache/', include('cache.urls', namespace='cache')),
-    path('openapi/schema.json', SpectacularAPIView.as_view(), name='schema'),
+    path('openapi/schema.json', SpectacularJSONAPIView.as_view(), name='schema'),
     path('openapi', SpectacularSwaggerView.as_view(), name='schema_ui')
 ]

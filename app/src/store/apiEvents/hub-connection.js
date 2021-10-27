@@ -14,8 +14,9 @@ export default class SignalRConnectionManager {
     this.debug = import.meta.env.DEV
 
     this.connection =  new signalR.HubConnectionBuilder()
-      .withUrl(this.hubUrl, {accessTokenFactory: options.accessTokenFn})
-      .configureLogging(signalR.LogLevel.Information)
+      .withUrl(this.hubUrl, {
+        accessTokenFactory: options.accessTokenFn,
+      }).configureLogging(signalR.LogLevel.Information)
       .build();
     
     this.connection.onclose( async () => await this.startConnection())

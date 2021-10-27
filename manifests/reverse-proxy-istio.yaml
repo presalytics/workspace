@@ -81,4 +81,4 @@ spec:
           host: istio-ingressgateway.istio-system.svc.cluster.local
           port:
             number: 80
-        weight: 100
+        weight: 100    
