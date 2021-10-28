@@ -18,5 +18,5 @@ class AccountPlanSerializer(serializers.ModelSerializer):
 class PlanFeaturesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanFeatures
-        fields =  ('name', ' max_stories_per_user', 'max_teams_per_plan', 'max_seats') + BaseModelSerializer.Meta.fields
+        fields =  ('name', 'max_stories_per_user', 'max_teams_per_plan', 'max_seats') + BaseModelSerializer.Meta.fields
 

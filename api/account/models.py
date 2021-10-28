@@ -16,6 +16,7 @@ class PlanFeatures(BaseModel):
 
 
 class AccountPlan(BaseModel):
+    name = models.CharField(max_length=256, null=True, blank=True, default=None)
     start_date = models.DateField()
     end_date = models.DateField()
     stripe_plan_id = models.CharField(max_length=64)
