@@ -23,7 +23,7 @@ export default class SignalRConnectionManager {
 
     this.connection.on('HandleEvent', (message) => {
       let ce = new CloudEvent(message)
-      if (this.debug) console.log("API Event received", message)  // eslint-disable-line
+      console.log("API Event received", message)  // eslint-disable-line
       this.broadcast(ce)
     })
   }
