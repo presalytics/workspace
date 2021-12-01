@@ -8,8 +8,9 @@ app_name = 'users'
 
 
 urlpatterns = [
-    path('relationships/', login_required(views.UserRelationshipView.as_view()), name='relationships'),
-    path('user-info/<uuid:id>/', login_required(views.UserInfoView.as_view()), name='info'),
+    path('audience/', views.UserRelationshipView.as_view(), name='audience'),
+    path('resources/', views.UserResourcesView.as_view(), name='user_resources'),
+    path('user-info/<uuid:id>/', views.UserInfoView.as_view(), name='info'),
     path('resources/<uuid:id>/', views.ResourcesView.as_view(), name='resources'), # get resources as list of ids + resourceTypes, required CC Token
-    path('related/searach', views.RelatedUserView.as_view(), name='related') # get relatted users of the requested user in query string, requres CC Token
+    path('related/search', views.RelatedUserView.as_view(), name='related_search') # get relatted users of the requested user in query string, requres CC Token
 ]

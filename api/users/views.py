@@ -1,91 +1,93 @@
 import logging
-import json
-
-from django.db.models.fields import related
-from users.models import PresalyticsUser
+from django.db.models import Q
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponseNotFound
 from django.shortcuts import render
-from django.views.generic import TemplateView, View
-from django.conf import settings
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
-from rest_framework import views, exceptions, response
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import views, exceptions, response, generics, request
 from api.permissions import PresalyticsInternalPermssion, PresalyticsViewerPermission
 from api.services.users import UserService
 from user_sessions.models import Session
 from presalytics.lib.util import dict_to_camelCase
+from .serializers import UserMapSerializer, UserResourceSerializer
+from .models import UserResource, UserMap
 
 
 logger = logging.getLogger(__name__)
 
 
-class UserRelationshipView(View):
-    
+class UserRelationshipView(generics.ListAPIView):
+    request: request.Request
+
+    permission_classes = (PresalyticsViewerPermission,)
+    serializer_class = UserMapSerializer
+
+    def get_queryset(self):
+        scope = self.request.query_params.get('scope', 'direct')
+        user_id = self.kwargs.get('userId', None) or str(self.request.user.id)  # type: ignore
+        query = Q(user_id=user_id)
+        if scope == 'direct': 
+            query = query & Q(relationship_scope='direct')
+        elif scope == 'team':
+            query = query & ( Q(relationship_scope='direct') | Q(relationshpip_scope='team') )
+        return UserMap.objects.filter(query)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("scope", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=('direct', 'team', 'organization'))
+        ]
+    )
     def get(self, request, *args, **kwargs):
-        related_users = set(request.user.get_related_user_dtos())
-        rels = {
-            "relationships": [x.to_dict() for x in related_users]
-        }
-        return JsonResponse(rels)
+        return super().get(request, *args, **kwargs)
 
 
-class UserInfoView(View):
+class UserInfoView(generics.RetrieveAPIView):
+    permission_classes=[PresalyticsViewerPermission]
 
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         search_user_id = kwargs.get("id", None)
         if search_user_id:
             user_id = str(search_user_id)
-            related_users = set(request.user.get_related_user_dtos())
-            allowed_users = [str(x.related_user_id) for x in related_users]
-            allowed_users.append(str(request.user.id))
-            if user_id in allowed_users:
+            related_users = set(request.user.get_related_users())
+            allowed_user_ids = [str(x.id) for x in related_users]
+            allowed_user_ids.append(str(request.user.id))
+            if user_id in allowed_user_ids:
                 user_service = UserService()
                 try:
                     user_info = user_service.user(user_id)
                 except ValueError:
-                    return HttpResponseNotFound()
+                    raise exceptions.NotFound()
                 except Exception as ex:
                     logger.exception(ex)
-                    raise ImproperlyConfigured
-                return JsonResponse(user_info)
+                    raise exceptions.APIException(detail='User Service Unavaialable', code=exceptions.status.HTTP_503_SERVICE_UNAVAILABLE)
+                return response.Response(data=user_info, status=200)
             else:
-                return HttpResponseForbidden()
+                raise exceptions.APIException(detail='Forbidden', code=403)
 
         else:
-            return HttpResponseBadRequest("Invlalid user Id")
+            raise exceptions.APIException(detail="Invlalid user Id", code=400)
 
-class ResourcesView(views.APIView):
+
+class ResourcesView(generics.ListAPIView):
     permission_classes = [PresalyticsInternalPermssion]
-    
-    def get(self, request, id):
-        try:
-            user = PresalyticsUser.objects.get(pk=id)  # throws error is not found
+    serializer_class = UserResourceSerializer
 
-            from stories.models import StoryCollaborator, Story
-            from conversations.models import Conversation
-
-            scs =  StoryCollaborator.objects.filter(user=user)
-            story_ids = [sc.story_id for sc in scs]
-            resources = []
-            resources.extend([{"resource_id": id, "resource_type": "story"} for id in story_ids])
-            users = PresalyticsUser.objects.filter(storycollaborator__story_id__in=story_ids).distinct()
-            resources.extend([{"resource_id": u.id, "resource_type": "user"} for u in users])
-            convos = Conversation.objects.filter(participants=user).distinct()
-            resources.extend([{"resource_id": c.id, "resource_type": "conversation"} for c in convos])
-            # TODO: add teams and organizations when models are added
-            resp = [dict_to_camelCase(r) for r in resources]
-            return JsonResponse(resp, safe=False)
-        except PresalyticsUser.DoesNotExist:
-            raise exceptions.NotFound()
+    def get_queryset(self):
+        return UserResource.objects.filter(user_id=self.request.user.id)  # type: ignore
 
 
+class RelatedUserView(generics.ListAPIView):
+    request: request.Request
 
-class RelatedUserView(views.APIView):
     permission_classes = [PresalyticsInternalPermssion]
+    serializer_class = UserMapSerializer
+
+    RESOURCE_TYPES = ('story', 'conversation', 'user', 'organization', 'agent', 'team')
 
     class MissingResourceIDException(exceptions.APIException):
         status_code = 400
-        default_detail = "Request must contain a 'resourceId' parameter in the query string"
+        default_detail = "Request must contain a 'resourceId' or 'userId' parameter in the query string"
         default_code = 'bad_request'
 
     class MissingResourceTypeException(exceptions.APIException):
@@ -95,62 +97,51 @@ class RelatedUserView(views.APIView):
 
     class InvalidResourceTypeException(exceptions.APIException):
         status_code = 400
-        default_detail = "Query must specify a valid 'resourceType'. Valid values are 'story', 'conversation', 'user, 'organization' or 'team'."
+        default_detail = "Query must specify a valid 'resourceType'. Valid values are 'story', 'conversation', 'user, 'organization', 'agent' or 'team'."
         default_code = 'bad_request'
     
     class ResourceNotFoundException(exceptions.APIException):
         status_code = 404
         default_detail = "The resource with the resourceId contained in your request could not be found"
         default_code = "not_found"
-    
-    def _get_story_related_users(self, id):
-        from api.stories.models import Story
-        try:
-            story = Story.objects.get(pk=id)
-            return [c.user for c in story.collaborators]
-        except Story.DoesNotExist:
-            raise self.ResourceNotFoundException()
 
-    def _get_conversation_related_users(self, id):
-        from api.conversations.models import Conversation
-        try:
-            convo: Conversation = Conversation.objects.get(pk=id)
-            return convo.participants
-        except Conversation.DoesNotExist:
-            raise self.ResourceNotFoundException()
-
-    def _get_user_related_users(self, id):
-        user: PresalyticsUser = PresalyticsUser.objects.get(pk=id)
-        return user.get_related_users()
-
-    def _get_lookup_map(self):
-        # TODO: add team and organization after models are build
-        return {
-            'story': self._get_story_related_users,
-            'conversation': self._get_story_related_users,
-            'user': self._get_user_related_users
-        }
-
-
-    def get(self, request):
-        resource_id = request.query_params.get("resourceId", None)
-        if not resource_id:
+    def get_queryset(self):
+        resource_id = self.request.query_params.get('resourceId') or self.request.query_params.get('resource_id')
+        user_id = self.request.query_params.get('userId') or self.request.query_params.get('user_id')
+        scope = self.request.query_params.get('scoped')
+        resource_type = self.request.query_params.get('resourceType') or self.request.query_params.get('resouce_type')
+        query = None
+        if resource_id:
+            query = Q(resource_id=resource_id)
+        if user_id:
+             query = query & Q(user_id=user_id) if query else Q(user_id=user_id)
+        if query:
+            if scope:
+                query = query & Q(scope=scope)
+            if resource_type:
+                query = query & Q(resource_type=resource_type)
+            return UserMap.objects.filter(query)
+        else:
             raise self.MissingResourceIDException()
-        resource_type = request.query_params.get("resourceType", None)
-        if not resource_type:
-            raise self.MissingResourceTypeException()
-        lookup_map = self._get_lookup_map()
-        if resource_type not in lookup_map:
-            raise self.InvalidResourceTypeException()
-        lookup_fn = lookup_map[resource_type]
-        related_users = lookup_fn(resource_id)
-        ret_obj = {
-            "user_list": [r.id for r in related_users]
-        }
-        return response.Response(ret_obj)
 
-        
 
-        
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("resourceId", OpenApiTypes.UUID, OpenApiParameter.QUERY),
+            OpenApiParameter("userId", OpenApiTypes.UUID, OpenApiParameter.QUERY),
+            OpenApiParameter("resourceType", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=('story', 'conversation', 'agent', 'team', 'organization')),
+            OpenApiParameter("scope", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=('direct', 'team', 'organization'))
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-        
+    
+
+
+class UserResourcesView(generics.ListAPIView):
+    permission_classes = [PresalyticsViewerPermission]
+    serializer_class = UserResourceSerializer
+
+    def get_queryset(self):
+        return UserResource.objects.filter(user_id=self.request.user.id)  # type: ignore

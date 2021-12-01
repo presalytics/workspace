@@ -162,5 +162,21 @@
           ],
           "type": "pwa-node"
         },
+        {
+          "type": "python",
+          "name": "Api Unit Tests",
+          "request": "launch",
+          "cwd": "${workspaceFolder}/api",
+          "program": "manage.py",
+          "args": [
+            "test",
+            "--keepdb",
+            "--settings",
+            "api.settings.test"
+          ],
+          "console": "internalConsole",
+          "justMyCode": false
+        },
+
     ]
 }

@@ -109,69 +109,39 @@ class PresalyticsUser(AbstractUser):
             changes = True
         return changes
     
-    def get_related_users(self) -> typing.Sequence['PresalyticsUser']:
-        
-        usrs: typing.Sequence['PresalyticsUser'] = list()
-        
-        stories = Story.objects.filter(collaborators__user=self)
-        collaborators = StoryCollaborator.objects.filter(story__in=stories).all()
-        story_users = []
-        for sc in collaborators:
-            if hasattr(sc, 'user'):
-                if sc.user not in story_users:
-                    story_users.append(sc.user)
-        for user in story_users:
-            if user != self and user not in usrs:
-                usrs.append(user)
-        conversations = Conversation.objects.filter(participants=self).all()
-        participants = list(itertools.chain(*[list(c.participants) for c in conversations]))
-        for p in participants:
-            if p != self and p not in usrs:
-                usrs.append(p)
-        return usrs
-
-    def get_related_user_dtos(self) -> typing.Sequence['UserRelationshipDto']:
-        user_list = self.get_related_users()
-        return [UserRelationshipDto(user_id=self.id, related_user_id=u.id) for u in user_list]
-
+    def get_related_users(self, scope='direct') -> typing.Sequence['PresalyticsUser']:
+        user_maps = UserMap.objects.filter(user_id=self.id)
+        ids = [um.related_user_id for um in user_maps]
+        return list(self.__class__.objects.filter(id__in=ids))
 
 
 class Scope(models.Model):
     user = models.ForeignKey(PresalyticsUser, on_delete=models.CASCADE, related_name="presalytics_scopes")
     scope = models.CharField(max_length=64)
 
+
 class Role(models.Model):
     user = models.ForeignKey(PresalyticsUser, on_delete=models.CASCADE, related_name="presalytics_roles")
     role = models.CharField(max_length=64)
 
 
-class UserRelationshipDto(object):
-    user_id: uuid.UUID
-    related_user_id: uuid.UUID
+class UserResource(models.Model):
+    resource_id = models.UUIDField(primary_key=True, unique=False)
+    user_id = models.UUIDField()
+    resource_type = models.CharField(max_length=64)
 
-    def __init__(self, *args, **kwargs):
-        user_id = kwargs.get("user_id")
-        related_user_id = kwargs.get("related_user_id")
-        if not user_id or not related_user_id:
-            raise ValueError('Invalid Arguments')
-        if type(user_id) is uuid.UUID:
-            self.user_id = user_id
-        else:
-            self.user_id = uuid.UUID(user_id)
+    class Meta:
+        managed = False
+        db_table = "users_resources_vw"
 
-        if type(related_user_id) is uuid.UUID:
-            self.related_user_id = related_user_id
-        else:
-            self.related_user_id = uuid.UUID(related_user_id)
 
-    def __eq__(self, other):
-        return self.related_user_id == other.related_user_id and self.user_id == other.user_id
+class UserMap(models.Model):
+    user_id = models.UUIDField(primary_key=True, unique=False)
+    related_user_id = models.UUIDField()
+    resource_id = models.UUIDField()
+    resource_type = models.CharField(max_length=64)
+    relationship_scope = models.CharField(max_length=64)
 
-    def __hash__(self):
-        return self.related_user_id.int + self.user_id.int 
-
-    def to_dict(self):
-        return {
-            "user_id": str(self.user_id),
-            "related_user_id": str(self.related_user_id)
-        }
+    class Meta:
+        managed = False
+        db_table = "users_user_map_vw"
