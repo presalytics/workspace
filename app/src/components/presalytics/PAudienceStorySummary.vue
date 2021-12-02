@@ -83,7 +83,7 @@
         return this.stories.length > 0
       },
       userId () {
-        return this.$props.user.app_metadata.api_user_id
+        return this.$props.user.appMetadata.apiUserId
       },
     },
   }

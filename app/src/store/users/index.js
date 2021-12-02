@@ -40,7 +40,7 @@ const users = {
     search: (state, getters) => (searchText) => {
       return getters.userDb.filter((cur) => {
         var fullname = cur.given_name + ' ' + cur.family_name
-        if (fullname.includes(searchText) || cur.email.includes(searchText) || cur.app_metadata.api_user_id === searchText || cur.nickname.includes(searchText)) {
+        if (fullname.includes(searchText) || cur.email.includes(searchText) || cur.appMetadata.apiUserId === searchText || cur.nickname.includes(searchText)) {
           return true
         }
         return false

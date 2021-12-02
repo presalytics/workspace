@@ -197,7 +197,7 @@
       isUserMatchtoQuery (user, queryText) {
         if (user && queryText) {
           var fullname = this.getFullname(user)
-          if (fullname.includes(queryText) || user.email.includes(queryText) || user.app_metadata.api_user_id === queryText || user.nickname.includes(queryText)) {
+          if (fullname.includes(queryText) || user.email.includes(queryText) || user.appMetadata.apiUserId === queryText || user.nickname.includes(queryText)) {
             return true
           }
           return false

@@ -66,7 +66,7 @@
             :sort-desc="sortDesc"
             multi-sort
           >
-            <template #item.app_metadata.api_user_id="{ item }">
+            <template #item.appMetadata.apiUserId="{ item }">
               <p-user-card
                 :user="{ item }"
               />
@@ -83,22 +83,22 @@
             </template>
             <template #item.notifySwitch="{ item }">
               <p-user-notification-toggle
-                :user-id="item.app_metadata.api_user_id"
+                :user-id="item.appMetadata.apiUserId"
               />
             </template>
             <template #item.view_count="{item}">
               <p-user-view-counter
-                :user-id="item.app_metadata.api_user_id"
+                :user-id="item.appMetadata.apiUserId"
               />
             </template>
             <template #item.activity="{item}">
               <p-user-activity-sparkline
-                :user-id="item.app_metadata.api_user_id"
+                :user-id="item.appMetadata.apiUserId"
               />
             </template>
             <template #item.recentEvents="{item}">
               <p-user-recent-events
-                :user-id="item.app_metadata.api_user_id"
+                :user-id="item.appMetadata.apiUserId"
               />
             </template>
           </v-data-table>
@@ -140,7 +140,7 @@
         defaultHeaders: [
           {
             text: 'User',
-            value: 'app_metadata.api_user_id',
+            value: 'appMetadata.apiUserId',
             show: true,
             sort: (a, b) => {
               var aUser = this.$store.getters['users/getUser'](a)
@@ -190,7 +190,7 @@
         loading: true,
         debouncedText: '',
         searchText: '',
-        sortBy: ['app_metadata.api_user_id'],
+        sortBy: ['appMetadata.apiUserId'],
         sortDesc: [false],
 
       }
@@ -204,7 +204,7 @@
           var user = this.$store.state.users.users[cur]
           user.fullname = this.getFullname(user)
           return user
-        }).filter((cur) => cur.app_metadata.api_user_id !== this.$store.getters.userId)
+        }).filter((cur) => cur.appMetadata.apiUserId !== this.$store.getters.userId)
       },
       filteredAudienceList () {
         return this.audienceList.filter(() => this.isUserMatchtoQuery(this.debouncedText))
@@ -246,7 +246,7 @@
       isUserMatchtoQuery (user, queryText) {
         if (user && queryText) {
           var fullname = this.getFullname(user)
-          if (fullname.includes(queryText) || user.email.includes(queryText) || user.app_metadata.api_user_id === queryText || user.nickname.includes(queryText)) {
+          if (fullname.includes(queryText) || user.email.includes(queryText) || user.appMetadata.apiUserId === queryText || user.nickname.includes(queryText)) {
             return true
           }
           return false
