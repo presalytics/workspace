@@ -12,5 +12,5 @@ urlpatterns = [
     path('resources/', views.UserResourcesView.as_view(), name='user_resources'),
     path('user-info/<uuid:id>/', views.UserInfoView.as_view(), name='info'),
     path('resources/<uuid:id>/', views.ResourcesView.as_view(), name='resources'), # get resources as list of ids + resourceTypes, required CC Token
-    path('related/search', views.RelatedUserView.as_view(), name='related_search') # get relatted users of the requested user in query string, requres CC Token
+    path('related/search/', views.RelatedUserView.as_view(), name='related_search') # get relatted users of the requested user in query string, requres CC Token
 ]

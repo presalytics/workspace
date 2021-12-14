@@ -74,7 +74,7 @@ class ResourcesView(generics.ListAPIView):
     serializer_class = UserResourceSerializer
 
     def get_queryset(self):
-        return UserResource.objects.filter(user_id=self.request.user.id)  # type: ignore
+        return UserResource.objects.filter(user_id=self.kwargs['id'])  # type: ignore
 
 
 class RelatedUserView(generics.ListAPIView):
@@ -108,7 +108,7 @@ class RelatedUserView(generics.ListAPIView):
     def get_queryset(self):
         resource_id = self.request.query_params.get('resourceId') or self.request.query_params.get('resource_id')
         user_id = self.request.query_params.get('userId') or self.request.query_params.get('user_id')
-        scope = self.request.query_params.get('scoped')
+        scope = self.request.query_params.get('scope')
         resource_type = self.request.query_params.get('resourceType') or self.request.query_params.get('resouce_type')
         query = None
         if resource_id:
@@ -117,9 +117,9 @@ class RelatedUserView(generics.ListAPIView):
              query = query & Q(user_id=user_id) if query else Q(user_id=user_id)
         if query:
             if scope:
-                query = query & Q(scope=scope)
+                query = query & Q(scope=scope.lower())
             if resource_type:
-                query = query & Q(resource_type=resource_type)
+                query = query & Q(resource_type=resource_type.lower())
             return UserMap.objects.filter(query)
         else:
             raise self.MissingResourceIDException()
