@@ -26,12 +26,19 @@ export default class SignalRConnectionManager {
       console.log("API Event received", message)  // eslint-disable-line
       this.broadcast(ce)
     })
+
+    this.eventQueue = []
+
+    this.connection.onreconnected( () => {
+      this.flushEventQueue()
+    })
   }
 
   async startConnection() {
     try {
       await this.connection.start()
       console.log("Connected to Presalytics Event Hub.  Now streaming real-time events.") // eslint-disable-line
+      this.flushEventQueue()
     } catch (err) {
       console.error(err) // eslint-disable-line
       setTimeout(this.startConnection, 5000)
@@ -40,11 +47,26 @@ export default class SignalRConnectionManager {
 
   sendEvent (eventData) {
     let ce = new CloudEvent(eventData)
-    if (this.debug) console.log("Sending Event to API", eventData) // eslint-disable-line
-    this.connection.invoke("SendEvent", ce)
+    if (this.connection.state === "Connected") {
+      this.connection.invoke("SendEvent", ce)
+      if (this.debug) console.log("Sending Event to API", eventData) // eslint-disable-line
+    } else {
+      this.eventQueue.push(ce)
+      if (this.debug) console.log("Cloud Event Queued for sending", eventData) // eslint-disable-line
+    }
+
   }
 
   broadcast(cloudEvent) {
     return this.eventHandler(cloudEvent)
+  }
+
+  flushEventQueue() {
+    var i = this.eventQueue.length 
+    while (i--) {
+      let evt = this.eventQueue.shift()
+      this.connection.invoke("SendEvent", evt)
+      if (this.debug) console.log("Queued cloud event send to API", evt) // eslint-disable-line
+    }
   }
 }

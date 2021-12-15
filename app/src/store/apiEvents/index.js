@@ -30,8 +30,12 @@ const apiEvents = {
       state.tokenLoaded = payload
     },
     ADD_EVENTS (state, payload) {
+      if (state.events.includes(null)) {
+        state.events = state.events.filter(Boolean)
+      }
+      state.events.filter(Boolean)
       var isInDb = (evt) => {
-        return state.events.filter((cur) => cur.id === evt.id).length > 0
+        return state.events.filter( (cur) => cur.id === evt.id).length > 0
       }
       if (Array.isArray(payload)) {
         var newEvents = payload.reduce((acc, cur) => {

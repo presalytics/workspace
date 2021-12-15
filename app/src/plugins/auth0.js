@@ -1,4 +1,7 @@
 import createAuth0Client from '@auth0/auth0-spa-js'
+import { CloudEvent } from 'cloudevents'
+import { v4 as uuidv4 } from 'uuid'
+
 
 let instance = null
 
@@ -42,13 +45,16 @@ export default class Auth0Plugin{
         window.location.search.includes('code=') &&
         window.location.search.includes('state=')
       ) {
+        
         // handle the redirect and retrieve tokens
+        
         const { appState } = await this.auth0Client.handleRedirectCallback()
 
         this.error = null
 
         // Notify subscribers that the redirect callback has happened, passing the appState
         // (useful for retrieving any pre-authentication state)
+      
         this.onRedirectCallback(appState)
       }
     } catch (e) {
@@ -62,6 +68,7 @@ export default class Auth0Plugin{
     this.isAuthenticated = await this.auth0Client.isAuthenticated()
     if (this.isAuthenticated) {
       this.user = await this.auth0Client.getUser()
+      this.sendUserEvent('user.login')
       await this.getTokenSilently()
       if (this.storeDispatchFn) {
         this.storeDispatchFn('auth/setAuthorization', {
@@ -97,6 +104,7 @@ export default class Auth0Plugin{
   }
   /** Logs the user out and removes their session on the authorization server */
   async logout () {
+    this.sendUserEvent('user.logout')
     await this.auth0Client.logout({
         returnTo: window.location.origin,
         localonly: true,
@@ -105,10 +113,28 @@ export default class Auth0Plugin{
     this.isAuthenticated = false
     this.accessToken = null
     if (this.storeDispatchFn) this.storeDispatchFn('logout')
+    
   }
       /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
   getRedirectUri (o) {
     const callbackUri = o.redirect_uri + '?returnTo=' + encodeURIComponent(window.location.origin)
     return callbackUri
+  }
+
+  sendUserEvent(eventType) {
+    const userId = this.user.appMetadata?.apiUserId || this.user["https://api.presalytics.io/api_user_id"]
+    this.storeDispatchFn('apiEvents/sendEvent',  new CloudEvent({
+        type: eventType,
+        data: {
+          resourceId: userId,
+          userId: userId,
+        },
+        subject: userId,
+        time: new Date().toISOString(),
+        id: uuidv4(),
+        source: window.location.origin,
+        datacontenttype: "application/json"
+      })
+    )
   }
 }

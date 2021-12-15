@@ -103,8 +103,8 @@
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
         } else {
-          this.$store.commit('apiEvents/' + e.data.type, e.data.payload)
-          this.$dipatcher.handleEvent(e.data)
+          this.$store.commit('apiEvents/' + e.data.type, e.data.cloudEvent)
+          this.$dispatcher.handleEvent(e.data.cloudEvent)
         }
       },
       storyEventListener(e) {
