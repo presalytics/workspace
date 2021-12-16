@@ -33,7 +33,7 @@ class Outline(BaseModel):
     patches: typing.Union[models.Manager, 'OutlinePatches']
     story = models.OneToOneField(Story, on_delete=models.CASCADE)
     latest_patch_sequence = models.IntegerField(null=False)
-    document = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder)
+    document = models.JSONField(null=False)
 
     class InvalidPatchBadRequest(APIException):
         status_code = 400
