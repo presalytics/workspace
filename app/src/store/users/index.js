@@ -49,6 +49,16 @@ const users = {
     table: (state) => {
       return state.table
     },
+    getFriendlyName: (state, getters) => (userId) => {
+      var usr = getters.getUser(userId)
+      if (usr.givenName && usr.familyName) {
+        return usr.givenName + " " + usr.familyName
+      } else if (usr.nickname) {
+        return usr.nickname
+      } else {
+        return usr.name
+      }
+    }
   },
   mutations: {
     SET_LOADING (state, payload) {
@@ -94,6 +104,12 @@ const users = {
       workerActions.postMessage({
         request: 'accessToken',
         accessToken: accessToken,
+      })
+    },
+    updateUser(context, userId) {
+      workerActions.postMessage({
+        request: 'updateUser',
+        userId: userId
       })
     },
     initTable ({ commit }, columnList) {

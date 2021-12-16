@@ -75,7 +75,9 @@ export default class Auth0Plugin{
           accessToken: this.accessToken,
           user: this.user
         })
+        this.storeDispatchFn('users/updateUser', this.user["https://api.presalytics.io/api_user_id"])
       }
+
     }
     this.loading = false
     if (this.storeDispatchFn) this.storeDispatchFn('auth/toggleLoading')

@@ -10,13 +10,20 @@
           :key="item.id"
           :class="getPictureClass(index)"
         >
-          <v-avatar>
-            <img
-              :src="getPictureUrl(item)"
-              class="images"
-              max-height="40px"
-            >
-          </v-avatar>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-avatar>
+                <img
+                  :src="getPictureUrl(item)"
+                  class="images"
+                  max-height="40px"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+              </v-avatar>
+            </template>
+            <span>{{ getUserName(item) }}</span>
+          </v-tooltip>
         </div>
       </div>
     </div>
@@ -45,6 +52,11 @@
       },
       truncatedCollaborators () {
         var c = this.$props.story.item.collaborators.slice()
+        if (c.length > 3) {
+          c = c.filter( (cur) => {
+            this.getUserId(cur.id) !== this.$store.getters.userId
+          })
+        }
         return c.slice(0, 3)
       },
       collaboratorCount () {
@@ -57,7 +69,7 @@
       },
       getPictureUrl (collaborator) {
         var url = null
-        var userId = this.$store.state.stories.collaborators[collaborator].userId
+        var userId = this.getUserId(collaborator)
         var usr = this.$store.getters['users/getUser'](userId)
         if (usr) {
           url = usr.picture
@@ -78,6 +90,13 @@
         }
         return ret
       },
+      getUserName(collaborator) {
+        var userId = this.getUserId(collaborator)
+        return this.$store.getters['users/getFriendlyName'](userId)
+      },
+      getUserId(collaborator) {
+        return this.$store.state.stories.collaborators[collaborator].userId
+      }
     },
   }
 </script>
@@ -121,8 +140,6 @@
     height: 0
     width: 100%
     position: relative
-  .v-avatar
-    border: 2px solid black !important
   .margin-1
     margin-left: 15px
   .margin-2

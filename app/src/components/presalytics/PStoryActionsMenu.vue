@@ -64,7 +64,7 @@
       collaborator() {
         return this.story.item.collaborators
           .map( (cur) => this.$store.state.stories.collaborators[cur])
-          .filter( (cur) => cur.userId = this.$store.getters.userId)[0]
+          .filter( (cur) => cur.userId === this.$store.getters.userId)[0]
       },
       userPermissionType() {
         return this.collaborator.permissionName

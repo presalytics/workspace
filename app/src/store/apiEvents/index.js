@@ -21,6 +21,9 @@ const apiEvents = {
     getStoryEvents: (state, getters) => (storyId) => {
       return getters.eventsDb.filter((cur) => cur.resourceId === storyId)
     },
+    getEventsByType: (state, getters) => (eventType) => {
+      return getters.eventsDb.filter( (cur) => cur.type === eventType)
+    }
   },
   mutations: {
     SET_LOADING (state, payload) {

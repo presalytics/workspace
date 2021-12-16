@@ -69,6 +69,16 @@ self.addEventListener('message', async (e) => {
             handleUserUpdate(usr)
           }
         })
+        break
+      }
+      case ('updateUser'): {
+        var userId = e.data.userId
+        var usr = await getUser(userId)
+        if (usr) {
+          usr.id = usr.appMetadata.apiUserId
+          handleUserUpdate(usr)
+        }
+        break
       }
     }
   } catch (err) {
