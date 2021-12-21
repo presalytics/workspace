@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class UserService(ServiceBase):
 
     API_BASE_URL = settings.USERS_URL
+
     class ServiceEndpoints:
         ROOT = "{id}/"
 

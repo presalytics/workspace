@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound, bad_request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
-from api.permissions import PresaltyicsBuilderPermission, PresalyticsViewerPermission, PresalyticsInternalPermssion 
+from api.permissions import PresaltyicsBuilderPermission, PresalyticsViewerPermission, PresalyticsInternalPermssion
 from users.models import PresalyticsUser
 from .serializers import ConversationSerializer, MessageSerializer, UserSerializer
 from .models import Conversation
@@ -19,6 +19,7 @@ class ConversationsView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
+
 
 class ConversationsDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ConversationSerializer
@@ -47,6 +48,7 @@ class UserConversationsView(generics.ListAPIView):
         user_id = self.kwargs['api_user_id']
         return Conversation.objects.filter(participants__id=user_id)
 
+
 class ParticipantsCreateListView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [PresaltyicsBuilderPermission, ConversationPermission]
@@ -67,5 +69,3 @@ class ParticipantsRemoveView(generics.DestroyAPIView):
             raise NotFound
         except Exception as ex:
             return bad_request(request, ex)
-    
-

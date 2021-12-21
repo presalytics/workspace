@@ -1,8 +1,9 @@
 from rest_framework.permissions import BasePermission
 from .models import Team, TeamMember, TeamUserRoleChoices
 
+
 class TeamEditorPermission(BasePermission):
-    
+
     def has_permission(self, request, view):
         return True
 
@@ -11,6 +12,7 @@ class TeamEditorPermission(BasePermission):
             if obj.role == TeamUserRoleChoices.ADMIN:
                 return True
         return False
+
 
 class TeamMemberCreatePermission(BasePermission):
 

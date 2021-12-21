@@ -29,10 +29,8 @@ class StoryView(generics.ListCreateAPIView):
             return serializers.PostStoryOutlineSerializer
         elif method == "POST" and content_type == "multipart/form-data":
             return serializers.PostStoryOoxmlDocumentSerializer
-        else:  
+        else:
             return super().get_serializer_class()
-
-
 
 
 class StoryDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -44,6 +42,7 @@ class StoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+
 
 class CommentsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CommentSerializer
@@ -65,25 +64,31 @@ class UserAnnotationsView(generics.RetrieveUpdateDestroyAPIView):
 class UserAnnoationsCreateView(generics.CreateAPIView):
     serializer_class = serializers.UserAnnotationSerialzer
 
+
 class OutlineGetView(generics.RetrieveAPIView):
     permission_classes = [permissions.OutlinePermission]
     serializer_class = serializers.OutlineSerializer
+
 
 class OutlinePatchGetView(generics.RetrieveAPIView):
     permission_classes = [permissions.OutlinePatchPermssion]
     serializer_class = serializers.OutlinePatchSerializer
 
+
 class OutlinePatchCreateView(generics.CreateAPIView):
     permission_classes = [permissions.OutlinePatchPermssion, PresaltyicsBuilderPermission]
     serializer_class = serializers.OutlinePatchSerializer
 
+
 class CollaboratorsCreateListView(generics.ListCreateAPIView):
-    permission_classes = [permissions.CollaboratorPermssion|PresalyticsInternalPermssion]
+    permission_classes = [permissions.CollaboratorPermssion | PresalyticsInternalPermssion]
     serializer_class = serializers.StoryCollaboratorSerializer
+
 
 class CollaboratorsDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CollaboratorPermssion]
     serializer_class = serializers.StoryCollaboratorSerializer
+
 
 class CollaboratorsListAllView(generics.ListAPIView):
     permission_classes = [PresalyticsViewerPermission]
@@ -101,8 +106,6 @@ class PermissionTypesListView(generics.ListAPIView):
         return PermissionTypes.objects.all()
 
 
-
-
 class RenderStoryView(views.APIView):
     permission_classes = [permissions.StoryPermission]
 
@@ -117,7 +120,7 @@ class RenderStoryView(views.APIView):
         outline = story.outline.document
         if not isinstance(outline, StoryOutline):
             outline = StoryOutline.load(json.dumps(outline))
-        data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package() # type: ignore
+        data = ClientSideRenderer(outline, client_info=client_info, pages=pages).package()  # type: ignore
         return JsonResponse(data)
 
 
@@ -163,15 +166,3 @@ class StoryAuthorizationView(views.APIView):
             raise self.InvalidPermissionTypeException()
         except Exception:
             raise self.StoryUnauthorizedExecption()
-
-        
-        
-
-
-
-
-
-
-
-
-

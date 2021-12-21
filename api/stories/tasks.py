@@ -13,7 +13,7 @@ def sync_outlines_to_latest_patches():
     from stories.models import Outline
     outlines_to_update = Outline.objects.filter(patches__patch_is_applied=False).all()
     for outline in outlines_to_update:
-        
+
         patches = outline.patches.objects.filter(patch_is_applied=False).order_by('sequence').all()
         json_document = outline.document
         patches_applied = []
@@ -32,13 +32,8 @@ def sync_outlines_to_latest_patches():
         except Exception as ex:
             logger.exception(ex)
 
+
 @shared_task
 def upload_new_ooxml_document(file_data, filename, user_id, ooxml_id):
     logger.error("create file upload process")
     logger.info("user_id: {0}, ooxml_id: {1}, filename: {2}, \n\r filedata: {3}".format(user_id, ooxml_id, filename, file_data))
-
-
-
-
-
-    

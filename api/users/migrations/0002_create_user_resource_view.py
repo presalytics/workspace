@@ -13,8 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(sql=
-            """
+        migrations.RunSQL(sql="""
                 CREATE VIEW users_resources_vw as (
 
                     SELECT story_id as resource_id, 
@@ -55,9 +54,8 @@ class Migration(migrations.Migration):
 
                 );
             """,
-            reverse_sql=
-            """
+                          reverse_sql="""
             DROP VIEW users_resources_vw;
             """
-        )
+                          )
     ]

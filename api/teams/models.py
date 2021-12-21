@@ -5,9 +5,9 @@ from api.models import BaseModel
 
 
 class TeamTypeChoices(models.TextChoices):
-    INTERNAL = 'internal'  #  Only members of the user's orgnaization can be invited to join
-    INVITE_ONLY = 'invite_only' # Members must be invited
-    PUBLIC = 'public' # anyone can join
+    INTERNAL = 'internal'  # Only members of the user's orgnaization can be invited to join
+    INVITE_ONLY = 'invite_only'  # Members must be invited
+    PUBLIC = 'public'  # anyone can join
 
 
 class Team(BaseModel):
@@ -19,8 +19,8 @@ class Team(BaseModel):
 
 
 class TeamUserRoleChoices(models.TextChoices):
-    ADMIN = 'admin' # Can change team settings and delete teams, granted to team creator
-    PROMOTER = 'promoter' # Can add users to a team
+    ADMIN = 'admin'  # Can change team settings and delete teams, granted to team creator
+    PROMOTER = 'promoter'  # Can add users to a team
     COLLABORATOR = 'collaborator'  # can collaborate on team content
 
 
@@ -28,8 +28,3 @@ class TeamMember(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team_users', unique=False, null=False, on_delete=models.CASCADE)
     role = models.CharField(max_length=32, choices=TeamUserRoleChoices.choices, null=False)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='members')
-
-
-
-
-

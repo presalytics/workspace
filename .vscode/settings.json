@@ -33,5 +33,9 @@
       "chunk-*": true,
       "frontend/dist/**": true,
       ".git/**": true
-    }
+    },
+    "python.linting.mypyEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintArgs": ["--rcfile=api/setup.cfg"]
 }

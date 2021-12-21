@@ -20,12 +20,14 @@ class TeamGetEditDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Team.objects.filter(members__user__in=self.request.user)
 
+
 class TeamMemberCreateView(generics.CreateAPIView):
     permission_classes = (TeamMemberCreatePermission,)
     serializer_class = TeamMemberSerializer
 
     def get_queryset(self):
         return TeamMember.objects.filter(user_in=self.request.user)
+
 
 class TeamMemberGetEditDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (TeamEditorPermission,)

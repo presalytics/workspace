@@ -16,10 +16,10 @@ def get_current_user():
 
 
 class BaseModel(models.Model):
-    
+
     class Meta:
         abstract = True
-    
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -34,6 +34,3 @@ def handle_pre_save(sender, instance, **kwargs):
         instance.updated_by = user
         if instance.id is None:  # entry isn't created yet
             instance.created_by = user
-
-
-

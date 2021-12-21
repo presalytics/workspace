@@ -4,10 +4,12 @@ from django.conf import settings
 
 # Create your models here.
 
+
 class AgentScopeChoices(models.TextChoices):
     USER = 'user'
     TEAM = 'team'
     ORGANIZATION = 'organization'
+
 
 class Agent(BaseModel):
     name = models.CharField(max_length=256)
@@ -30,4 +32,3 @@ class Connection(BaseModel):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='connections')
     connection_string = models.CharField(max_length=4096, null=False)
     connection_type = models.CharField(max_length=32, choices=ConnectionTypeChoices.choices, null=False)
-

@@ -172,10 +172,11 @@
             "test",
             "--keepdb",
             "--settings",
-            "api.settings.test"
+            "api.settings.test",
+            "stories.tests"
           ],
           "console": "internalConsole",
-          "justMyCode": false
+          "justMyCode": true
         },
 
     ]

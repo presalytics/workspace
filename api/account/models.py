@@ -30,4 +30,3 @@ class Account(BaseModel):
     organization = models.ForeignKey('organization.Organization', on_delete=models.SET_NULL, default=None, blank=True, null=True, related_name='account')
     stripe_account_id = models.CharField(max_length=64)
     account_admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, default=None, blank=True, null=True, related_name='admin_account')
-    

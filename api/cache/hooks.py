@@ -1,5 +1,6 @@
 import base64
 
+
 def cache_hook(subdocument, nonce):
     from cache.tasks import to_cache
     from api.middleware import get_request

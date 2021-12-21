@@ -13,7 +13,7 @@ class PresalyticsAuthenticationMidddleware(AuthenticationMiddleware):
         super().process_request(request)
         if not hasattr(request, 'user') or isinstance(getattr(request, 'user', None), AnonymousUser):
             try:
-                auth_header = request.META.get('HTTP_AUTHORIZATION', None) 
+                auth_header = request.META.get('HTTP_AUTHORIZATION', None)
                 if auth_header:
                     token = auth_header.replace("Bearer ", "")
                     request.session['access_token'] = token
@@ -22,5 +22,3 @@ class PresalyticsAuthenticationMidddleware(AuthenticationMiddleware):
                         login(request, user)
             except Exception as ex:
                 logger.exception(ex)
-
-

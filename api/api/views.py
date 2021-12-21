@@ -8,6 +8,5 @@ def home(request):
         if request.user.is_authenticated:
             return render(request, 'index.html', context={})
         else:
-            return redirect(reverse('users:login'), kwargs={'current_app':'users'})
+            return redirect(reverse('users:login'), kwargs={'current_app': 'users'})
     return HttpResponseNotAllowed(permitted_methods='GET')
-        

@@ -8,7 +8,6 @@ from django.http import Http404, HttpResponse
 from api.services.redis import RedisWrapper
 
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +25,3 @@ class NonceCacheView(View):
     def post(self, request, nonce):
         from cache.tasks import to_cache
         to_cache.apply_async((request.post('subdocument'), nonce, str(request.user.id)), queue='workspace')
-
-
-
-

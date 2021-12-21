@@ -40,6 +40,3 @@ def receiver_task_pre_run(task_id, task, *args, **kwargs):
         kwargs["user"] = PresalyticsUser.objects.get(pk=metadata["user_id"])
     else:
         kwargs["user"] = None
-
-
-

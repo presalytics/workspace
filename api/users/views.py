@@ -1,15 +1,10 @@
 import logging
 from django.db.models import Q
-from django.core.exceptions import ImproperlyConfigured
-from django.http.response import HttpResponseNotFound
-from django.shortcuts import render
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from drf_spectacular.types import OpenApiTypes
-from rest_framework import views, exceptions, response, generics, request
+from rest_framework import exceptions, response, generics, request
 from api.permissions import PresalyticsInternalPermssion, PresalyticsViewerPermission
 from api.services.users import UserService
-from user_sessions.models import Session
-from presalytics.lib.util import dict_to_camelCase
 from .serializers import UserMapSerializer, UserResourceSerializer
 from .models import UserResource, UserMap
 
@@ -27,10 +22,10 @@ class UserRelationshipView(generics.ListAPIView):
         scope = self.request.query_params.get('scope', 'direct')
         user_id = self.kwargs.get('userId', None) or str(self.request.user.id)  # type: ignore
         query = Q(user_id=user_id)
-        if scope == 'direct': 
+        if scope == 'direct':
             query = query & Q(relationship_scope='direct')
         elif scope == 'team':
-            query = query & ( Q(relationship_scope='direct') | Q(relationshpip_scope='team') )
+            query = query & (Q(relationship_scope='direct') | Q(relationshpip_scope='team'))
         return UserMap.objects.filter(query)
 
     @extend_schema(
@@ -43,7 +38,7 @@ class UserRelationshipView(generics.ListAPIView):
 
 
 class UserInfoView(generics.RetrieveAPIView):
-    permission_classes=[PresalyticsViewerPermission]
+    permission_classes = [PresalyticsViewerPermission]
 
     def retrieve(self, request, *args, **kwargs):
         search_user_id = kwargs.get("id", None)
@@ -99,7 +94,7 @@ class RelatedUserView(generics.ListAPIView):
         status_code = 400
         default_detail = "Query must specify a valid 'resourceType'. Valid values are 'story', 'conversation', 'user, 'organization', 'agent' or 'team'."
         default_code = 'bad_request'
-    
+
     class ResourceNotFoundException(exceptions.APIException):
         status_code = 404
         default_detail = "The resource with the resourceId contained in your request could not be found"
@@ -109,12 +104,12 @@ class RelatedUserView(generics.ListAPIView):
         resource_id = self.request.query_params.get('resourceId') or self.request.query_params.get('resource_id')
         user_id = self.request.query_params.get('userId') or self.request.query_params.get('user_id')
         scope = self.request.query_params.get('scope')
-        resource_type = self.request.query_params.get('resourceType') or self.request.query_params.get('resouce_type')
+        resource_type = self.request.query_params.get('resourceType') or self.request.query_params.get('resource_type')
         query = None
         if resource_id:
             query = Q(resource_id=resource_id)
         if user_id:
-             query = query & Q(user_id=user_id) if query else Q(user_id=user_id)
+            query = query & Q(user_id=user_id) if query else Q(user_id=user_id)
         if query:
             if scope:
                 query = query & Q(scope=scope.lower())
@@ -123,7 +118,6 @@ class RelatedUserView(generics.ListAPIView):
             return UserMap.objects.filter(query)
         else:
             raise self.MissingResourceIDException()
-
 
     @extend_schema(
         parameters=[
@@ -135,8 +129,6 @@ class RelatedUserView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
-
-    
 
 
 class UserResourcesView(generics.ListAPIView):

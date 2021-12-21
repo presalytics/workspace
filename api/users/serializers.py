@@ -6,7 +6,7 @@ class UserMapSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserMap
-        fields = ('user_id','related_user_id','resource_id','resource_type','relationship_scope')
+        fields = ('user_id', 'related_user_id', 'resource_id', 'resource_type', 'relationship_scope')
 
 
 class UserResourceSerializer(serializers.ModelSerializer):

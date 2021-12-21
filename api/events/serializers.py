@@ -7,4 +7,4 @@ from .models import EventTypes
 class EventTypesSerializer(ModelSerializer):
     class Meta:
         model = EventTypes
-        fields =  ('display_name', 'type_name', 'description', 'source', 'default_formatter') + BaseModelSerializer.Meta.fields
+        fields = ('display_name', 'type_name', 'description', 'source', 'default_formatter')

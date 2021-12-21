@@ -21,5 +21,3 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresalyticsUser
         fields = ['id']
-
-

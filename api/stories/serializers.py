@@ -1,12 +1,7 @@
-import collections
-from inspect import Attribute
 import typing
 import json
-from django.core.exceptions import RequestAborted
 from rest_framework import serializers
-from django.conf import settings
 from django.apps import apps
-from django.db.models import Max
 from presalytics.story.outline import StoryOutline
 from api.serailizers import BaseModelSerializer
 from .models import OoxmlDocument, Story, StoryPage, Comment, UserAnnotations, Outline, OutlinePatches, StoryCollaborator, PermissionTypes
@@ -17,13 +12,13 @@ if typing.TYPE_CHECKING:
 class CommentSerializer(BaseModelSerializer):
     class Meta:
         model = Comment
-        fields = ('page_id', 'dom_selector', 'text', 'user_id') + BaseModelSerializer.Meta.fields
+        fields = ('page_id', 'dom_selector', 'text', 'user_id')
 
 
 class UserAnnotationSerialzer(BaseModelSerializer):
     class Meta:
         model = UserAnnotations
-        fields = ('is_favorite',) + BaseModelSerializer.Meta.fields
+        fields = ('is_favorite',)
 
     def get_attribute(self, instance):
         try:
@@ -35,10 +30,10 @@ class UserAnnotationSerialzer(BaseModelSerializer):
 
 class PageSerializer(BaseModelSerializer):
     comments = CommentSerializer(many=True, required=False)
-    
+
     class Meta:
         model = StoryPage
-        fields = ('comments',) + BaseModelSerializer.Meta.fields
+        fields = ('comments',)
 
     def create(self, validated_data):
         comments = validated_data.pop('comments', None)
@@ -47,19 +42,19 @@ class PageSerializer(BaseModelSerializer):
             Comment.objects.get_or_create(**c, page=page)
         return page.refresh_from_db()
 
+
 class OutlineSerializer(BaseModelSerializer):
     # document = serializers.SerializerMethodField('get_document')
-
 
     def get_document(self, instance):
         if type(instance.document) == StoryOutline:
             return instance.document.to_dict()
         else:
             return instance.document
-    
+
     class Meta:
         model = Outline
-        fields = ('story_id', 'document', 'latest_patch_sequence') + BaseModelSerializer.Meta.fields
+        fields = ('story_id', 'document', 'latest_patch_sequence')
         extra_kwargs = {
             'latest_patch_sequence': {
                 'required': False
@@ -72,13 +67,12 @@ class OutlineSerializer(BaseModelSerializer):
                 'read_only': False
             }
         }
-    
 
 
 class OutlinePatchSerializer(BaseModelSerializer):
     class Meta:
         model = OutlinePatches
-        fields = ('jsondiffpatch', 'rfc_6902_patch') + BaseModelSerializer.Meta.fields
+        fields = ('jsondiffpatch', 'rfc_6902_patch')
 
     def create(self, validated_data):
         outline_id = str(self.context['view'].kwargs['pk'])
@@ -95,26 +89,27 @@ class OutlinePatchSerializer(BaseModelSerializer):
 class PermissionTypeSerializer(BaseModelSerializer):
     class Meta:
         model = PermissionTypes
-        fields = ('name', 'can_edit', 'can_view', 'can_add_collaborators', 'can_delete')  + BaseModelSerializer.Meta.fields
+        fields = ('name', 'can_edit', 'can_view', 'can_add_collaborators', 'can_delete')
 
 
 class StoryCollaboratorSerializer(BaseModelSerializer):
     permission_name = serializers.SerializerMethodField('get_permission_name')
     annotation = UserAnnotationSerialzer()
 
+    class Meta:
+        model = StoryCollaborator
+        fields = ['user_id', 'story_id', 'permission_type_id', 'permission_name', 'annotation']
+
     def get_permission_name(self, instance):
         if not isinstance(instance, StoryCollaborator):
             instance = instance.first()
         return instance.permission_type.name
 
-    class Meta:
-        model = StoryCollaborator
-        fields = ('user_id', 'story_id', 'permission_type_id', 'permission_name', 'annotation') + BaseModelSerializer.Meta.fields
 
 class OoxmlDocumentSerializer(BaseModelSerializer):
     class Meta:
         model = OoxmlDocument
-        fields = ('ooxml_automation_id', 'story_id', 'cloned_from', 'delete_target_on_story_delete') + BaseModelSerializer.Meta.fields
+        fields = ('ooxml_automation_id', 'story_id', 'cloned_from', 'delete_target_on_story_delete')
 
 
 class StorySerializer(BaseModelSerializer):
@@ -132,10 +127,10 @@ class StorySerializer(BaseModelSerializer):
             'ooxml_documents',
             'is_public',
             'title'
-        ) + BaseModelSerializer.Meta.fields
+        )
 
     def create(self, validated_data):
-       
+
         story, _ = Story.objects.get_or_create(**validated_data)
         collaborators_data = self.context["request"].data["collaborators"]
         for c in collaborators_data:
@@ -149,6 +144,8 @@ class StorySerializer(BaseModelSerializer):
         outline_str = self.context["request"].data["outline"]
         if outline_str:
             outline = json.loads(outline_str)
+            if story.title and not outline.get('document', dict()).get('title'):
+                outline["document"]["title"] = story.title
             page_data = outline["pages"]
             for p in page_data:
                 id = p.pop("id", None)
@@ -166,23 +163,25 @@ class StorySerializer(BaseModelSerializer):
         return super().update(instance, validated_data)
 
 
-class PostStoryOutlineSerializer(serializers.ModelSerializer):
+class PostStoryOutlineSerializer(BaseModelSerializer):
     outline = OutlineSerializer(read_only=False, required=False)
-    annotations = UserAnnotationSerialzer(read_only=True, required=False)
-    collaborators = StoryCollaboratorSerializer(read_only=True, required=False)
+    collaborators = StoryCollaboratorSerializer(read_only=True, required=False, many=True)
     pages = PageSerializer(read_only=True, required=False)
 
     class Meta:
         model = Story
-        fields = ('outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages') + BaseModelSerializer.Meta.fields
+        fields = ('outline', 'is_public', 'collaborators', 'title', 'pages')
 
     def create(self, validated_data):
         outline_json = validated_data.get('outline').get('document')
+        title = outline_json.get('title') or validated_data.get('title')
         story = Story.objects.create(
-            id=validated_data.get('id', None), 
-            is_public=validated_data.get('is_public', None), 
-            title=outline_json.get('title', 'New Story')
+            id=validated_data.get('id', None),
+            is_public=validated_data.get('is_public', None),
+            title=title
         )
+        if not outline_json.get('title'):
+            outline_json['title'] = title
         Outline.objects.create(id=story.id, story=story, document=outline_json, latest_patch_sequence=0)
         permission = PermissionTypes.objects.get(name='creator')
         StoryCollaborator.objects.create(permission_type=permission, user=self.context['request'].user, story=story)
@@ -194,15 +193,14 @@ class PostStoryOutlineSerializer(serializers.ModelSerializer):
         return story
 
 
-class PostStoryOoxmlDocumentSerializer(serializers.ModelSerializer):
+class PostStoryOoxmlDocumentSerializer(BaseModelSerializer):
     outline = OutlineSerializer(read_only=True, required=False)
-    annotations = UserAnnotationSerialzer(read_only=True, required=False)
-    collaborators = StoryCollaboratorSerializer(read_only=True, required=False)
+    collaborators = StoryCollaboratorSerializer(read_only=True, required=False, many=True)
     pages = PageSerializer(read_only=True, required=False)
 
     class Meta:
         model = Story
-        fields = ('outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages') + BaseModelSerializer.Meta.fields
+        fields = ('outline', 'is_public', 'annotations', 'collaborators', 'title', 'pages')
         extra_kwargs = {
             'is_public': {
                 'validators': False
@@ -222,5 +220,3 @@ class PostStoryOoxmlDocumentSerializer(serializers.ModelSerializer):
         story.save()
         story.refresh_from_db()
         return story
-        
-

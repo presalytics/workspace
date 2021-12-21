@@ -114,8 +114,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'api.wsgi.application'
 
 
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -205,7 +203,7 @@ DATABASES = {
         'HOST': os.environ['DB_HOST'],
         'PORT': 5432,
         'OPTIONS': {
-            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True)  else 'allow'
+            'sslmode': 'require' if env.bool('DB_REQUIRE_SSL', True) else 'allow'
         }
     },
 }

@@ -1,4 +1,4 @@
-# Manual one-time data migrate to move from stories database 
+# Manual one-time data migrate to move from stories database
 import logging
 from django.core.management import call_command
 from django.db import migrations, transaction
@@ -17,7 +17,6 @@ def get_permission_types(apps, schema_editor):
 def reverse_op(apps, schema_editor):
     PermissionTypes = apps.get_model('stories', 'PermissionTypes')
     PermissionTypes.objects.all().delete()
-
 
 
 class Migration(migrations.Migration):

@@ -15,7 +15,7 @@ def get_request():
         raise RequestNotFound('Global Request not Found')
     else:
         return _REQUESTS[thread]
-    
+
 
 class GlobalRequestMiddleware(object):
 

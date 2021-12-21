@@ -26,6 +26,7 @@ class StoryBasePermission(permissions.BasePermission):
             return True
         return False
 
+
 class StoryPermission(StoryBasePermission):
 
     def get_story(self, obj):
@@ -37,6 +38,7 @@ class CommentReadPermssion(StoryBasePermission):
 
     def get_story(self, obj) -> 'models.Story':
         return obj.page.story
+
 
 class CommentEditDeletePermission(permissions.BasePermission):
 
@@ -67,9 +69,11 @@ class PageReadEditPermission(StoryBasePermission):
     def get_story(self, obj) -> 'models.Story':
         return obj.story
 
+
 class OutlinePermission(StoryBasePermission):
     def get_story(self, obj) -> 'models.Story':
         return obj.story
+
 
 class OutlinePatchPermssion(StoryBasePermission):
     def get_story(self, obj) -> 'models.Story':
@@ -79,6 +83,3 @@ class OutlinePatchPermssion(StoryBasePermission):
 class CollaboratorPermssion(StoryBasePermission):
     def get_story(self, obj) -> 'models.Story':
         return obj.story
-
-
-

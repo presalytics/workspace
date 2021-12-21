@@ -7,6 +7,7 @@ from api.services.redis import RedisWrapper
 def cache_key(user_id, nonce):
     return str(user_id) + str(nonce)
 
+
 @shared_task
 def to_cache(encoded, nonce, user_id):
     r = RedisWrapper.get_redis()

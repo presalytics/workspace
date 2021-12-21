@@ -13,4 +13,3 @@ class EventTypesListCreateView(generics.ListCreateAPIView):
 class EventTypesRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [EventsPermission]
     serializer_class = EventTypesSerializer
-

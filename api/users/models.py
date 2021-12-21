@@ -1,31 +1,25 @@
-import uuid
 import presalytics
 import typing
-import itertools
 import datetime
 import presalytics.client
 import presalytics.client.oidc
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils.translation import ugettext_lazy as _
-from conversations.models import Conversation
-from stories.models import StoryCollaborator, Story
 from .managers import CustomUserManager
 if typing.TYPE_CHECKING:
     from user_sessions.models import Session
 
 
 class PresalyticsUser(AbstractUser):
-    
+
     class UserInfo:
         def __init__(self, *args, **kwargs):
             self.email = kwargs.get("email", None)
             self.picture = kwargs.get("picture", None)
 
-    
     info: UserInfo
     access_token: str
-    
+
     id = models.UUIDField(primary_key=True, null=False, unique=True)
     username = models.CharField(max_length=30, unique=False, blank=True, null=True, default=None)
     email = models.EmailField(max_length=255, unique=False, blank=True, null=True, default=None)
@@ -35,7 +29,7 @@ class PresalyticsUser(AbstractUser):
     session_set: typing.Union[models.Manager, 'Session']
 
     USERNAME_FIELD = 'id'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: typing.Sequence[str] = []
 
     objects: CustomUserManager = CustomUserManager()
 
@@ -44,7 +38,7 @@ class PresalyticsUser(AbstractUser):
 
     @classmethod
     def get_or_create(cls, token):
-        oidc_client = presalytics.client.oidc.OidcClient() 
+        oidc_client = presalytics.client.oidc.OidcClient()
         payload = oidc_client.validate_token(token)
         api_user_id = oidc_client.get_user_id(token)
         # Service tokens won't have user ids
@@ -62,7 +56,6 @@ class PresalyticsUser(AbstractUser):
         if role_changes or scope_changes:
             user.refresh_from_db()
         return user
-    
 
     @property
     def presalytics_user_id(self):
@@ -71,19 +64,18 @@ class PresalyticsUser(AbstractUser):
     @property
     def token(self) -> typing.Optional[str]:
         token = None
-        session = self.session_set.filter(expire_date__gt=datetime.datetime.now()).order_by('-expire_date').first()  #type: ignore
+        session = self.session_set.filter(expire_date__gt=datetime.datetime.now()).order_by('-expire_date').first()  # type: ignore
         if session:
             token = session.get_decoded().get('access_token', None)
             if not token:
                 session.delete()
-            return token
+            return token  # type: ignore
         else:
             return None
 
-
     def update_roles(self, roles_list: typing.Sequence[str]) -> bool:
         changes = False
-        current_roles = [x.role for x in self.presalytics_roles.all()] # type: ignore
+        current_roles = [x.role for x in self.presalytics_roles.all()]  # type: ignore
         for r in roles_list:
             if r not in current_roles:
                 new_role = Role.objects.create(role=r, user=self)
@@ -94,7 +86,7 @@ class PresalyticsUser(AbstractUser):
             er.objects.delete()
             changes = True
         return changes
-    
+
     def update_scopes(self, scopes_list: typing.Sequence[str]) -> bool:
         changes = False
         current_scopes = [x.scope for x in self.presalytics_scopes.all()]  # type: ignore
@@ -108,7 +100,7 @@ class PresalyticsUser(AbstractUser):
             es.objects.delete()
             changes = True
         return changes
-    
+
     def get_related_users(self, scope='direct') -> typing.Sequence['PresalyticsUser']:
         user_maps = UserMap.objects.filter(user_id=self.id)
         ids = [um.related_user_id for um in user_maps]

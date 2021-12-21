@@ -5,6 +5,7 @@ from .serializers import AccountSerializer, AccountPlanSerializer, PlanFeaturesS
 
 # Create your views here.
 
+
 class AccountListCreateView(generics.ListCreateAPIView):
     permission_classes = (PresalyticsInternalPermssion,)
     serializer_class = AccountSerializer

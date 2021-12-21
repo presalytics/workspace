@@ -19,7 +19,7 @@ class UserApiTests(WorkspaceApiTestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertGreater(len(data), 0)
-    
+
     def test_user_info_view(self):
         user_id = OidcClient().get_user_id(self.token)
         url = reverse('users:info', kwargs={"id": user_id})
@@ -47,12 +47,3 @@ class UserApiTests(WorkspaceApiTestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertGreater(len(data), 0)
-
-
-
-
-
-
-
-
-

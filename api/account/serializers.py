@@ -6,17 +6,16 @@ from api.serailizers import BaseModelSerializer
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields =  ('name', 'organization_id', 'account_admin_id') + BaseModelSerializer.Meta.fields
+        fields = ('name', 'organization_id', 'account_admin_id')
 
 
 class AccountPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountPlan
-        fields =  ('name', 'start_date', 'end_date', 'features_id', 'account_id') + BaseModelSerializer.Meta.fields
+        fields = ('name', 'start_date', 'end_date', 'features_id', 'account_id')
 
 
 class PlanFeaturesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanFeatures
-        fields =  ('name', 'max_stories_per_user', 'max_teams_per_plan', 'max_seats') + BaseModelSerializer.Meta.fields
-
+        fields = ('name', 'max_stories_per_user', 'max_teams_per_plan', 'max_seats')

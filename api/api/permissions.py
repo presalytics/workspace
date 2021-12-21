@@ -4,6 +4,7 @@ import presalytics
 import presalytics.client
 import presalytics.client.oidc
 
+
 class PresalyticsViewerPermission(permissions.BasePermission):
     message = 'You must be a registered Presalytics user with the "Viewer" permssion to access this enpoint'
 

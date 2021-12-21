@@ -2,14 +2,12 @@ import typing
 import presalytics
 import presalytics.lib
 import presalytics.lib.util
-import sys
 import os
-import requests
-from pathlib import Path
 from environs import Env
 from django.test.runner import DiscoverRunner
 from presalytics.client.oidc import OidcClient
 from rest_framework.test import APITestCase
+
 
 def dict_to_camelCase(dct: typing.Dict):
     tmp = dict()
@@ -34,11 +32,12 @@ def get_test_token() -> str:
     if not token:
         token_data = OidcClient().token(env.str('USERNAME'))
         token = token_data['access_token']
-        os.putenv('ACCESS_TOKEN', token) 
+        os.putenv('ACCESS_TOKEN', token)
         print("Access Token: " + token)
 
     OidcClient().validate_token(token)
-    return token
+    return token  # type: ignore
+
 
 class WorkspaceApiTestCase(APITestCase):
 
@@ -56,4 +55,3 @@ class WorkspaceApiDumbTestRunner(DiscoverRunner):
 
     def teardown_databases(self, old_config, **kwargs):
         pass
-

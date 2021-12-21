@@ -26,8 +26,8 @@ class Story(BaseModel):
     collaborators: typing.Union[models.Manager, 'StoryCollaborator']
     ooxml_documents: typing.Union[models.Manager, 'OoxmlDocument']
     is_public = models.BooleanField(default=False)
-    title = models.CharField(max_length=1024, blank=True, null=True)
-    
+    title = models.CharField(max_length=1024, blank=True, null=True, default="New Story")
+
 
 class Outline(BaseModel):
     patches: typing.Union[models.Manager, 'OutlinePatches']
@@ -56,13 +56,11 @@ class Outline(BaseModel):
             raise self.InvalidPatchBadRequest()
 
 
-
-
 class OutlinePatches(BaseModel):
 
     outline = models.ForeignKey(Outline, models.CASCADE, related_name='patches')
-    jsondiffpatch = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder) # reversible patch instruction for the [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) package
-    rfc_6902_patch = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder) # RFC6902 compliant JSON patch instructions (not necessarily reversible), used for maintainence of outline on server-side
+    jsondiffpatch = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder)  # reversible patch instruction for the [jsondiffpatch](https://github.com/benjamine/jsondiffpatch) package
+    rfc_6902_patch = models.JSONField(null=False, encoder=OutlineEncoder, decoder=OutlineDecoder)  # RFC6902 compliant JSON patch instructions (not necessarily reversible), used for maintainence of outline on server-side
     sequence = models.IntegerField()
     patch_is_applied = models.BooleanField(default=False)
 
@@ -123,15 +121,17 @@ class PermissionTypes(BaseModel):
 def create_default_annotation():
     return UserAnnotations.objects.create(is_favorite=False)
 
+
 def get_default_permission_type():
     return PermissionTypes.objects.get(name='viewer')
+
 
 class StoryCollaborator(BaseModel):
     annotation: typing.Union[models.Manager, 'UserAnnotations']
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
     story = models.ForeignKey(Story, models.CASCADE, related_name='collaborators')
     permission_type = models.ForeignKey(PermissionTypes, models.SET_NULL, blank=True, null=True, default=get_default_permission_type)
-    
+
 
 class UserAnnotations(BaseModel):
     collaborator = models.OneToOneField(StoryCollaborator, models.CASCADE, related_name='annotation')
