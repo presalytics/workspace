@@ -1,4 +1,3 @@
-from django.conf.urls import url
 from django.urls import path
 from . import views
 
@@ -14,9 +13,9 @@ urlpatterns = [
     path('comments/<uuid:pk>', views.CommentsView.as_view(), name='comments'),
     path('annotations', views.UserAnnoationsCreateView.as_view(), name='annotation_create'),
     path('annotations/<uuid:pk>/', views.UserAnnotationsView.as_view(), name='annotations'),
-    path('outline/<uuid:pk>', views.OutlineGetView.as_view(), name='outilne_detail'),
+    path('outline/<uuid:pk>', views.OutlineGetView.as_view(), name='outline_detail'),
     path('outline/<uuid:pk>/patch', views.OutlinePatchCreateView.as_view(), name='outline_patch_create'),
-    path('outline/<uuid:pk>/patch/<uuid:patch_id>', views.OutlinePatchGetView.as_view(), name='outline_patch_detail'),
+    path('outline/<uuid:outline_id>/patch/<uuid:pk>', views.OutlinePatchGetView.as_view(), name='outline_patch_detail'),
     path('<uuid:story_id>/collaborators', views.CollaboratorsCreateListView.as_view(), name='collaborators_create'),
     path('<uuid:story_id>/collaborators/<uuid:collaborator_id>', views.CollaboratorsDetailView.as_view(), name='collaborators_detail'),
     path('collaborators', views.CollaboratorsListAllView.as_view(), name='collaborators_all'),

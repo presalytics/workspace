@@ -1,24 +1,14 @@
 import typing
 import jsonpatch
-from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.db import transaction
 from rest_framework.exceptions import APIException
 from presalytics.story.outline import OutlineDecoder, OutlineEncoder, StoryOutline
 from presalytics.lib.exceptions import ValidationError
 from api.models import BaseModel
-from stories.tasks import (
-    sync_outlines_to_latest_patches,
-    upload_new_ooxml_document
-)
-if typing.TYPE_CHECKING:
-    from users.models import PresalyticsUser
 
-
-# Create your models here.
 
 class Story(BaseModel):
     pages: typing.Union[models.Manager, 'StoryPage']
@@ -48,7 +38,7 @@ class Outline(BaseModel):
             updated_outline_dct = jsonpatch.apply_patch(outline_dct, rfc_6902_patch)
             updated_outline = StoryOutline.deserialize(updated_outline_dct)
             updated_outline.validate()
-            self.document = updated_outline
+            self.document = updated_outline.to_dict()
             self.latest_patch_sequence += 1
             self.save()
             return self
@@ -104,10 +94,8 @@ class OoxmlDocument(BaseModel):
 
     @classmethod
     def create_with_file(cls, file, story, user):
-        ooxml = OoxmlDocument.objects.create(story=story)
-        ooxml.refresh_from_db()
-        upload_new_ooxml_document.apply_async(args=(file.file, file.filename, user.id, oomxl.id), queue='workspace')  # type: ignore
-        return ooxml
+        # TODO: add create event via Ooxml Document
+        pass
 
 
 class PermissionTypes(BaseModel):

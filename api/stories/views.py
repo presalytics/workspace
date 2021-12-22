@@ -1,14 +1,11 @@
 import logging
-import typing
-import base64
 import json
-from django.http.response import HttpResponseBadRequest, JsonResponse
-from django.shortcuts import HttpResponse
-from rest_framework import generics, views, parsers, response, request, exceptions, status
+from django.http.response import JsonResponse
+from rest_framework import generics, views, response, exceptions, status
 from presalytics.story.renderers import ClientSideRenderer
 from presalytics.story.outline import StoryOutline
 from api.permissions import PresaltyicsBuilderPermission, PresalyticsInternalPermssion, PresalyticsViewerPermission
-from .models import PermissionTypes, Story, StoryCollaborator, UserAnnotations
+from .models import PermissionTypes, Story, StoryCollaborator, UserAnnotations, OutlinePatches, Outline
 from . import serializers, permissions
 
 
@@ -69,10 +66,16 @@ class OutlineGetView(generics.RetrieveAPIView):
     permission_classes = [permissions.OutlinePermission]
     serializer_class = serializers.OutlineSerializer
 
+    def get_queryset(self):
+        return Outline.objects.filter(pk=self.kwargs['pk'])
+
 
 class OutlinePatchGetView(generics.RetrieveAPIView):
     permission_classes = [permissions.OutlinePatchPermssion]
     serializer_class = serializers.OutlinePatchSerializer
+
+    def get_queryset(self):
+        return OutlinePatches.objects.filter(pk=self.kwargs['pk'])
 
 
 class OutlinePatchCreateView(generics.CreateAPIView):
@@ -81,7 +84,7 @@ class OutlinePatchCreateView(generics.CreateAPIView):
 
 
 class CollaboratorsCreateListView(generics.ListCreateAPIView):
-    permission_classes = [permissions.CollaboratorPermssion | PresalyticsInternalPermssion]
+    permission_classes = [permissions.CollaboratorPermssion | PresalyticsInternalPermssion]  # type: ignore
     serializer_class = serializers.StoryCollaboratorSerializer
 
 
