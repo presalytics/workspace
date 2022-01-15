@@ -55,7 +55,9 @@ self.addEventListener('message', async (e) => {
 })
 
 const eventClient = new SignalRConnectionManager({
-  inboundEventHandler: (evt) => self.postMessage({type: 'ADD_EVENTS', cloudEvent: evt}),
+  inboundEventHandler: (evt) => {
+    self.postMessage({type: 'ADD_EVENTS', cloudEvent: evt.toJSON()})
+  },
   accessTokenFn: http.accessTokenCallback.bind(http)
 })
 

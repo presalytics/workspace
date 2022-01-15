@@ -42,6 +42,7 @@ export default (({ mode }) => {
         '@microsoft/signalr/dist/webworker/signalr.js',
         'cloudevents',
         'dexie',
+        'localforage',
       ]
     },
     resolve: { 

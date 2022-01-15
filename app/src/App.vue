@@ -24,12 +24,13 @@
 <script>
   import Preloader from '@/components/presalytics/Preloader.vue'
   import Login from '@/components/presalytics/Login.vue'
-  import {userWorker, eventWorker, storyWorker} from '@/store'
+  import {userWorker, eventWorker, storyWorker, imageWorker} from '@/store'
   import AppBar from '@/views/dashboard/components/core/AppBar.vue'
   import Drawer from '@/views/dashboard/components/core//Drawer.vue'
   import Settings from '@/views/dashboard/components/core/Settings.vue'
   import Index from '@/views/dashboard/Index.vue'
   import Footer from '@/views/dashboard/components/core/Footer.vue'
+
   
   export default {
     name: 'App',
@@ -77,12 +78,14 @@
       userWorker.addEventListener('message', this.userEventListener)
       eventWorker.addEventListener('message', this.apiEventsEventListener)
       storyWorker.addEventListener('message', this.storyEventListener)
+      imageWorker.addEventListener('message', this.imageWorkerEventListener)
       this.$auth.init()
     },
     beforeDestroy() {
       userWorker.removeEventListener('message', this.userEventListener)
       eventWorker.removeEventListener('message', this.apiEventsEventListener)
       storyWorker.removeEventListener('message', this.storyEventListener)
+      imageWorker.removeEventListener('message', this.imageWorkerEventListener)
     },
     methods: {
       async refreshAuth() {
@@ -91,6 +94,7 @@
         userWorker.postMessage(message)
         eventWorker.postMessage(message)
         storyWorker.postMessage(message)
+        imageWorker.postMessage(message)
       },
       userEventListener(e) {
         if (e.data.type === 'REFRESH_AUTH') {
@@ -117,6 +121,11 @@
           }
         }
       },
+      imageWorkerEventListener(e) {
+        if (e.data.type === 'REFRESH_AUTH') {
+          this.refreshAuth()
+        }
+      }
     }
   }
 </script>

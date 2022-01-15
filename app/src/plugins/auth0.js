@@ -68,14 +68,17 @@ export default class Auth0Plugin{
     this.isAuthenticated = await this.auth0Client.isAuthenticated()
     if (this.isAuthenticated) {
       this.user = await this.auth0Client.getUser()
-      this.sendUserEvent('user.login')
+      //
       await this.getTokenSilently()
       if (this.storeDispatchFn) {
+        let userId = this.user["https://api.presalytics.io/api_user_id"]
+        this.storeDispatchFn("checkLogin", userId)
         this.storeDispatchFn('auth/setAuthorization', {
           accessToken: this.accessToken,
           user: this.user
         })
-        this.storeDispatchFn('users/updateUser', this.user["https://api.presalytics.io/api_user_id"])
+
+        this.storeDispatchFn('users/updateUser', userId)
       }
 
     }

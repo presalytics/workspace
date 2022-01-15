@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Vuex, { createLogger } from 'vuex'
 import VuexPersistence from 'vuex-persist'
+import localforage from 'localforage'
 // import SecureLS from 'secure-ls'
 import auth from './auth'
 import {stories, storyWorker} from './stories'
 import {users, userWorker} from './users'
 import {apiEvents, eventWorker} from './apiEvents'
+import {images, imageWorker} from './images'
 import alerts from './alerts'
 import dialogs from './dialogs'
 
@@ -13,7 +15,7 @@ Vue.use(Vuex)
 
 const vuexLocal = new VuexPersistence({
   key: 'vuex-local',
-  storage: window.localStorage,
+  storage: localforage,
 })
 
 const initialState = () => ({
@@ -23,7 +25,7 @@ const initialState = () => ({
   resetting: false,
 })
 
-export {userWorker, eventWorker, storyWorker}
+export {userWorker, eventWorker, storyWorker, imageWorker}
 
 export default new Vuex.Store({
   state: initialState,
@@ -74,6 +76,11 @@ export default new Vuex.Store({
     logout ({ dispatch }) {
       dispatch('reset')
       dispatch('auth/deleteAuthorization')
+    },
+    checkLogin ({ getters}, userId) {
+      if (getters.userId !== userId) {
+        this._vm.$dispatcher.emit("user.login", {id: userId, userId: userId})
+      }
     }
   },
   modules: {
@@ -83,6 +90,7 @@ export default new Vuex.Store({
     apiEvents,
     alerts,
     dialogs,
+    images
   },
   plugins: import.meta.env.DEV ? [createLogger(), vuexLocal.plugin] : [vuexLocal.plugin]
 })

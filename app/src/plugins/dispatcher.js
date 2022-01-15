@@ -3,13 +3,32 @@ import { v4 as uuidv4 } from 'uuid'
 
 let instance = null
 
+const defaultRegistry = [
+  {
+    type: "story.created",
+    action: "stories/initStories"
+  },
+  {
+    type: "story.deleted",
+    action: "stories/deleteStory"
+  },
+  {
+    type: "story.png_created",
+    action: "images/sendToWorkerThread"
+  },
+  {
+    type: "story.svg_created",
+    action: "images/sendToWorkerThread"
+  }
+]
+
 // eslint-disable-next-line no-unused-vars
 export default class Dispatcher {  
   constructor(storeDispatchFn, userIdFn) {
     this.registry = []
     this.dispatch = storeDispatchFn
     this.getUserId = userIdFn
-    this.defaults().map( (cur) => this.subscribe(cur))
+    defaultRegistry.forEach( (cur) => this.subscribe(cur.type, cur.action), this)
   }
 
   static install(Vue, options = {}) {
@@ -28,14 +47,14 @@ export default class Dispatcher {
     const eventType = eventData.type
     this.registry
           .filter( (cur) => cur.type == eventType)
-          .map( (cur) => this.dispatch(cur.action, eventData))
+          .forEach( (cur) => this.dispatch(cur.action, eventData))
   }
 
   subscribe(eventType, actionName) {
-    this.registry.push[{
+    this.registry.push({
       type: eventType,
       action: actionName
-    }]
+    })
   }
 
   // component level api actions... must be unsubscribed on component beforeDistroy() if operation should not continue
@@ -47,26 +66,12 @@ export default class Dispatcher {
     }
   }
 
-  // global api actions... always on
-  defaults() {
-    return [
-      {
-        type: "story.created",
-        action: "stories/addStory"
-      },
-      {
-        type: "story.deleted",
-        action: "stories/deleteStory"
-      }
-    ]
-  }
-
   emit(type, model, options = {}) {
     const evt = new CloudEvent({
       type: type,
       data: {
         resourceId: model.id || model.Id || model.ID || model.pk,
-        userId: this.getUserId(),
+        userId: model.userId || this.getUserId(),
         model: model
       },
       subject: options.title || options.name || model.title || model.name || model.id || model.Id || model.ID || model.pk,

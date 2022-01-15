@@ -165,7 +165,7 @@ const stories = {
     },
     STORY_DELETE (state, payload) {
       var story = state.stories[payload.id]
-      delete state.outlines[story.outline.id]
+      delete state.outlines[story.outline]
       story.pages.forEach((cur) => {
         var page = state.pages[cur]
         page.comments.forEach((ele) => delete state.comments[ele])
@@ -257,11 +257,8 @@ const stories = {
         dispatch('setStoryOutline', { storyId: storyId, outline: outline })
       }
     },
-    addStory () {
-      alert('Create add story action!')
-    },
-    deleteStory ({ commit }, story) {
-      commit('STORY_DELETE', story)
+    deleteStory ({ commit }, deleteCloudEvent) {
+      commit('STORY_DELETE', deleteCloudEvent.data.model)
     }
   },
 }

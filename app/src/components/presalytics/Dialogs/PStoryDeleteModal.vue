@@ -47,7 +47,6 @@
     methods: {
       async deleteStory () {
         await this.$http.deleteData('/api/stories/' + this.modalProps.storyId)
-        this.$store.dispatch('stories/deleteStory', this.story)
         this.$dispatcher.emit("story.deleted", this.story)
         this.$refs.base.dismiss()
       },

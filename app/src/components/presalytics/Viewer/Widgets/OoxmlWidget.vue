@@ -24,9 +24,6 @@
 <script>
 import widgetMixin from './widget-mixin'
 import Preloader from '@/components/presalytics/Preloader.vue'
-import SharedWorker from './ooxml-worker.js?sharedworker'
-
-const worker = new SharedWorker()
 
 export default {
   name: 'OoxmlWidget',
@@ -36,6 +33,7 @@ export default {
     svgBlobUrl: null,
     pngBlobUrl: null,
     resizer: null,
+    listener: null
   }),
   computed: {
     ooxmlId() {
@@ -48,17 +46,10 @@ export default {
       return this.widget.data.endpointId
     },
   },
-  created() {
-    worker.port.addEventListener('message', this.workerEventListener)
-    worker.port.start()
-    worker.port.postMessage({
-      request: 'svg',
-      ooxmlId: this.ooxmlId,
-      objectType: this.objectType,
-    })
+  async created() {
+    await this.initImages()
   },
   mounted() {
-
     this.resizer = new ResizeObserver(entries => {
       var _timeout
       for (const entry of entries) {
@@ -68,32 +59,36 @@ export default {
     })
     this.resizer.observe(this.$el.parentElement)
   },
-  beforeDestroy() {
-    worker.port.postMessage({request: 'disconnect', ooxmlId: this.ooxmlId})
-    worker.port.removeEventListener('message', this.workerEventLIstener)
-    if (this.svgResizeObserver) {
-      this.svgResizeObserver.disconnect()
-    }
-  },
   methods: {
-    async workerEventListener(e) {
-      switch (e.data.type) {
-        case('REFRESH_AUTH'): {
-          const accessToken = await this.$auth.getTokenSilently()
-          worker.port.postMessage({accessToken: accessToken})  
-          break
+    async initImages() {
+      await Promise.all([
+        this.getSvgImage(),
+        this.getPngImage()
+      ])
+    },
+    async getSvgImage() {
+      var svgData = await this.$store.dispatch('images/getImage', {
+        apiKey: this.ooxmlId,
+        imageType: "svg",
+        metadata: {
+          objectType: this.objectType,
+          source: 'ooxml',
+          
         }
-        case ('SVG_BLOB'): {
-          if (e.data.ooxmlId == this.ooxmlId) {
-            this.svgBlobUrl = URL.createObjectURL(e.data.blob)
-          }
-          break
+      })
+      this.svgBlobUrl = URL.createObjectURL(svgData.blob)
+    },
+    async getPngImage() {
+      var pngData = await this.$store.dispatch('images/getImage', {
+        apiKey: this.ooxmlId,
+        imageType: "png",
+        metadata: {
+          objectType: this.objectType,
+          source: 'ooxml',
+
         }
-        case ('IMG_BLOB'): {
-          this.pngBlobUrl = URL.createObjectURL(e.data.blob)
-          break
-        }
-      }
+      })
+      this.pngBlobUrl = URL.createObjectURL(pngData.blob)
     },
     resizeSvgContainer (parentElement) {
       var svgContainer = parentElement.querySelector('.svg-container')
