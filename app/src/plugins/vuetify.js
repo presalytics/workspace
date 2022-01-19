@@ -15,6 +15,7 @@ const theme = {
   success: '#40bc86',
   error: '#ec555c',
   warning: '#ffc107',
+  gray: '#868e96'
 }
 
 export default new Vuetify({

@@ -14,9 +14,6 @@
         <Index />
         <Footer />
       </v-main>
-      
-
-      <settings />
     </template>
   </v-app>
 </template>
@@ -27,7 +24,6 @@
   import {userWorker, eventWorker, storyWorker, imageWorker} from '@/store'
   import AppBar from '@/views/dashboard/components/core/AppBar.vue'
   import Drawer from '@/views/dashboard/components/core//Drawer.vue'
-  import Settings from '@/views/dashboard/components/core/Settings.vue'
   import Index from '@/views/dashboard/Index.vue'
   import Footer from '@/views/dashboard/components/core/Footer.vue'
 
@@ -37,7 +33,6 @@
     components: {
       AppBar,
       Drawer,
-      Settings,
       Preloader,
       Login,
       Index,
