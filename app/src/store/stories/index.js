@@ -1,5 +1,6 @@
 import Worker from './story.worker?worker'
 import {create} from 'jsondiffpatch'
+import { cloneDeep } from 'lodash-es'
 
 const workerActions = new Worker()
 
@@ -43,6 +44,7 @@ const stories = {
   namespaced: true,
   state: initialState,
   getters: {
+    db: (state) => cloneDeep(state),
     storiesList: (state) => {
       return state.stories || []
     },
@@ -203,7 +205,16 @@ const stories = {
     },
   },
   actions: {
-    async initStories ({ state }) {
+    async sync( { getters, dispatch }) {
+      await dispatch('awaitRestoredState', null, {root: true})
+
+      workerActions.postMessage({
+        request: 'workerSync',
+        ...getters.db
+      })
+    },
+    async initStories ({ state, dispatch }) {
+      await dispatch('sync')
       workerActions.postMessage({
         request: 'initStories',
         stories: state.stories,

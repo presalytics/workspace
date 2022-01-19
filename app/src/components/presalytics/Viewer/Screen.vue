@@ -7,6 +7,7 @@
       ref="mySwiper"
       class="swiper"
       :options="swiperOptions"
+      @slideChange="onSlideChange"
     >
       <swiper-slide
         v-for="(page, id) in pages"
@@ -67,7 +68,8 @@
       },
       pageComponents: {
         'widget-page': () => import('./Pages/WidgetPage.vue')
-      }
+      },
+      pageActiveStartTime: () => Date.now()
     }),
     computed: {
       swiper () {
@@ -130,6 +132,21 @@
       },
       onClick () {
         alert('swiper clicked!')
+      },
+      onSlideChange() {
+        this.$dispatcher.emit('story.page_view', this.getPageviewModel())
+        this.pageActiveStartTime = Date.now()
+      },
+      getPageViewModel() {
+        return {
+          slideChangeTime: Date.now(),
+          storyId: this.storyId,
+          fromPageNumber: '<insertStartPageNumber>',
+          toPageNumber: '<insertTargetPageNumber>',
+          fromPageId: '<insertStartPageId',
+          toPageId: '<insertTargetPageId',
+          fromPageActiveMilliseconds: Date.now() - this.pageActiveStartTime
+        }
       },
       // loadIframesInWorker (frameElement) {
       //   var nonce = uuidv4()

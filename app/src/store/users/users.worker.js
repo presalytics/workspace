@@ -10,7 +10,7 @@ const http = new HttpPlugin({
 
 var jsondiffpatch = create({
   objectHash: function (obj) {
-    return obj.id
+    return obj.id || obj.userId || obj.$id || obj.index || obj.idx || obj.$index
   },
   cloneDiffValues: true,
 })
@@ -21,8 +21,21 @@ var getRelationships = async () => {
     return await http.getData('/api/user/audience/')
 }
 
+var getUserRequestQueue = []
+
 var getUser = async (userId) => {
-    return await http.getData('/api/user/user-info/' + userId + '/')
+  if (userId) {
+    if (!getUserRequestQueue.includes(userId)) {
+      getUserRequestQueue.push(userId)
+      var userData = await http.getData('/api/user/user-info/' + userId + '/') 
+      var userIdIdx = getUserRequestQueue.indexOf(userId)
+      if (userIdIdx > -1) {
+        getUserRequestQueue.splice(userIdIdx, 1)
+      }
+      return userData
+    }
+  }
+  return null
 }
 
 var genericNewEntityHandler = (currents, setMutationName, patchMutationName, newObject) => {
@@ -49,26 +62,46 @@ var genericNewEntityHandler = (currents, setMutationName, patchMutationName, new
 
 var handleUserUpdate = (userData) => genericNewEntityHandler(currentUsers, 'SET_USER', 'PATCH_USER', userData)
 
+const syncEvent = new Event('synced')
+
+var forceSync = async () => {
+  return await new Promise( (resolve) => {
+    const listener = self.addEventListener('synced', () => {
+      self.removeEventListener('synced', listener)
+      resolve()
+    })
+    self.postMessage({
+      type: 'SYNC'
+    })
+  })
+}
+
+var initUsers = async () => {
+  await forceSync()
+  var relations = await getRelationships()
+  var myId = relations[0].userId
+  var myRelation = {
+    user_id: myId,
+    related_user_id: myId,
+  }
+  relations.push(myRelation)
+  relations.map(async (cur) => {
+    var userId = cur.relatedUserId
+    var usr = await getUser(userId)
+    if (usr) {
+      usr.id = usr.appMetadata.apiUserId
+      handleUserUpdate(usr)
+    }
+  })
+
+
+}
+
 self.addEventListener('message', async (e) => {
   try {
     switch (e.data.request) {
       case ('initUsers'): {
-        currentUsers = e.data.users
-        var relations = await getRelationships()
-        var myId = relations[0].userId
-        var myRelation = {
-          user_id: myId,
-          related_user_id: myId,
-        }
-        relations.push(myRelation)
-        relations.map(async (cur) => {
-          var userId = cur.relatedUserId
-          var usr = await getUser(userId)
-          if (usr) {
-            usr.id = usr.appMetadata.apiUserId
-            handleUserUpdate(usr)
-          }
-        })
+        initUsers()
         break
       }
       case ('updateUser'): {
@@ -78,6 +111,11 @@ self.addEventListener('message', async (e) => {
           usr.id = usr.appMetadata.apiUserId
           handleUserUpdate(usr)
         }
+        break
+      }
+      case ('workerSync'): {
+        currentUsers = e.data.currentUsers
+        self.dispatchEvent(syncEvent)
         break
       }
     }

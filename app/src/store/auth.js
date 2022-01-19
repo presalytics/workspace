@@ -15,8 +15,8 @@ const auth = {
     accessToken: (state) => state.accessToken
   },
   mutations: {
-    TOGGLE_LOADING (state) {
-      state.loading = !state.loading
+    TOGGLE_LOADING (state, payload) {
+      state.loading = payload
     },
     SET_AUTH (state, payload) {
       state.user = payload.user
@@ -40,8 +40,8 @@ const auth = {
     deleteAuthorization ({ commit }) {
       commit('DELETE_AUTH')
     },
-    toggleLoading({commit}) {
-      commit('TOGGLE_LOADING')
+    setLoading({commit}, payload) {
+      commit('TOGGLE_LOADING', payload)
     }
   },
 }

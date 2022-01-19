@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '@/store'
 
-Vue.use(Router)
+Vue.use(Router) 
 
 const router = new Router({
   mode: 'history',
@@ -64,5 +65,12 @@ const router = new Router({
     },
   ],
 })
+
+const waitForStorageToBeReady = async (to, from, next) => {
+  await store.restored
+  next()
+}
+
+router.beforeEach(waitForStorageToBeReady)
 
 export default router

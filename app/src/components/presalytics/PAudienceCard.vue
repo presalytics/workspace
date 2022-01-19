@@ -197,24 +197,29 @@
     },
     computed: {
       userList () {
-        return this.$store.state.users.userList
+        return this.$store.getters['users/userDb']
       },
       audienceList () {
-        return this.userList.map((cur) => {
-          var user = this.$store.state.users.users[cur]
-          user.fullname = this.getFullname(user)
-          return user
-        }).filter((cur) => cur.appMetadata.apiUserId !== this.$store.getters.userId)
+        return this.userList
+            .filter((cur) => {
+              return cur !== this.$store.getters.userId
+            })
+            .map((cur) => {
+              return this.$store.getters['users/getUser'](cur)
+            })
       },
       filteredAudienceList () {
         return this.audienceList.filter(() => this.isUserMatchtoQuery(this.debouncedText))
       },
       headers () {
-        return this.$store.getters['users/table'].columns.filter((cur) => cur.show)
+        return this.$store.getters['users/table'].columns.map( (cur) => {
+          return this.defaultHeaders.filter( (header) => header.value === cur)[0]
+        })
       },
     },
     async created () {
-      this.initColumns(this.defaultHeaders)
+      var headerValues = this.defaultHeaders.map( (cur) => cur.value)
+      this.initColumns(headerValues)
       this.loading = false
     },
     mounted () {
@@ -245,20 +250,13 @@
       },
       isUserMatchtoQuery (user, queryText) {
         if (user && queryText) {
-          var fullname = this.getFullname(user)
+          var fullname = this.$store.getters['users/getFriendlyName'](user.id)
           if (fullname.includes(queryText) || user.email.includes(queryText) || user.appMetadata.apiUserId === queryText || user.nickname.includes(queryText)) {
             return true
           }
           return false
         } else {
           return true
-        }
-      },
-      getFullname (user) {
-        if (user.given_name && user.family_name) {
-          return user.given_name + ' ' + user.family_name
-        } else {
-          return user.nickname
         }
       },
       getUserEvents (user) {
@@ -278,8 +276,8 @@
       },
       getLatestEvent (eventList) {
         return eventList.reduce((acc, cur) => {
-          var currentTS = new Date(cur.timeStampUTC)
-          var accTS = new Date(acc.timeStampUTC)
+          var currentTS = new Date(cur.time)
+          var accTS = new Date(acc.time)
           if (currentTS > accTS) {
             return cur
           } else {
@@ -290,7 +288,7 @@
       latestUserTimestamp (user) {
         var evts = this.getUserEvents(user)
         if (evts?.length > 0) {
-          return this.getLatestEvent(evts).timeStampUTC
+          return this.getLatestEvent(evts).time
         } else {
           return ''
         }

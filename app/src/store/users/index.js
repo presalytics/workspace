@@ -1,5 +1,6 @@
 import Worker from './users.worker?worker'
 import {create} from 'jsondiffpatch'
+import { cloneDeep } from 'lodash-es'
 
 var jsondiffpatch = create({
   objectHash: function (obj) {
@@ -30,12 +31,13 @@ const users = {
     userDb: (state) => {
       return state.userList
     },
-    getUser: (state) => (userId) => {
-      return state.users[userId]
+    getUser: (state, getters) => (userId) => {
+      return getters.users[userId]
     },
-    search: (state, getters) => (searchText) => {
-      return getters.userDb.filter((cur) => {
-        var fullname = cur.given_name + ' ' + cur.family_name
+    users: (state) => cloneDeep(state.users),
+    search: (getters) => (searchText) => {
+      return Object.values(getters.users).filter((cur) => {
+        var fullname = getters.getFullname(cur.id)
         if (fullname.includes(searchText) || cur.email.includes(searchText) || cur.appMetadata.apiUserId === searchText || cur.nickname.includes(searchText)) {
           return true
         }
@@ -90,10 +92,17 @@ const users = {
     },
   },
   actions: {
-    async initUsers ({ state }) {
+    async initUsers ({ dispatch }) {
+      await dispatch('sync')
       workerActions.postMessage({
         request: 'initUsers',
-        users: state.users,
+      })
+    },
+    async sync( {getters, dispatch} ) {
+      await dispatch('awaitRestoredState', null, {root: true})
+      workerActions.postMessage({
+        request: 'workerSync',
+        currentUsers: getters.users
       })
     },
     async setToken (context, accessToken) {
@@ -113,5 +122,6 @@ const users = {
     },
   },
 }
+
 
 export {workerActions as userWorker, users}

@@ -148,7 +148,6 @@ self.addEventListener('message', async (e) => {
   try {
     switch (e.data.request) {
       case ('initStories'): {
-        syncGlobals(e.data)
         var stories = await getStories()
         handleRefreshedStoriesList(stories)
         break
@@ -176,6 +175,9 @@ self.addEventListener('message', async (e) => {
       case ('permissionTypes'): {
         await refreshPermissionTypes()
         break
+      }
+      case ('workerSync'): {
+        syncGlobals(e.data)
       }
     }
   } catch(err) {

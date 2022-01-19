@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Vuex, { createLogger } from 'vuex'
+import Vuex, {createLogger} from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import localforage from 'localforage'
 // import SecureLS from 'secure-ls'
@@ -16,6 +16,7 @@ Vue.use(Vuex)
 const vuexLocal = new VuexPersistence({
   key: 'vuex-local',
   storage: localforage,
+  asyncStorage: true,
 })
 
 const initialState = () => ({
@@ -23,6 +24,7 @@ const initialState = () => ({
   barImage: 'https://demos.creative-tim.com/material-dashboard/assets/img/sidebar-1.jpg',
   drawer: null,
   resetting: false,
+  isVisible: true
 })
 
 export {userWorker, eventWorker, storyWorker, imageWorker}
@@ -48,6 +50,7 @@ export default new Vuex.Store({
         return ''
       }
     },
+    visibility: (state) => state.isVisible
   },
   mutations: {
     SET_BAR_IMAGE (state, payload) {
@@ -59,6 +62,9 @@ export default new Vuex.Store({
     RESET_STATE (state) {
       state = initialState  // eslint-disable-line no-unused-vars
     },
+    SET_VISIBILITY (state, payload) {
+      state.isVisible = payload
+    }
   },
   actions: {
     sendToken ({ dispatch }, token) {
@@ -73,14 +79,21 @@ export default new Vuex.Store({
       commit('stories/RESET_STATE')
       commit('users/RESET_STATE')
     },
-    logout ({ dispatch }) {
+    async logout ({ dispatch }) {
       dispatch('reset')
       dispatch('auth/deleteAuthorization')
+      await this.restored
     },
     checkLogin ({ getters}, userId) {
       if (getters.userId !== userId) {
         this._vm.$dispatcher.emit("user.login", {id: userId, userId: userId})
       }
+    },
+    setVisibility ({ commit }, newValue) {
+      commit('SET_VISIBILITY', newValue)
+    },
+    async awaitRestoredState() {
+      await this.restored
     }
   },
   modules: {

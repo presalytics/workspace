@@ -48,8 +48,15 @@ export default class HttpPlugin {
   defaultErrorHandlers() {
     return {
       401: async () => {
-      await this.accessTokenCallback()
-      return {retry: true}
+        await this.accessTokenCallback()
+        return {retry: true}
+      },
+      503: () => async () => {
+        return await new Promise( (resolve) => {
+          setTimeout( () => {
+            resolve({retry: true})
+          }, 1000)
+        })
       }
     }
   }
@@ -125,14 +132,14 @@ export default class HttpPlugin {
       }
 
     } else {
-      var message = await response.text() || 'An error occured while fetching data'
-      var errInfo = {}
-      try {
-        errInfo = await response.json()
-      } catch (err) {
-        errInfo = { detail: 'no additional error data' }
-      }
-      throw new HttpError(message, response.status, errInfo)
+      var contentType = response.headers['content-type'] || response.headers['Content-Type']
+      var message = 'An error occured while fetching data'
+      if (contentType === "application/json") {
+        message = await response.json()
+      } else {
+        message = await response.text()
+      }      
+      throw new HttpError(message, response.status, {})
     }
   }
 

@@ -58,7 +58,7 @@
 
   var countByDay = (eventList, date) => {
     return eventList.filter((cur) => {
-      var eventDate = new Date(cur.timeStampUTC)
+      var eventDate = new Date(cur.time)
       return datesAreOnSameDay(date, eventDate)
     }).length
   }

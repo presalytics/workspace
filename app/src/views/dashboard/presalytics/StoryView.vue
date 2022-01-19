@@ -119,6 +119,7 @@
 
   import StoryViewer from '@/components/presalytics/Viewer/StoryViewer.vue'
   import PSlideList from '@/components/presalytics/PSlideList.vue'
+  import { v4 as uuidv4 } from 'uuid'
   
   export default {
     name: 'StoryView',
@@ -134,6 +135,7 @@
       actionPanelIsMini: true,
       actionPanel: true,
       actionPanelOpenWidth: '350px',
+      sessionMetrics: {}
     }),
     computed: {
       isBuilder () {
@@ -149,6 +151,36 @@
           return ''
         }
       },
+      visibility() {
+        return this.$store.getters.visbility
+      },
+      userId() {
+        return this.$store.getters.userId
+      }
+    },
+    watch: {
+      visibility(isVisible) {
+        if (isVisible) {
+          this.sessionMetrics.activeStartTime = Date.now()
+          let sessionActivityModel = this.getSessionActivityModel() 
+          this.$dispatcher.emit('story.view_session_active', sessionActivityModel)
+        } else {
+          this.setSessionActiveTime()
+          let sessionActivityModel = this.getSessionActivityModel()
+          this.$dispatcher.emit('story.view_session_inactive', sessionActivityModel)
+        }
+      }
+    },
+    mounted() {
+      this.sessionMetrics.sessionStartTime = Date.now()
+      this.sessionMetrics.activeStartTime = Date.now()
+      this.sessionMetrics.sessionId = uuidv4().toString()
+      this.sessionMetrics.activeTime = 0
+      this.$dispatcher.emit("story.view_session_started", this.getSessionActivityModel())
+    },
+    beforeDestroy() {
+      this.setSessionActiveTime()
+      this.$dispatcher.emit("story.view_session_ended", this.getSessionActivityModel())
     },
     methods: {
       handleSlidePanelToggle () {
@@ -159,6 +191,23 @@
       },
       toggleFullscreen() {
         
+      },
+      getSessionActivityModel() {
+        return {
+          isVisible: this.visbility,
+          resourceId: this.story.id,
+          id: this.story.id,
+          sessionId: this.sessionMetrics.sessionId,
+          currentTime: Date.now(),
+          sessionStartTime: this.sessionMetrics.sessionStartTime,
+          sessionActiveTime: this.sessionMetrics.activeTime,
+          userId: this.userId
+        }
+      },
+      setSessionActiveTime() {
+        let activeMillisecondsToAdd = Date.now() - this.sessionMetrics.activeStartTime
+        this.sessionMetrics.activeTime += activeMillisecondsToAdd
+        this.sessionMetrics.activeStartTime = Date.now()
       }
     },
   }

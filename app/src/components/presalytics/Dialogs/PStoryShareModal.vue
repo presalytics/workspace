@@ -173,13 +173,6 @@
         var vm = this
         return vm.currentUserIds.includes(user.id)
       },
-      getFullname (user) {
-        if (user.given_name && user.family_name) {
-          return user.given_name + ' ' + user.family_name
-        } else {
-          return user.nickname
-        }
-      },
       reset () {
         this.debouncedSearchText = ''
         this.searchText = ''
@@ -196,7 +189,7 @@
       },
       isUserMatchtoQuery (user, queryText) {
         if (user && queryText) {
-          var fullname = this.getFullname(user)
+          var fullname = this.$store.getters['users/getFriendlyName'](user.id)
           if (fullname.includes(queryText) || user.email.includes(queryText) || user.appMetadata.apiUserId === queryText || user.nickname.includes(queryText)) {
             return true
           }
@@ -218,8 +211,9 @@
       getUserList () {
         var usrs = this.$store.getters['users/userDb']
         return usrs.map((cur) => {
-          cur.fullname = this.getFullname(cur)
-          return cur
+          var usr = JSON.parse(JSON.stringify(cur))
+          // usr.fullname = this.getFullname(usr)
+          return usr
         })
       },
       getInviteMessage () {

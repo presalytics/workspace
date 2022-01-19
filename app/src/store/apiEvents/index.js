@@ -1,5 +1,7 @@
+import { allowedSearchParams } from './apiEvents.worker'
 import Worker from './apiEvents.worker?worker'
 import { CloudEvent } from 'cloudevents'
+import { cloneDeep } from 'lodash-es'
 
 const workerActions = new Worker()
 
@@ -16,10 +18,12 @@ const apiEvents = {
   state: initialState,
   getters: {
     eventsDb: (state) => {
-      return state.events || []
+      if (state.events) return cloneDeep(state.events)
+      return []
     },
+    eventIds: (state, getters) => getters.eventsDb.map( (evt) => evt.id),
     getStoryEvents: (state, getters) => (storyId) => {
-      return getters.eventsDb.filter((cur) => cur.resourceId === storyId)
+      return getters.eventsDb.filter((cur) => cur.data.resourceId === storyId)
     },
     getEventsByType: (state, getters) => (eventType) => {
       return getters.eventsDb.filter( (cur) => cur.type === eventType)
@@ -62,18 +66,38 @@ const apiEvents = {
     },
   },
   actions: {
-    async getStoryEvents ( context, storyId) {
+    async sync( {getters, dispatch} ) {
+      await dispatch('awaitRestoredState', null, {root: true})
+      workerActions.postMessage({
+        request: 'workerSync',
+        eventIds: getters.eventIds
+      })
+    },
+    getStoryEvents ( context, storyId) {
       workerActions.postMessage({ request: 'getStoryEvents', storyId: storyId })
     },
-    async initEvents (context, userId) {
+    async initEvents ( { dispatch }, userId) {
+      await dispatch('sync')
       workerActions.postMessage({ request: 'initEvents', userId: userId })
     },
-    async sendEvent (context, eventData) {
+    sendEvent (context, eventData) {
       if (eventData instanceof CloudEvent) {
         workerActions.postMessage({request: 'sendEvent', eventData: eventData.toJSON()})
       } else {
         throw new Error('eventData must be of type CloudEvent.  See https://github.com/cloudevents/sdk-javascript')
       }
+    },
+    search (context, query) {
+      // ALLOWED query parameters: resourceId, userId, id, minTimeStamp, maxTimestamp, type 
+      Object.keys(query).forEach( (key) => {
+        if (!allowedSearchParams.includes(key)) {
+          throw new Error('Invalid event search parameter: ' + key)
+        }
+      })
+      workerActions.postMessage({
+        request: 'search',
+        query: query
+      })
     }
   },
 }

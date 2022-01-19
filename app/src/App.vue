@@ -80,12 +80,15 @@
       storyWorker.addEventListener('message', this.storyEventListener)
       imageWorker.addEventListener('message', this.imageWorkerEventListener)
       this.$auth.init()
+      this.handleVisibiltyChange()
+      document.addEventListener("visibilitychange", this.handleVisibiltyChange, false)
     },
     beforeDestroy() {
       userWorker.removeEventListener('message', this.userEventListener)
       eventWorker.removeEventListener('message', this.apiEventsEventListener)
       storyWorker.removeEventListener('message', this.storyEventListener)
       imageWorker.removeEventListener('message', this.imageWorkerEventListener)
+      this.handleVisibiltyChange()
     },
     methods: {
       async refreshAuth() {
@@ -99,6 +102,8 @@
       userEventListener(e) {
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
+        } else if (e.data.type === 'SYNC') {
+          this.$store.dispatch('users/sync')
         } else {
           this.$store.commit('users/' + e.data.type, e.data.payload)
         }
@@ -107,8 +112,10 @@
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
         } else {
-          this.$store.commit('apiEvents/' + e.data.type, e.data.cloudEvent)
-          this.$dispatcher.handleEvent(e.data.cloudEvent)
+          this.$store.commit('apiEvents/' + e.data.type, e.data.cloudEvents)
+          if (e.data.dispatch) {
+            e.data.cloudEvents.forEach( (evt) => this.$dispatcher.handleEvent(evt) )
+          }
         }
       },
       storyEventListener(e) {
@@ -125,6 +132,13 @@
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
         }
+      },
+      handleVisibiltyChange() {
+        if (document.visibilityState === "hidden") {
+          this.$store.dispatch('setVisibility', false)
+        } else {
+          this.$store.dispatch('setVisibility', true)
+        } 
       }
     }
   }

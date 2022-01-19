@@ -15,7 +15,7 @@
     <div class="text-container">
       <v-spacer />
       <p class="body-1 user-text text-left">
-        {{ $props.user.item.fullname }}
+        {{ fullname }}
       </p>
       <slot name="caption">
         <p class="caption user-text">
@@ -41,14 +41,12 @@
         }),
       },
     },
+    computed: {
+      fullname() {
+        return this.$store.getters['users/getFriendlyName'](this.user.item.id)
+      }
+    },
     methods: {
-      getFullName () {
-        if (this.user.given_name && this.user.family_name) {
-          return this.user.given_name + ' ' + this.user.family_name
-        } else {
-          return this.user.nickname
-        }
-      },
       handleContainerClick () {
         this.$emit('click')
       },

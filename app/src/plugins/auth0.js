@@ -29,7 +29,7 @@ export default class Auth0Plugin{
   async init (options = {}) {
     // eslint-disable-next-line
     this.loading = true
-    if (this.storeDispatchFn) this.storeDispatchFn('auth/toggleLoading')
+    if (this.storeDispatchFn) this.storeDispatchFn('auth/setLoading', true)
     const opts = {
       ...this.clientOptions,
       ...options
@@ -83,7 +83,7 @@ export default class Auth0Plugin{
 
     }
     this.loading = false
-    if (this.storeDispatchFn) this.storeDispatchFn('auth/toggleLoading')
+    if (this.storeDispatchFn) this.storeDispatchFn('auth/setLoading', false)
   }
   /** Authenticates the user using the redirect method */
   loginWithRedirect () {
@@ -117,7 +117,7 @@ export default class Auth0Plugin{
     })
     this.isAuthenticated = false
     this.accessToken = null
-    if (this.storeDispatchFn) this.storeDispatchFn('logout')
+    if (this.storeDispatchFn) await this.storeDispatchFn('logout')
     
   }
       /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/

@@ -33,8 +33,8 @@
       latestUserEvent () {
         if (this.userEvents.length > 0) {
           return this.userEvents.reduce((acc, cur) => {
-            var accTs = new Date(acc.timeStampUTC)
-            var curTs = new Date(cur.timeStampUTC)
+            var accTs = new Date(acc.time)
+            var curTs = new Date(cur.time)
             if (curTs > accTs) {
               acc = cur
             }
