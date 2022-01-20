@@ -213,16 +213,23 @@
   </v-container>
 </template>
 
-<script> 
+<script>
+
   import StoryViewer from '@/components/presalytics/Viewer/StoryViewer.vue'
   import PSlideList from '@/components/presalytics/PSlideList.vue'
   import { v4 as uuidv4 } from 'uuid'
   
   export default {
-    name: 'StoryView',
+    name: 'StoryViewApp',
     components: {
       StoryViewer,
       PSlideList,
+    },
+    props: {
+      storyId: {
+        type: String,
+        required: true
+      }
     },
     data: () => ({
       slidePanel: {
