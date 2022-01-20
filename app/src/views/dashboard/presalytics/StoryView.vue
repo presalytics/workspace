@@ -8,18 +8,40 @@
       <v-toolbar
         dense
         elevation="0"
-        color="gray lighten-4"
       >
         <v-toolbar-title>{{ title }}</v-toolbar-title>
+        <v-btn 
+          text
+          icon
+          plain
+        >
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
         <v-spacer />
-        <v-btn icon>
+        <v-btn 
+          text
+          icon
+          plain
+        >
           <v-icon>
             mdi-cards-heart-outline
           </v-icon>
         </v-btn>
-        <v-btn icon>
+        <v-btn 
+          text
+          icon
+          plain
+        >
           <v-icon>mdi-share-variant</v-icon>
         </v-btn>
+      </v-toolbar>
+      <v-toolbar
+        dense
+        elevation="0"
+      >
+        <v-toolbar-title>
+          put some menus here
+        </v-toolbar-title>
       </v-toolbar>
     </div>
     <div class="workspace-wrapper">
@@ -84,6 +106,7 @@
           v-model="actionPanel.open"
           permanent
           right
+          height="100%"
           :mini-variant-width="actionPanel.minifiedPanelWidth"
           :mini-variant.sync="actionPanel.isMini"
           :width="actionPanel.width"
@@ -117,6 +140,15 @@
           <v-divider />
           Actions Accordion
         </v-navigation-drawer>
+
+        <v-footer
+          id="workspace-footer"
+          padless
+          absolute
+          height="65px"
+        >
+          footer content
+        </v-footer>
       </v-container>
     </div>
   </v-container>
@@ -279,47 +311,45 @@
     height: calc(100vh - 75px)
     display: flex
     background: #FAFAFA
-    border-top-color: var(--v-gray-base)
+    border-top-color: rgba(0, 0, 0, 0.12)
     border-top-width: 1px
     border-top-style: solid
     padding: 0
     flex-direction: column
     align-items: stretch
+    position: relative
   .toolbar-wrapper
     flex-grow: 0
     padding: 0
     margin: 0
-    border-bottom-color: var(--v-gray-base)
+    border-bottom-color: rgba(0, 0, 0, 0.12)
     border-bottom-style: solid
     border-bottom-width: 1px
-  .left-nav-drawer
-    border-right-style: solid
-    border-right-width: 1px
-    border-right-color: var(--v-gray-base)
-    margin: 0 !important
-  .drawer
-    display: flex
-    flex-direction: column
-    justify-content: center
-    align-items: center
-    flex-shrink: 1
-  .center-wrapper
-    flex-grow: 1
-    flex-shrink: 1
+  .v-navigation-drawer
+    height: calc(100vh - 65px - 75px - 96px) !important
   .story-view-panel
     width: 100%
-    margin-top: 1rem
-  .story-work-panel
-    width: 100%
-    margin-top: 1rem
-  .slide-panel-wrapper
-    .flex-grow: 0
-  .drawer-wrapper
-    flex-grow: 0
-    flex-basis: auto
-  .workspace-wrapper
-    flex-direction: row
-    align-items: stretch
+    margin: 0
   .workspace-content
     padding: 15px !important
+    height: calc(100vh - 65px - 75px - 96px) !important
+    overflow-y: auto
+  #workspace-footer
+    border-top-style: solid !important
+    border-top-width: 1px !important
+    border-top-color: rgba(0, 0, 0, 0.12) !important
+
+  // save below for panel scrollbars
+  
+    // body::-webkit-scrollbar-track
+  //   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3)
+  //   border-radius: 10px
+  //   background-color: #F5F5F5
+  // body::-webkit-scrollbar
+  //   width: 12px
+  //   background-color: #F5F5F5
+  // body::-webkit-scrollbar-thumb
+  //   border-radius: 10px
+  //   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3)
+  //   background-color: #D62929
 </style>

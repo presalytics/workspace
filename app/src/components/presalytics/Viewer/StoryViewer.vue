@@ -55,6 +55,7 @@
     align-items: stretch
   .viewer-row
     flex-grow: 1
+    margin-bottom: 15px
   .toolbar-row
     height: 0px
   .toolbar-row.active
