@@ -45,12 +45,11 @@ declare module 'vue' {
     PUserViewCounter: typeof import('./src/components/presalytics/PUserViewCounter.vue')['default']
     Sandbox: typeof import('./src/components/presalytics/Viewer/Sandbox.vue')['default']
     Screen: typeof import('./src/components/presalytics/Viewer/Screen.vue')['default']
-    StoryViewApp: typeof import('./src/components/presalytics/Viewer/StoryViewApp.vue')['default']
     StoryViewer: typeof import('./src/components/presalytics/Viewer/StoryViewer.vue')['default']
     Subheading: typeof import('./src/components/base/Subheading.vue')['default']
     Toolbar: typeof import('./src/components/presalytics/Viewer/Toolbar.vue')['default']
     VComponent: typeof import('./src/components/base/VComponent.vue')['default']
-    ViewerApp: typeof import('./src/components/presalytics/Viewer/ViewerApp.vue')['default']
+    ViewerApp: typeof import('./src/components/presalytics/Viewer/StoryViewApp.vue')['default']
     WidgetPage: typeof import('./src/components/presalytics/Viewer/Pages/WidgetPage.vue')['default']
   }
 }
