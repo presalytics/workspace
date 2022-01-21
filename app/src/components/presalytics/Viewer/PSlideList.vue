@@ -15,7 +15,7 @@
 </template>
 
 <script>
-  import PSlideListThumbnail from './PSlideListThumbnail.vue'
+  import PSlideListThumbnail from '../PSlideListThumbnail.vue'
 
   export default {
     components: {

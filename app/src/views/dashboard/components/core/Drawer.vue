@@ -63,11 +63,6 @@
 </template>
 
 <script>
-
-  import {
-    mapState,
-  } from 'vuex'
-
   import Item from '@/components/base/Item.vue'
   import ItemGroup from '@/components/base/ItemGroup.vue'
   import drawerLogo from '@/assets/orange-white-logo.png'
@@ -116,7 +111,6 @@
     }),
 
     computed: {
-      ...mapState(['barImage']),
       drawer: {
         get () {
           return this.$store.state.drawer

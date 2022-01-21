@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Vuex, {createLogger} from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import localforage from 'localforage'
-// import SecureLS from 'secure-ls'
+import { debounce } from 'lodash-es'
+import deepmerge from 'deepmerge'
 import auth from './auth'
 import {stories, storyWorker} from './stories'
 import {users, userWorker} from './users'
@@ -10,6 +11,7 @@ import {apiEvents, eventWorker} from './apiEvents'
 import {images, imageWorker} from './images'
 import alerts from './alerts'
 import dialogs from './dialogs'
+import storyviewer from './storyviewer'
 
 Vue.use(Vuex)
 
@@ -17,15 +19,25 @@ const vuexLocal = new VuexPersistence({
   key: 'vuex-local',
   storage: localforage,
   asyncStorage: true,
+  saveState: async (key, state, storage) => {
+    let fn = debounce(
+      async() => {
+        await storage.setItem(key, deepmerge({}, state || {}))
+      }, 
+      250, 
+      {leading: true, trailing: true, maxWait: 750}
+    )
+    await fn()
+  }
 })
 
 const initialState = () => ({
-  barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
-  barImage: 'https://demos.creative-tim.com/material-dashboard/assets/img/sidebar-1.jpg',
   drawer: null,
   resetting: false,
   isVisible: true
 })
+
+const sleep = async (ms) => await new Promise(resolve => setTimeout(resolve, ms));
 
 export {userWorker, eventWorker, storyWorker, imageWorker}
 
@@ -78,10 +90,12 @@ export default new Vuex.Store({
       commit('apiEvents/RESET_STATE')
       commit('stories/RESET_STATE')
       commit('users/RESET_STATE')
+      commit('storyviewer/RESET_STATE')
     },
     async logout ({ dispatch }) {
       dispatch('reset')
       dispatch('auth/deleteAuthorization')
+      await sleep(1000)
       await this.restored
     },
     checkLogin ({ getters}, userId) {
@@ -103,7 +117,8 @@ export default new Vuex.Store({
     apiEvents,
     alerts,
     dialogs,
-    images
+    images,
+    storyviewer,
   },
   plugins: import.meta.env.DEV ? [createLogger(), vuexLocal.plugin] : [vuexLocal.plugin]
 })

@@ -110,6 +110,7 @@ export default class Auth0Plugin{
   /** Logs the user out and removes their session on the authorization server */
   async logout () {
     this.sendUserEvent('user.logout')
+    if (this.storeDispatchFn) await this.storeDispatchFn('logout')
     await this.auth0Client.logout({
         returnTo: window.location.origin,
         localonly: true,
@@ -117,7 +118,7 @@ export default class Auth0Plugin{
     })
     this.isAuthenticated = false
     this.accessToken = null
-    if (this.storeDispatchFn) await this.storeDispatchFn('logout')
+
     
   }
       /** Creates Redirect Uri that bounces off Presalytics.io main site. Allows app to run on custom IPs and locahost **/
