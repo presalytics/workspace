@@ -37,26 +37,9 @@
           :story-id="storyId"
         />
 
-        <v-footer
-          id="workspace-footer"
-          padless
-          absolute
-          height="65px"
-        >
-          <v-toolbar
-            id="footer-toolbar"
-            dense
-            class="my-0 mx-0 py-0 px-0"
-            height="65px"
-            elevation="0"
-          >
-            <v-toolbar-title>
-              Page Name
-            </v-toolbar-title>
-            <v-spacer />
-            Zoom Bar
-          </v-toolbar>
-        </v-footer>
+        <viewer-footer
+          :story-id="storyId"
+        />
       </v-container>
     </div>
   </v-container>
@@ -69,6 +52,7 @@
   import SlidePanel from './SlidePanel.vue'
   import ExpansionPanel from './ExpansionPanel.vue'
   import ViewerToolbar from './ViewerToolbar.vue'
+  import ViewerFooter from './ViewerFooter.vue'
   import { v4 as uuidv4 } from 'uuid'
   
   export default {
@@ -78,7 +62,8 @@
       SlidePanel,
       ViewerToolbar,
       ActionPanel,
-      ExpansionPanel
+      ExpansionPanel,
+      ViewerFooter,
     },
     props: {
       storyId: {
@@ -87,24 +72,6 @@
       }
     },
     data: () => ({
-      actionPanel: {
-        name: 'actionPanel',
-        isMini: true,
-        defaultOpenWidth: '350px',
-        minifiedPanelWidth: '60px',
-        width: '60px',
-        open: false,
-        direction: 'right'
-      },
-      expansionPanel: {
-        name: 'expansionPanel',
-        open: false,
-        defaultOpenWidth: '350px',
-        defaultClosedWidth: '0px',
-        direction: 'right',
-        docked: true
-      },
-      borderWidth: '3px',
       sessionMetrics: {}
     }),
     computed: {

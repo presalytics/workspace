@@ -41,7 +41,7 @@
     </v-toolbar>
     <v-toolbar
       dense
-      elevation="0"
+      elevation="5"
     >
       <v-toolbar-title>
         put some menus here

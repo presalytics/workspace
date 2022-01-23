@@ -7,6 +7,8 @@
     mini-variant
     height="100%"
     mini-variant-width="60px"
+    elevation="0"
+    :class="{ 'panel-open' : expansionPanelIsOpen }"
   >
     <v-list>
       <v-list-item
@@ -17,11 +19,11 @@
           <v-tooltip left>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                icon
+                tile
                 plain
                 text
-                large
                 :disabled="item.disabled"
+                :class="getButtonClass(item)"
                 v-bind="attrs"
                 v-on="on"
                 @click="handleActionPanelClick(item)"
@@ -59,6 +61,9 @@
       },
       actionList() {
         return this.$store.getters['storyviewer/expansionComponents']
+      },
+      expansionPanelIsOpen() {
+        return this.appState.expansionPanel.isOpen
       }
     },
     methods: {
@@ -70,6 +75,9 @@
         let expansionPanel = {...this.appState.expansionPanel}
         if (componentName === expansionPanel.componentName) {
           expansionPanel.isOpen = expansionPanel.isOpen === undefined ? true : !expansionPanel.isOpen
+          if (!expansionPanel.isOpen) {
+            expansionPanel.componentName = null
+          }
         } else {
           expansionPanel.isOpen = true
           expansionPanel.componentName = componentName
@@ -80,6 +88,34 @@
           value: expansionPanel
         })
       },
+      isActive(componentInfo) {
+        return componentInfo.component === this.appState.expansionPanel.componentName
+      },
+      getButtonClass(componentInfo) {
+        return this.isActive(componentInfo) ? ['btn-active', 'btn-panel'] : 'btn-panel'
+      }
     }
   }
 </script>
+
+<style lang="sass">
+  .btn-panel
+    height: 50px !important
+    min-height: 50px !important
+    max-height: 50px !important
+    width: 50px !important
+    min-width: 50px !important
+    max-width: 50px !important
+    padding: 0 !important
+
+  .btn-active
+    background-color: var(--v-gray-lighten3)
+
+  .v-navigation-drawer__border
+    width: 3px
+    transition-delay: 0.2s
+    transition-property: width
+
+  .panel-open .v-navigation-drawer__border
+    width: 1px
+</style>

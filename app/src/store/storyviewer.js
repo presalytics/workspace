@@ -16,7 +16,7 @@ const initialState = () => ({
       icon: 'mdi-message',
       color: 'success',
       tooltip: 'Page Comments',
-      component: 'CommentsPanel',
+      component: 'PageComments',
       disabled: false,
       title: 'Comments'
     },
@@ -24,7 +24,7 @@ const initialState = () => ({
       icon: 'mdi-code-tags',
       color: 'accent',
       tooltip: 'Bind a SQL Query',
-      component: 'SQLPad',
+      component: 'PageSQLEditor',
       disabled: false,
       title: 'SQL'
     },

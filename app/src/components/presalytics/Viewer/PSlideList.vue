@@ -15,7 +15,8 @@
 </template>
 
 <script>
-  import PSlideListThumbnail from '../PSlideListThumbnail.vue'
+  import { mapActions } from 'vuex'
+  import PSlideListThumbnail from './PSlideListThumbnail.vue'
 
   export default {
     components: {
@@ -37,7 +38,26 @@
       pages () {
         return this.outline.document.pages
       },
+      appState() {
+        return this.$store.getters['storyviewer/appState'](this.storyId)
+      },
+      activePageId() {
+        return this.appState.activePageId
+      },
+      activePageIndex() {
+        return this.pages.findIndex( (cur) => cur.id == this.activePageId)
+      }
     },
+    methods: {
+      ...mapActions('storyviewer', ['updateAppState']),
+      setActivePage(pageId) {
+        this.updateAppState({
+          storyId: this.storyId,
+          key: 'activePageId',
+          value: pageId
+        })
+      }
+    }
   }
 
 </script>

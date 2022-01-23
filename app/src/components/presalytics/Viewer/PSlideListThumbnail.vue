@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import OoxmlWidget from './Viewer/Widgets/OoxmlWidget.vue'
+  import OoxmlWidget from './Widgets/OoxmlWidget.vue'
   export default {
     components: {
       OoxmlWidget

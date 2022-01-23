@@ -5,11 +5,14 @@
   >
     <div
       id="expansion-panel-border"
+      :class="{ 'border-open' : isOpen }"
     />
     <transition 
       name="expand"
       mode="out-in"
       @afterLeave="expandAfterLeave"
+      @afterEnter="expandAfterEnter"
+      @beforeLeave="expandBeforeLeave"
       @beforeEnter="expandBeforeEnter"
       @leave="expandLeave"
     >
@@ -19,7 +22,7 @@
         ref="expansionPanelCard"
         tile
         elevation="0"
-        :class="[ isOpen ? 'expand-open' : 'expand-closed']"
+        :class="classList"
       >
         <v-toolbar
           elevation="0"
@@ -58,7 +61,9 @@
         required: true,
       }
     },
-    data: () => ({}),
+    data: () => ({
+      isExpanding: false
+    }),
     computed: {
       appState() {
         return this.$store.getters['storyviewer/appState'](this.storyId)
@@ -82,7 +87,18 @@
         } else {
           return ''
         }
-      }
+      },
+      classList() {
+        if (this.isExpanding) {
+          return []
+        } else {
+          if (this.isOpen) {
+            return ['expand-open']
+          } else {
+            return ['expand-closed']
+          }
+        }
+      },
     },
     created() {
       this.updateAppState({
@@ -111,12 +127,21 @@
         this.setExpansionPanel(false)
       },
       expandAfterLeave() {
+        this.isExpanding = false
         this.$refs.expansionPanelCard.$el.style.width = null
       },
+      expandBeforeLeave() {
+        this.isExpanding = true
+      },
+      expandAfterEnter() {
+        this.isExpanding = false
+      },
       expandBeforeEnter() {
-        this.$refs.expansionPanelCard.$el.style.width = null   
+        this.isExpanding = true
+        this.$refs.expansionPanelCard.$el.style.width = null
       },
       expandLeave() {
+        this.isExpanding = true
         this.$refs.expansionPanelCard.$el.style.width = null
       },
       setDrawerEvents() {
@@ -155,7 +180,7 @@
     background-color: rgba(0, 0, 0, 0.12) !important
     margin: 0
     padding: 0
-    width: 3px
+    width: 0
     cursor: col-resize
   #expansion-panel-card
     height: calc(100vh - 65px - 75px - 96px) !important
@@ -168,4 +193,6 @@
     width: 0
   .expand-leave, .expand-enter-to, .expand-open
     width: 350px
+  #expansion-panel-border.border-open
+    width: 3px
 </style>
