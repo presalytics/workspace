@@ -12,3 +12,5 @@ presalytics_workspace/log
 auth_config.json
 *.sqlite3
 /app/dist
+
+yarn-error.log

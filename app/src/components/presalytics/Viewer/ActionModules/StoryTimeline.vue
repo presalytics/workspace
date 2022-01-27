@@ -1,18 +1,33 @@
 <template>
-
+  <action-module-wrapper
+    title="Story Timeline"
+    subtitle="Recent Events"
+  >
+    <event-timeline
+      :events="events"
+    />
+  </action-module-wrapper>
 </template>
 
-<script>
-  import Vue from 'vue'
-  import actionModuleMixin from "./action-module-mixin";
-  import ActionModuleWrapper from './ActionModuleWrapper.vue';
+<script lang="ts">
+  import Vue, { VueConstructor } from 'vue'
+  import EventTimeline from '../../Modules/EventTimeline.vue'
+  import ViewerMixin from "../types/viewer-mixin"
+  import ActionModuleWrapper from './ActionModuleWrapper.vue'
+  import Event from '@/objects/event'
+  
 
-  export default Vue.extend({
+  export default (Vue as VueConstructor & InstanceType<typeof ViewerMixin>).extend({
     name: 'StoryTimeline',
-    mixins: [actionModuleMixin],
     components: {
       ActionModuleWrapper,
       EventTimeline
+    },
+    mixins: [ViewerMixin],
+    computed: {
+      events(): Array<Event> {
+        return this.$store.getters['events/eventdb']
+      }
     }
   })
 </script>

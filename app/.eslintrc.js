@@ -6,6 +6,8 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:vue/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended'
 ],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -14,5 +16,9 @@ module.exports = {
     'vue/valid-v-slot': 'off',
     'vue/v-slot-style': 'off',
   },
-  parser: "vue-eslint-parser"
+  parser: "vue-eslint-parser",
+  parserOptions: {
+    parser: "@typescript-eslint/parser",
+    sourceType: "module"
+  }
 }

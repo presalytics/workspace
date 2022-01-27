@@ -43,6 +43,7 @@ export default (({ mode }) => {
         'cloudevents',
         'dexie',
         'localforage',
+        'buffer'
       ]
     },
     resolve: { 

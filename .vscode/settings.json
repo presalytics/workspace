@@ -8,6 +8,14 @@
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
     "python.analysis.extraPaths": ["${workspaceRoot}/api/api"],
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.workingDirectories": [{"mode": "auto"}],
     "[python]": {
       "gitlens.codeLens.symbolScopes": [
         "!Module"
@@ -37,5 +45,8 @@
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
-    "python.linting.pylintArgs": ["--rcfile=api/setup.cfg"]
+    "python.linting.pylintArgs": [
+      "--rcfile=api/setup.cfg"
+    ],
+    "vetur.experimental.templateInterpolationService": true,
 }

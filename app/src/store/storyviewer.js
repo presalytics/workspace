@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import { cloneDeep } from 'lodash-es'
+import AppState from '@/objects/viewer/app-state'
+import ExpansionComponent from '@/objects/viewer/expansion-component'
 
 const initialState = () => ({
   appState: {},
@@ -60,10 +61,10 @@ export default {
   state: initialState,
   getters: {
     appState: (state) => (storyId) => {
-      return cloneDeep(state.appState[storyId])
+      return state.appState[storyId] ? new AppState(state.appState[storyId]) : null
     },
     expansionComponents: (state) => {
-      return cloneDeep(state.expansionComponents)
+      return state.expansionComponents.map( (cur) => new ExpansionComponent(cur))
     }
   },
   mutations: {

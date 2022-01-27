@@ -76,7 +76,7 @@
         if (componentName === expansionPanel.componentName) {
           expansionPanel.isOpen = expansionPanel.isOpen === undefined ? true : !expansionPanel.isOpen
           if (!expansionPanel.isOpen) {
-            expansionPanel.componentName = null
+            expansionPanel.componentName = ""
           }
         } else {
           expansionPanel.isOpen = true

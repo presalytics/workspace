@@ -1,6 +1,8 @@
 import Worker from './story.worker?worker'
 import {create} from 'jsondiffpatch'
 import { cloneDeep } from 'lodash-es'
+import Story from '@/objects/story'
+import StoryOutline from '@/objects/story/story-outline'
 
 const workerActions = new Worker()
 
@@ -49,11 +51,11 @@ const stories = {
       return state.stories || []
     },
     story: (state) => (storyId) => {
-      return state.stories[storyId]
+      return new Story(state.stories[storyId])
     },
     outline: (state, getters) => (storyId) => {
       var story = getters.story(storyId)
-      return state.outlines[story.outline]
+      return new StoryOutline(state.outlines[story.outline])
     },
     storiesByUser: (state) => (userId) => {
       return Object.values(state.stories).filter((cur) => {

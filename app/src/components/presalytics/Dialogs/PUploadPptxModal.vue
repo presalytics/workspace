@@ -111,10 +111,7 @@ export default {
           story = await this.$http.getData('/api/stories/' + story.id)
           this.$dispatcher.emit("story.created", story)
           this.setProgress(100, 'Story created.  Redirecting...')
-          let vm = this
-          setTimeout(() => {
-            vm.$router.push('/stories/view/' + storyId)
-          }, 4000)
+          setTimeout(() => this.$router.push('/stories/view/' + storyId), 4000)
         }
       } catch (err) {
         this.setProgress(50, 'An error occured creating your outline.  Please try again', 'red')
@@ -127,8 +124,7 @@ export default {
         }
 
       } finally {
-        let vm = this
-        this.timeoutPtr = setTimeout(() => vm.reset(), 5000)
+        this.timeoutPtr = setTimeout(() => this.reset(), 5000)
       }
 
     },

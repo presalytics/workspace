@@ -150,8 +150,7 @@
 
       currentUserIds () {
         if (this.storyId) {
-          var vm = this
-          var story = vm.$store.getters['stories/story'](vm.storyId)
+          var story = this.$store.getters['stories/story'](this.storyId)
           return story.collaborators.filter((cur) => cur.user_id).map((cur) => cur.user_id)
         } else {
           return []
@@ -170,8 +169,7 @@
         }
       },
       isCurrentUser (user) {
-        var vm = this
-        return vm.currentUserIds.includes(user.id)
+        return this.currentUserIds.includes(user.id)
       },
       reset () {
         this.debouncedSearchText = ''
@@ -209,7 +207,7 @@
         alert('Add Api call for adding a collaborator')
       },
       getUserList () {
-        var usrs = this.$store.getters['users/userDb']
+        var usrs = this.$store.getters['users/userList']
         return usrs.map((cur) => {
           var usr = JSON.parse(JSON.stringify(cur))
           // usr.fullname = this.getFullname(usr)

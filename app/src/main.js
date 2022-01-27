@@ -39,6 +39,7 @@ Vue.use(dispatcher, {
 })
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
 
 export default new Vue({
   router,

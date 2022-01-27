@@ -1,6 +1,7 @@
 import Worker from './users.worker?worker'
 import {create} from 'jsondiffpatch'
 import { cloneDeep } from 'lodash-es'
+import User from '@/objects/user'
 
 var jsondiffpatch = create({
   objectHash: function (obj) {
@@ -28,9 +29,10 @@ const users = {
   namespaced: true,
   state: initialState,
   getters: {
-    userDb: (state) => {
-      return state.userList
+    userList: (state) => {
+      return Object.keys(state.users)
     },
+    userDb: (state) => state.users.map( (cur) => new User(cur)),
     getUser: (state, getters) => (userId) => {
       return getters.users[userId]
     },

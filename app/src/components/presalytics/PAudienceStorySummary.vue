@@ -46,8 +46,7 @@
         return this.mostRecentStory.title
       },
       stories () {
-        var vm = this
-        return vm.$store.getters['stories/storiesByUser'](this.userId)
+        return this.$store.getters['stories/storiesByUser'](this.userId)
       },
       filteredStoriesRoute () {
         return {
@@ -69,8 +68,7 @@
         }
       },
       mostRecentStory () {
-        var vm = this
-        return vm.stories.reduce((acc, cur) => {
+        return this.stories.reduce((acc, cur) => {
           var accDate = new Date(acc.updated_at)
           var curDate = new Date(cur.updated_at)
           if (curDate > accDate) {

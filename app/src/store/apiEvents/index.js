@@ -1,7 +1,7 @@
 import { allowedSearchParams } from './apiEvents.worker'
 import Worker from './apiEvents.worker?worker'
 import { CloudEvent } from 'cloudevents'
-import { cloneDeep } from 'lodash-es'
+import Event from '@/objects/event'
 
 const workerActions = new Worker()
 
@@ -18,7 +18,7 @@ const apiEvents = {
   state: initialState,
   getters: {
     eventsDb: (state) => {
-      if (state.events) return cloneDeep(state.events)
+      if (state.events) return state.events.map( (evt) => new Event(evt))
       return []
     },
     eventIds: (state, getters) => getters.eventsDb.map( (evt) => evt.id),

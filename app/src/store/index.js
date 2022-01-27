@@ -72,7 +72,8 @@ export default new Vuex.Store({
       state.drawer = payload
     },
     RESET_STATE (state) {
-      state = initialState  // eslint-disable-line no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      state = initialState  // eslint-disable-line no-unused-vars 
     },
     SET_VISIBILITY (state, payload) {
       state.isVisible = payload

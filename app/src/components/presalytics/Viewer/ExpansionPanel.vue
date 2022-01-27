@@ -50,11 +50,14 @@
   </div>
 </template>
 
-<script>
-  import { mapActions } from "vuex"
+<script lang="ts">
+  import Vue, { VueConstructor } from 'vue'
+  import ExpansionComponent from './types/expansion-component'
+  import ViewerMixin from './mixins/viewer-mixin'
 
-  export default {
+  export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).extend({
     name: 'ExpansionPanel',
+    mixins: [ViewerMixin],
     props: {
       storyId: {
         type: String,
@@ -65,30 +68,28 @@
       isExpanding: false
     }),
     computed: {
-      appState() {
-        return this.$store.getters['storyviewer/appState'](this.storyId)
+      isOpen(): boolean {
+        return this.appState.expansionPanel.isOpen
       },
-      isOpen() {
-        return this.appState.expansionPanel.isOpen || false
+      componentName(): string {
+        return this.appState.expansionPanel.componentName
       },
-      componentName() {
-        return this.appState.expansionPanel.componentName || null
-      },
-      componentInfo() {
+      componentInfo(): ExpansionComponent | null {
         if (this.componentName) {
-          return this.$store.getters['storyviewer/expansionComponents'].filter( (cur) => cur.component === this.componentName)[0]
+          return this.$store.getters['storyviewer/expansionComponents']
+            .find( (cur: ExpansionComponent) => cur.component === this.componentName)
         } else {
           return null
         }
       },
-      title() {
+      title(): string {
         if (this.componentInfo) {
           return this.componentInfo.title
         } else {
           return ''
         }
       },
-      classList() {
+      classList(): Array<string> {
         if (this.isExpanding) {
           return []
         } else {
@@ -113,8 +114,7 @@
       this.setDrawerEvents()
     },
     methods: {
-      ...mapActions('storyviewer', ['updateAppState']),
-      setExpansionPanel(isOpenValue) {
+      setExpansionPanel(isOpenValue: boolean): void {
         let panel = {...this.appState.expansionPanel}
         panel.isOpen = isOpenValue
         this.updateAppState({
@@ -123,56 +123,64 @@
           value: panel
         })
       },
-      closeExpansionPanel() {
+      closeExpansionPanel(): void {
         this.setExpansionPanel(false)
       },
-      expandAfterLeave() {
+      expandAfterLeave(): void {
         this.isExpanding = false
-        this.$refs.expansionPanelCard.$el.style.width = null
+        this.nullifyExpansionPanelWidth()
       },
-      expandBeforeLeave() {
+      expandBeforeLeave(): void {
         this.isExpanding = true
       },
-      expandAfterEnter() {
+      expandAfterEnter(): void {
         this.isExpanding = false
       },
-      expandBeforeEnter() {
+      expandBeforeEnter(): void {
         this.isExpanding = true
-        this.$refs.expansionPanelCard.$el.style.width = null
+        this.nullifyExpansionPanelWidth()
       },
-      expandLeave() {
+      nullifyExpansionPanelWidth(): void {
+        const el = this.getExpansionPanelElement()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        el.style.width = null
+      },
+      expandLeave(): void {
         this.isExpanding = true
-        this.$refs.expansionPanelCard.$el.style.width = null
+        this.nullifyExpansionPanelWidth()
       },
-      setDrawerEvents() {
-        const el = this.$refs.expansionPanelCard.$el
-        const drawerBorder = this.$el.querySelector("#expansion-panel-border")
-        const vm = this
+      getExpansionPanelElement(): HTMLElement {
+        if (!this.$refs.expansionPanelCard) {
+          throw new Error('Element $ref "expansionPanelCard" does not exist')
+        }
+        let panel = this.$refs.expansionPanelCard as Vue
+        return panel.$el as HTMLElement
+      },
+      setDrawerEvents(): void {
+        const el = this.getExpansionPanelElement()
+        const drawerBorder = this.$el.querySelector("#expansion-panel-border") as HTMLElement
 
-        function resize(e) {
+        function resize(e: MouseEvent) {
           document.body.style.cursor = "col-resize"
           let f = document.body.scrollWidth - e.clientX - 60
           el.style.width = f + "px"
         }
-
+        
         drawerBorder.addEventListener("mousedown", function() {
             el.style.transition ='initial'
             document.addEventListener("mousemove", resize, false)
         }, false)
-
-        document.addEventListener("mouseup", function() {
+      
+        document.addEventListener("mouseup", () => {
           el.style.transition = ''
-          if (parseFloat(el.style.width) >  parseFloat(vm.minifiedPanelWidth)) {
-            vm.width = el.style.width
-          } else {
-            vm.width = vm.minifiedPanelWidth
-          }
           document.body.style.cursor = ""
           document.removeEventListener("mousemove", resize, false)
         }, false)
+      
       },
     },
-  }
+  })
 </script>
 
 <style lang="sass">

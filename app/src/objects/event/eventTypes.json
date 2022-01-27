@@ -1,0 +1,23 @@
+{
+  "story.created": {
+    "shortName": "Story Created",
+    "descriptionTemplate": "${user.getFriendlyName} created the story ${resource.title}",
+    "icon": "mdi-book-open-variant",
+    "color": "primary"
+  },
+  "story.view_session_started": {
+    "shortName": "Story View",
+    "descriptionTemplate": "${user.getFriendlyName} started viewing the story ${resource.title}",
+    "icon": "mdi-eye",
+    "color": "primary"
+  },
+  "story.view_session_ended": {
+    "shortName": "View Session Ended",
+    "descriptionTemplate": "${user.getFriendlyName} stoped viewing the story {resource.title}",
+    "icon": "mdi-eye-remove",
+    "color": "primary"
+  },
+  "story.deleted": {
+    
+  }
+}

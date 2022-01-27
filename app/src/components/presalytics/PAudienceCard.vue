@@ -197,7 +197,7 @@
     },
     computed: {
       userList () {
-        return this.$store.getters['users/userDb']
+        return this.$store.getters['users/userList']
       },
       audienceList () {
         return this.userList
@@ -260,8 +260,7 @@
         }
       },
       getUserEvents (user) {
-        var vm = this
-        var db = vm.$store.getters['apiEvents/eventsDb']
+        var db = this.$store.getters['apiEvents/eventsDb']
         return db.filter((cur) => {
           if (cur.resourceId === user.id) {
             return true

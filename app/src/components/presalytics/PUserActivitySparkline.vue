@@ -84,11 +84,10 @@
     }),
     computed: {
       value () {
-        var vm = this
-        var evts = vm.$store.getters['apiEvents/eventsDb'].filter((cur) => {
-          return cur.resourceId === vm.userId || cur.metadata?.relationships?.userId === vm.userId
+        var evts = this.$store.getters['apiEvents/eventsDb'].filter((cur) => {
+          return cur.resourceId === this.userId || cur.metadata?.relationships?.userId === this.userId
         })
-        var dates = getDaysArray(vm.timeSpanFn(), new Date())
+        var dates = getDaysArray(this.timeSpanFn(), new Date())
         return dates.map((cur) => countByDay(evts, cur))
       },
       timeWindow () {

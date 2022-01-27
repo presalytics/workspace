@@ -124,7 +124,6 @@ export default {
     setDrawerEvents() {
       const el = this.$refs.slidePanelDrawer.$el
       const drawerBorder = el.querySelector(".v-navigation-drawer__border")
-      const vm = this
       const direction = this.direction
 
       function resize(e) {
@@ -133,19 +132,19 @@ export default {
         el.style.width = f + "px"
       }
 
-      drawerBorder.addEventListener("mousedown", function() {
+      drawerBorder.addEventListener("mousedown", () => {
           el.style.transition ='initial'
           document.addEventListener("mousemove", resize, false)
       }, false)
 
-      document.addEventListener("mouseup", function() {
+      document.addEventListener("mouseup", () => {
         el.style.transition = ''
-        if (parseFloat(el.style.width) >  parseFloat(vm.minifiedPanelWidth)) {
-          vm.width = el.style.width
-          vm.isMini = false
+        if (parseFloat(el.style.width) >  parseFloat(this.minifiedPanelWidth)) {
+          this.width = el.style.width
+          this.isMini = false
         } else {
-          vm.width = vm.minifiedPanelWidth
-          vm.isMini = true
+          this.width = this.minifiedPanelWidth
+          this.isMini = true
         }
         document.body.style.cursor = ""
         document.removeEventListener("mousemove", resize, false)

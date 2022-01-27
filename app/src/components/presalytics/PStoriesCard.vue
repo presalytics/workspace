@@ -213,7 +213,7 @@
     },
     computed: {
       storiesList () {
-        var vm = this
+        var vm = this  // eslint-disable-line @typescript-eslint/no-this-alias
         var storyIds = vm.$store.state.stories.storiesList
         return storyIds.map((cur) => {
           var story = JSON.parse(JSON.stringify(vm.$store.getters['stories/story'](cur)))
@@ -225,7 +225,7 @@
         return this.$store.getters['stories/table'].columns.filter((cur) => cur.show)
       },
       filteredStoriesList () {
-        var vm = this
+        var vm = this  // eslint-disable-line @typescript-eslint/no-this-alias
         if (vm.debouncedText === '') {
           return vm.storiesList
         } else {
@@ -268,7 +268,7 @@
       },
     },
     created () {
-      var vm = this
+      var vm = this  // eslint-disable-line @typescript-eslint/no-this-alias
       vm.$store.dispatch('stories/initTableColumns', vm.defaultHeaders.slice())
       this.loading = false
     },
@@ -338,7 +338,7 @@
         return lowercaseString.charAt(0).toUpperCase() + lowercaseString.slice(1)
       },
       getUserRole (story) {
-        var vm = this
+        var vm = this  // eslint-disable-line @typescript-eslint/no-this-alias
         return story.collaborators.reduce((acc, ele) => {
           if (!acc) {
             var collaborator = vm.$store.state.stories.collaborators[ele]

@@ -9,6 +9,7 @@
     props: {
       story: {
         type: Object,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         default: () => {},
       },
     },

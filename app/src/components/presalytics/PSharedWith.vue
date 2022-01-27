@@ -92,10 +92,14 @@
       },
       getUserName(collaborator) {
         var userId = this.getUserId(collaborator)
-        return this.$store.getters['users/getFriendlyName'](userId)
+        let name = ''
+        if (userId) {
+          name = this.$store.getters['users/getFriendlyName'](userId)
+        }
+        return name
       },
       getUserId(collaborator) {
-        return this.$store.state.stories.collaborators[collaborator].userId
+        return this.$store.state.stories.collaborators[collaborator]?.userId || ''
       }
     },
   }

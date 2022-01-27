@@ -88,8 +88,7 @@
     }),
     computed: {
       allColumnNames () {
-        var vm = this
-        return vm.$store.getters['users/table'].columns.map((cur) => cur.text)
+        return this.$store.getters['users/table'].columns.map((cur) => cur.text)
       },
     },
     methods: {
@@ -97,16 +96,14 @@
         toggleColumn: 'TOGGLE_TABLE_COLUMN',
         updateTimeWindow: 'UPDATE_TABLE_WINDOW',
       }),
-      onModalStateChange () {
-        var vm = this
-        this.selectedColumns = vm.$store.getters['users/table'].columns.filter((cur) => cur.show).map((cur) => cur.text)
+      onModalStateChange () {this
+        this.selectedColumns = this.$store.getters['users/table'].columns.filter((cur) => cur.show).map((cur) => cur.text)
         this.onTimeWindowChange()
       },
       onSelectedColumnChange () {
-        var vm = this
-        var currentColumns = vm.$store.getters['users/table'].columns.filter((cur) => cur.show).map((cur) => cur.text)
+        var currentColumns = this.$store.getters['users/table'].columns.filter((cur) => cur.show).map((cur) => cur.text)
         var diff = this.arrayDiff(currentColumns, this.selectedColumns)
-        var toggleColumns = vm.$store.getters['users/table'].columns.filter((cur) => diff.includes(cur.text))
+        var toggleColumns = this.$store.getters['users/table'].columns.filter((cur) => diff.includes(cur.text))
         toggleColumns.forEach((cur) => {
           this.toggleColumn({ value: cur.value })
         })

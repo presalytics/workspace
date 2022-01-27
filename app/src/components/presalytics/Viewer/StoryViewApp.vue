@@ -45,7 +45,7 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 
   import StoryViewer from '@/components/presalytics/Viewer/StoryViewer.vue'
   import ActionPanel from './ActionPanel.vue'
@@ -53,9 +53,14 @@
   import ExpansionPanel from './ExpansionPanel.vue'
   import ViewerToolbar from './ViewerToolbar.vue'
   import ViewerFooter from './ViewerFooter.vue'
-  import { v4 as uuidv4 } from 'uuid'
+  import Story from '@/objects/story'
+  import StoryOutline from '@/objects/story/story-outline'
+  import Vue from 'vue'
+  import { mapActions } from 'vuex'
+  import SessionMetrics from '@/objects/viewer/session-metrics'
+import AppState from '@/objects/viewer/app-state'
   
-  export default {
+  export default Vue.extend({
     name: 'StoryViewApp',
     components: {
       StoryViewer,
@@ -72,73 +77,78 @@
       }
     },
     data: () => ({
-      sessionMetrics: {}
+      sessionMetrics: {} as SessionMetrics,
+      defaultAppState: new AppState()
     }),
     computed: {
-      isBuilder () {
+      AppState: {
+        get(): AppState {
+          let appState = this.$store.getters['storyviwer/appState'](this.storyId)
+          if (!appState) {
+            this.initAppState()
+            appState = this.defaultAppState
+          }
+          return appState
+        },
+      },
+      isBuilder(): boolean {
         return true
       },
-      story () {
-        return this.$store.getters['stories/story'](this.$route.params.storyId)
+      story (): Story {
+        return this.$store.getters['stories/story'](this.storyId)
       },
-      title () {
+      outline(): StoryOutline {
+        return this.$store.getters['stories/outline'](this.story.outline)
+      },
+      title (): string {
         if (this.story) {
           return this.story.title
         } else {
           return ''
         }
       },
-      visibility() {
+      visibility(): boolean {
         return this.$store.getters.visbility
       },
-      userId() {
+      userId(): string {
         return this.$store.getters.userId
       }
     },
     watch: {
       visibility(isVisible) {
-        if (isVisible) {
-          this.sessionMetrics.activeStartTime = Date.now()
-          let sessionActivityModel = this.getSessionActivityModel() 
-          this.$dispatcher.emit('story.view_session_active', sessionActivityModel)
-        } else {
-          this.setSessionActiveTime()
-          let sessionActivityModel = this.getSessionActivityModel()
-          this.$dispatcher.emit('story.view_session_inactive', sessionActivityModel)
-        }
+       this.sessionMetrics.setVisibility(isVisible)
       }
     },
     mounted() {
-      this.sessionMetrics.sessionStartTime = Date.now()
-      this.sessionMetrics.activeStartTime = Date.now()
-      this.sessionMetrics.sessionId = uuidv4().toString()
-      this.sessionMetrics.activeTime = 0
-      this.$dispatcher.emit("story.view_session_started", this.getSessionActivityModel())
+      this.sessionMetrics = new SessionMetrics({
+        storyId: this.storyId,
+        userId: this.userId
+      })
+      this.$dispatcher.emit("story.view_session_started", this.sessionMetrics.jsonify())
     },
     beforeDestroy() {
-      this.setSessionActiveTime()
-      this.$dispatcher.emit("story.view_session_ended", this.getSessionActivityModel())
+      this.sessionMetrics.updateActiveTime()
+      this.$dispatcher.emit("story.view_session_ended", this.sessionMetrics.jsonify())
     },
     methods: {
-      getSessionActivityModel() {
-        return {
-          isVisible: this.visibility,
-          resourceId: this.story.id,
-          id: this.story.id,
-          sessionId: this.sessionMetrics.sessionId,
-          currentTime: Date.now(),
-          sessionStartTime: this.sessionMetrics.sessionStartTime,
-          sessionActiveTime: this.sessionMetrics.activeTime,
-          userId: this.userId
-        }
-      },
-      setSessionActiveTime() {
-        let activeMillisecondsToAdd = Date.now() - this.sessionMetrics.activeStartTime
-        this.sessionMetrics.activeTime += activeMillisecondsToAdd
-        this.sessionMetrics.activeStartTime = Date.now()
+      ...mapActions('storyviewer', ['updateAppState']),
+      initAppState() {
+        this.updateAppState({
+          storyId: this.storyId,
+          key: 'activePageIndex',
+          value: 0
+        }),
+        this.updateAppState({
+          storyId: this.storyId,
+          key: 'expansionPanel',
+          value: {
+            isOpen: false,
+            componentName: ''
+          }
+        })
       },
     },
-  }
+  })
 </script>
 
 <style lang="sass" scoped>

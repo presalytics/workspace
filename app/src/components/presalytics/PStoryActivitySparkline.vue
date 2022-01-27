@@ -67,6 +67,7 @@
     props: {
       story: {
         type: Object,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         default: () => {},
       },
     },
@@ -84,10 +85,9 @@
     }),
     computed: {
       value () {
-        var vm = this
-        var storyId = vm.$props.story.item.id
-        var evts = vm.$store.getters['apiEvents/getStoryEvents'](storyId)
-        var dates = getDaysArray(vm.timeSpanFn(), new Date())
+        var storyId = this.$props.story.item.id
+        var evts = this.$store.getters['apiEvents/getStoryEvents'](storyId)
+        var dates = getDaysArray(this.timeSpanFn(), new Date())
         return dates.map((cur) => countByDay(evts, cur))
       },
       timeWindow () {

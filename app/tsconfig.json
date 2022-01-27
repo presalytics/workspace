@@ -10,11 +10,16 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "outDir": "dist",
     "paths": {
-      "@/*": ["./src*"]
+      "@/*": ["src/*"]
     },
+    "types": [
+      "vite/client"
+    ],
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"],

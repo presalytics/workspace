@@ -4,7 +4,9 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
-    ActionPanel: typeof import('./src./src/components/presalytics/Viewer/ActionModules/ActionModuleWrapper.vue
+    ActionModuleWrapper: typeof import('./src/components/presalytics/Viewer/ActionModules/ActionModuleWrapper.vue')['default']
+    ActionPanel: typeof import('./src/components/presalytics/Viewer/ActionPanel.vue')['default']
+    Analytics: typeof import('./src/components/presalytics/Modules/Analytics.vue')['default']
     Card: typeof import('./src/components/base/Card.vue')['default']
     CollaboratorManager: typeof import('./src/components/presalytics/Modules/CollaboratorManager.vue')['default']
     CommentsPanel: typeof import('./src/components/presalytics/Viewer/CommentsPanel.vue')['default']
@@ -25,6 +27,7 @@ declare module 'vue' {
     NotificationManager: typeof import('./src/components/presalytics/Modules/NotificationManager.vue')['default']
     OoxmlWidget: typeof import('./src/components/presalytics/Viewer/Widgets/OoxmlWidget.vue')['default']
     PageComments: typeof import('./src/components/presalytics/Viewer/ActionModules/PageComments.vue')['default']
+    PageSQLEditor: typeof import('./src/components/presalytics/Viewer/ActionModules/PageSQLEditor.vue')['default']
     PAlert: typeof import('./src/components/presalytics/Dialogs/PAlert.vue')['default']
     PAudienceCard: typeof import('./src/components/presalytics/PAudienceCard.vue')['default']
     PAudienceColumnManageModal: typeof import('./src/components/presalytics/Dialogs/PAudienceColumnManageModal.vue')['default']
@@ -54,15 +57,13 @@ declare module 'vue' {
     Screen: typeof import('./src/components/presalytics/Viewer/Screen.vue')['default']
     SlidePanel: typeof import('./src/components/presalytics/Viewer/SlidePanel.vue')['default']
     SQLEditor: typeof import('./src/components/presalytics/Modules/SQLEditor.vue')['default']
-    SQLPad: typeof import('./src/components/presalytics/Viewer/ActionModules/PageSQLEditor.vue')['default']
-    StoryAnalytics: typeof import('./src/components/presalytics/Modules/StoryAnalytics.vue')['default']
+    StoryAnalytics: typeof import('./src/components/presalytics/Viewer/ActionModules/StoryAnalytics.vue')['default']
     StoryCollaboratorManager: typeof import('./src/components/presalytics/Viewer/ActionModules/StoryCollaboratorManager.vue')['default']
     StoryNotificationSettings: typeof import('./src/components/presalytics/Viewer/ActionModules/StoryNotificationSettings.vue')['default']
-    StoryTimeLine: typeof import('../src/components/presalytics/Modules/Analytics.vueimeLine.vue')['default']
+    StoryTimeline: typeof import('./src/components/presalytics/Viewer/ActionModules/StoryTimeline.vue')['default']
     StoryViewApp: typeof import('./src/components/presalytics/Viewer/StoryViewApp.vue')['default']
     StoryViewer: typeof import('./src/components/presalytics/Viewer/StoryViewer.vue')['default']
     Subheading: typeof import('./src/components/base/Subheading.vue')['default']
-    Toolbar: typeof import('./src/./src/components/presalytics/Viewer/ActionModules/StoryTimeline.vue
     VComponent: typeof import('./src/components/base/VComponent.vue')['default']
     ViewerFooter: typeof import('./src/components/presalytics/Viewer/ViewerFooter.vue')['default']
     ViewerToolbar: typeof import('./src/components/presalytics/Viewer/ViewerToolbar.vue')['default']
