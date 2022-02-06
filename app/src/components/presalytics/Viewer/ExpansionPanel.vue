@@ -45,6 +45,13 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-toolbar>
+        <keep-alive>
+          <v-component
+            :is="componentName"
+            :story-id="storyId"
+            compact
+          />
+        </keep-alive>
       </v-card>
     </transition>
   </div>
@@ -52,11 +59,26 @@
 
 <script lang="ts">
   import Vue, { VueConstructor } from 'vue'
-  import ExpansionComponent from './types/expansion-component'
+  import ExpansionComponent from '@/objects/viewer/expansion-component'
   import ViewerMixin from './mixins/viewer-mixin'
+  import StoryTimeline from './ActionModules/StoryTimeline.vue'
+  import PageComments from './ActionModules/PageComments.vue'
+  import PageSQLEditor from './ActionModules/PageSQLEditor.vue'
+  import StoryAnalytics from './ActionModules/StoryAnalytics.vue'
+  import StoryCollaboratorManager from './ActionModules/StoryCollaboratorManager.vue'
+  import StoryNotificationSettings from './ActionModules/StoryNotificationSettings.vue'
+
 
   export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).extend({
     name: 'ExpansionPanel',
+    components: {
+      StoryTimeline,
+      PageComments,
+      PageSQLEditor,
+      StoryAnalytics,
+      StoryCollaboratorManager,
+      StoryNotificationSettings
+    },
     mixins: [ViewerMixin],
     props: {
       storyId: {
@@ -94,9 +116,9 @@
           return []
         } else {
           if (this.isOpen) {
-            return ['expand-open']
+            return ['flexcard', 'expand-open']
           } else {
-            return ['expand-closed']
+            return ['expand-closed', 'flexcard']
           }
         }
       },
@@ -193,6 +215,8 @@
   #expansion-panel-card
     height: calc(100vh - 65px - 75px - 96px) !important
     margin: 0
+    display: flex
+    flex-direction: column
   .expand-enter-active, .expand-leave-active
     transition-property: width
     transition-duration: 0.2s

@@ -1,5 +1,6 @@
 import { CloudEvent } from 'cloudevents'
 import { v4 as uuidv4 } from 'uuid'
+import Vue from 'vue'
 
 let instance = null
 
@@ -28,6 +29,7 @@ export default class Dispatcher {
     this.registry = []
     this.dispatch = storeDispatchFn
     this.getUserId = userIdFn
+    this.localEventBus = new Vue()
     defaultRegistry.forEach( (cur) => this.subscribe(cur.type, cur.action), this)
   }
 

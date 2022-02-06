@@ -1,32 +1,46 @@
 <template>
   <div 
     class="story-list-item"
+    @click="setPage"
   >
-    <div
-      v-if="expanded"
-      class="story-list-index-container"
+    <v-hover
+      v-slot="{ hover }"
     >
-      <span class="story-list-index">
-        {{ pageNumber }}
-      </span>
-      <v-spacer />
-    </div>
-    <div class="story-list-thumbnail-container">
-      <div class="skeleton-wrapper">
-        <ooxml-widget
-          :widget="page.widgets[0]"
-        />
+      <div class="story-list-thumbnail-container">
+        <div class="skeleton-wrapper">
+          <ooxml-widget
+            :widget="page.widgets[0]"
+          />
+        </div>
+        <v-fade-transition>
+          <v-overlay
+            v-if="hover"
+            absolute
+            color="gray"
+          >
+            <span 
+              :class="overlayTextClass"
+            >
+              {{ pageNumber }}
+            </span>
+          </v-overlay>
+        </v-fade-transition>
       </div>
-    </div>
+    </v-hover>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import Vue, { VueConstructor } from 'vue'
   import OoxmlWidget from './Widgets/OoxmlWidget.vue'
-  export default {
+  import ViewerMixin from './mixins/viewer-mixin'
+  import StoryPage from '@/objects/story/story-page'
+
+  export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).extend({
     components: {
       OoxmlWidget
     },
+    mixins: [ViewerMixin],
     props: {
       storyId: {
         type: String,
@@ -34,69 +48,38 @@
       },
       pageIndex: {
         type: Number,
-        required: true,
-      },
+        required: true
+      }
     },
     data: function () {
       return {
         aspectRatio: 1.777,
-        startPagesAtZero: false,
-        resizer: null,
-        expanded: false,
       }
     },
     computed: {
-      story () {
-        return this.$store.getters['stories/story'](this.storyId)
+      pageNumber(): number {
+        return this.pageIndex + 1
       },
-      outline () {
-        return this.$store.state.stories.outlines[this.story.outline]
+      expanded(): boolean {
+        return this.appState.slidePanel.isOpen
       },
-      page () {
+      page(): StoryPage {
         return this.outline.document.pages[this.pageIndex]
       },
-      thumbnailUrl () {
-        return this.page.thumbnail
-      },
-      loading () {
-        if (this.page.thumbnail) {
-          return this.page.thumbnail?.length <= 1
-        } else {
-          return true
+      overlayTextClass(): string {
+        let spanClass = 'text-overlay-closed'
+        if (this.expanded) {
+          spanClass = 'text-overlay-open'
         }
-      },
-      pageNumber () {
-        if (this.startPagesAtZero) {
-          return this.pageIndex
-        } else {
-          return this.pageIndex + 1
-        }
-      },
-    },
-    mounted () {
-      this.resizer = new ResizeObserver(() => {
-        var _timeout
-        clearTimeout(_timeout)
-        _timeout = setTimeout(this.detectExpanded(), 100)
-      })
-
-      this.resizer.observe(this.$el)
-    },
-    beforeDestroy () {
-      if (this.resizer) {
-        this.resizer.disconnect()
+        return spanClass
       }
     },
     methods: {
-      detectExpanded () {
-        if (this.$el) {
-          this.expanded = this.$el.offsetWidth > 100
-        } else {
-          this.expanded = false
-        }
-      },
+      setPage() {
+        this.setActivePageIndex(this.pageNumber)
+      }
     },
-  }
+  })
 </script>
 
 <style lang="sass" scoped>
@@ -131,5 +114,11 @@
     font-size: .75rem
   .story-list-item:hover
     background-color: #eee
+  .text-overlay-open
+    font-size: 3rem
+    color: #fff
+  .text-overlay-closed
+    font-size: 1.5rem
+    color: #fff
 
 </style>

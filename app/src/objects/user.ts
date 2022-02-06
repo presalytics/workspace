@@ -44,6 +44,7 @@ export default class User {
   updatedAt: Date
   appMetadata: IAppMetadata
   userMetadata: IUserMetadata
+  friendlyName: string
 
   constructor(userData: IStoreUserData) {
     this.id = userData.appMetadata.apiUserId
@@ -61,6 +62,7 @@ export default class User {
     this.nickname = userData.nickname
     this.createdAt = new Date(userData.createdAt)
     this.updatedAt = new Date(userData.updatedAt)
+    this.friendlyName = this.getFriendlyName()
   }
 
   public getFriendlyName() {

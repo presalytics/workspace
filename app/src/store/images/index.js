@@ -11,17 +11,9 @@ const images = {
     sendToWorkerThread(context, payload) {
       worker.postMessage(payload)
     },
-    async getImage(context, payload) {
-      return await new Promise( (resolve) => {
-        const listener = worker.addEventListener('message', function(e) {
-          if (e.data.apiKey === payload.apiKey) {
-            worker.removeEventListener('message', listener)
-            resolve(e.data)
-          }
-        })
-        payload.request = "getImage"
-        worker.postMessage(payload)
-      })
+    getImage(context, payload) {
+      payload.request = "getImage"
+      worker.postMessage(payload)
     },
   }
 }

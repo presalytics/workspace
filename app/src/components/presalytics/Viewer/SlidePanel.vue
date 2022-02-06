@@ -2,15 +2,14 @@
   <v-navigation-drawer
     id="slidePanelDrawer"
     ref="slidePanelDrawer"
-    v-model="isOpen"
     permanent
     :mini-variant-width="minifiedPanelWidth"
-    :mini-variant.sync="isMini"
+    :mini-variant="!isOpen"
     :width="width"
     class="left-nav-drawer"
   >
     <v-list-item
-      class="px-2"
+      class="px-2 slides-controller"
     >
       <v-btn
         icon
@@ -37,16 +36,19 @@
   </v-navigation-drawer>
 </template>
 
-<script>
+<script lang="ts">
+import Vue, { VueConstructor } from 'vue'
+import ViewerMixin from './mixins/viewer-mixin'
 import { mapActions } from 'vuex'
-import { debounce } from 'lodash-es'
 import PSlideList from './PSlideList.vue'
+import SlidePanelState from '@/objects/viewer/slide-panel-state'
 
-export default {
+export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).extend({
   name: 'SlidePanel',
   components: {
     PSlideList,
   },
+  mixins: [ViewerMixin],
   props: {
     storyId: {
       type: String, 
@@ -54,8 +56,6 @@ export default {
     }
   },
   data: () => ({
-    isOpen: false,
-    isMini: true,
     defaultOpenWidth: '200px',
     minifiedPanelWidth: '60px',
     borderWidth: '3px',
@@ -63,23 +63,17 @@ export default {
     width: '60px',
   }),
   computed: {
-    appState() {
-      return this.$store.getters['storyviewer/appState'](this.storyId)
+    isOpen: {
+      get: function(): boolean {
+        return this.panelState.isOpen
+      },
+      set: function(newValue: boolean): void {
+        this.setSlidePanel(newValue)
+      }
     },
-  },
-  watch: {
-    width () {
-      this.updateState()
+    panelState(): SlidePanelState {
+      return this.appState.slidePanel
     },
-    isMini () {
-      this.updateState()
-    },
-    isOpen () {
-      this.updateState()
-    }
-  },
-  created() {
-    this.initState()
   },
   mounted() {
     this.setDraggableBorders()
@@ -87,48 +81,46 @@ export default {
   },
   methods: {
     ...mapActions('storyviewer', ['updateAppState']),
-    getStateValues() {
-      return {
-        isOpen: this.isOpen,
-        isMini: this.isMini,
-        width: this.width
-      }
+    handleSlidePanelToggle () {
+      const newIsOpen = !this.isOpen
+      this.setSlidePanel(newIsOpen)
     },
-    updateState() {
-      let fn = debounce( () => {
-        let payload = {
+    setSlidePanel(newOpenValue: boolean) {
+      if (newOpenValue) {
+        this.width = this.defaultOpenWidth
+      } else {
+        this.width = this.minifiedPanelWidth
+      }
+      if (this.isOpen !== newOpenValue) {
+        const panelState = {...this.panelState}
+        panelState.isOpen = newOpenValue
+        this.updateAppState({
           storyId: this.storyId,
           key: 'slidePanel',
-          value: this.getStateValues()
-        }
-        this.updateAppState(payload)
-      }, 750)
-      fn()
-    },
-    initState() {
-      if (!this.appState?.slidePanel) {
-        this.updateState()
+          value: panelState
+        })
       }
+
     },
-    handleSlidePanelToggle () {
-      this.isMini = !this.isMini
-      if (!this.isMini) {
-        this.width = this.defaultOpenWidth
-      }
-    },
-    setDraggableBorders() {
-      let border = this.$el.querySelector( ".v-navigation-drawer__border")
+    setDraggableBorders(): void {
+      let border = this.$el.querySelector( ".v-navigation-drawer__border") as HTMLElement
       border.style.width = this.borderWidth
       border.style.cursor = 'col-resize'
     },
-    setDrawerEvents() {
-      const el = this.$refs.slidePanelDrawer.$el
-      const drawerBorder = el.querySelector(".v-navigation-drawer__border")
-      const direction = this.direction
+    getPanelDrawer(): HTMLElement {
+    if (!this.$refs.slidePanelDrawer) {
+        throw new Error('Element $ref "slidePanelDrawer" does not exist')
+      }
+      let panel = this.$refs.slidePanelDrawer as Vue
+      return panel.$el as HTMLElement
+    },
+    setDrawerEvents(): void {
+      const el = this.getPanelDrawer()
+      const drawerBorder = el.querySelector(".v-navigation-drawer__border") as HTMLElement
 
-      function resize(e) {
+      function resize(e: MouseEvent) {
         document.body.style.cursor = "col-resize"
-        let f = direction === "right" ? document.body.scrollWidth - e.clientX : e.clientX
+        let f = e.clientX
         el.style.width = f + "px"
       }
 
@@ -141,15 +133,28 @@ export default {
         el.style.transition = ''
         if (parseFloat(el.style.width) >  parseFloat(this.minifiedPanelWidth)) {
           this.width = el.style.width
-          this.isMini = false
         } else {
           this.width = this.minifiedPanelWidth
-          this.isMini = true
         }
         document.body.style.cursor = ""
         document.removeEventListener("mousemove", resize, false)
       }, false)
     },
   }
-}
+})
 </script>
+
+<style lang="sass">
+  .left-nav-drawer
+    overflow-y: hidden
+  .v-navigation-drawer__content
+    overflow-y: hidden !important
+    display: flex
+    flex-direction: column
+    align-items: stretch
+    justify-content: center
+  .slides-controller
+    flex-grow: 0 !important
+    flex-shrink: 1 !important
+    flex-basis: auto !important
+</style>

@@ -109,6 +109,9 @@ export default new Vuex.Store({
     },
     async awaitRestoredState() {
       await this.restored
+    },
+    localEvent(context, evt) {
+      this._vm.$dispatcher.localEventBus.$emit(evt.type, evt.payload)
     }
   },
   modules: {

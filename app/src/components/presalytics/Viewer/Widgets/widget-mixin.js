@@ -3,6 +3,10 @@ export default {
     widget: {
       type: Object,
       required: true
+    },
+    thumbnail: {
+      type: Boolean,
+      default: () => false
     }
   },
   computed: {

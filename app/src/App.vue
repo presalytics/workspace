@@ -126,7 +126,9 @@
       imageWorkerEventListener(e) {
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
-        }
+        } else if (e.data.type === 'IMG_BLOB') {
+          this.$dispatcher.localEventBus.$emit('image.updated', e.data)
+        } 
       },
       handleVisibiltyChange() {
         if (document.visibilityState === "hidden") {

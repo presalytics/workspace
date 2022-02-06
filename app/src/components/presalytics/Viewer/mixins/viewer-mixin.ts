@@ -15,13 +15,13 @@ export default Vue.extend({
   },
   computed: {
     story(): Story {
-      return this.$store.getters['stories/getStory'](this.$props.storyId)
+      return this.$store.getters['stories/story'](this.storyId)
     },
     outline(): StoryOutline {
-      return this.$store.getters['store/outline'](this.$props.storyId)
+      return this.$store.getters['stories/outline'](this.storyId)
     },
     appState(): AppState {
-      return this.$store.getters['storyviewer/appState'](this.$props.storyId)
+      return this.$store.getters['storyviewer/appState'](this.storyId) || new AppState()
     },
     activePageId(): string {
       return this.outline.document.pages[this.activePageIndex].id
@@ -38,11 +38,20 @@ export default Vue.extend({
   },
   methods: {
     ...mapActions('storyviewer', ['updateAppState']),
-    setActivePage(pageId: string): void {
+    setActivePageIndex(pageIndex: number): void {
       this.updateAppState({
         storyId: this.storyId,
-        key: 'activePageId',
-        value: pageId
+        key: 'activePageIndex',
+        value: pageIndex
+      })
+    },
+    toggleExpansionPanel() {
+      const panel = {...this.appState.expansionPanel}
+      panel.isOpen = !panel.isOpen
+      this.updateAppState({
+        storyId: this.storyId,
+        key: 'expansionPanel',
+        value: panel
       })
     }
   },

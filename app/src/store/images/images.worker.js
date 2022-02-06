@@ -5,8 +5,8 @@ const db = new Dexie('images')
 // const refreshDelta = 1000 * 60 * 5 // refresh on reload five mins
 var accessToken = null
 
-db.version(3).stores({
-    images: 'id++, apiKey, imageType, source',
+db.version(4).stores({
+    images: 'id++, apiKey, imageType, source, [apiKey+imageType]',
 })
 
 const MIMETypeMap = [

@@ -4,19 +4,29 @@
       <preloader />
     </template>
     <template v-else>
-      <div class="svg-overlay" />
-      <object
-        type="image/svg+xml"
-        :data="svgBlobUrl"
-        class="svg-object"
-      >
+      <template v-if="thumbnail">
         <v-img
           :src="pngBlobUrl"
           contain
         >
           <p>This widget failed to render.  Are you you sure to put the right Id in your outline?</p>
         </v-img>
-      </object>
+      </template>
+      <template v-else>
+        <div class="svg-overlay" />
+        <object
+          type="image/svg+xml"
+          :data="svgBlobUrl"
+          class="svg-object"
+        >
+          <v-img
+            :src="pngBlobUrl"
+            contain
+          >
+            <p>This widget failed to render.  Are you you sure to put the right Id in your outline?</p>
+          </v-img>
+        </object>
+      </template>
     </template>
   </div>
 </template>
@@ -33,21 +43,24 @@ export default {
     svgBlobUrl: null,
     pngBlobUrl: null,
     resizer: null,
-    listener: null
+    listener: null,
+    isLoading: true
   }),
   computed: {
     ooxmlId() {
       return this.widget.data.objectOoxmlId
     },
-    isLoading() {
-      return this.svgBlobUrl === null
-    },
     objectType() {
       return this.widget.data.endpointId
     },
   },
-  async created() {
-    await this.initImages()
+  created() {
+    this.$dispatcher.localEventBus.$on('image.updated', this.handleNewImage)
+    this.initImages()
+    this.isLoading = false
+  },
+  beforeDestroy() {
+    this.$dispatcher.localEventBus.$off('image.updated', this.handleNewImage)
   },
   mounted() {
     this.resizer = new ResizeObserver(entries => {
@@ -60,26 +73,35 @@ export default {
     this.resizer.observe(this.$el.parentElement)
   },
   methods: {
-    async initImages() {
-      await Promise.all([
-        this.getSvgImage(),
-        this.getPngImage()
-      ])
+    handleNewImage(evt) {
+      if (evt.apiKey === this.ooxmlId) {
+        if (evt.imageType === "png") {
+          this.pngBlobUrl = URL.createObjectURL(evt.blob)
+        } else if (evt.imageType === "svg") {
+          // eslint-disable-next-line
+          console.log("Blob size: " + evt.blob.size)
+          this.svgBlobUrl = URL.createObjectURL(evt.blob)
+        }
+      }
     },
-    async getSvgImage() {
-      var svgData = await this.$store.dispatch('images/getImage', {
+    initImages() {
+      this.getPngImage()
+      if (!this.thumbnail) {
+          this.getSvgImage()
+      }
+    },
+    getSvgImage() {
+      this.$store.dispatch('images/getImage', {
         apiKey: this.ooxmlId,
         imageType: "svg",
         metadata: {
           objectType: this.objectType,
           source: 'ooxml',
-          
         }
       })
-      this.svgBlobUrl = URL.createObjectURL(svgData.blob)
     },
-    async getPngImage() {
-      var pngData = await this.$store.dispatch('images/getImage', {
+    getPngImage() {
+      this.$store.dispatch('images/getImage', {
         apiKey: this.ooxmlId,
         imageType: "png",
         metadata: {
@@ -88,7 +110,6 @@ export default {
 
         }
       })
-      this.pngBlobUrl = URL.createObjectURL(pngData.blob)
     },
     resizeSvgContainer (parentElement) {
       var svgContainer = parentElement.querySelector('.svg-container')

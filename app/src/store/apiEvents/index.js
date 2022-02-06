@@ -18,16 +18,25 @@ const apiEvents = {
   state: initialState,
   getters: {
     eventsDb: (state) => {
-      if (state.events) return state.events.map( (evt) => new Event(evt))
+      if (state.events) return state.events.map( (evt) => new Event(evt)).sort( (a, b) => {
+        let val = 0
+        if (a.time > b.time) {
+          val = -1
+        } else {
+          val = 1
+        }
+        return val
+      })
       return []
     },
     eventIds: (state, getters) => getters.eventsDb.map( (evt) => evt.id),
-    getStoryEvents: (state, getters) => (storyId) => {
-      return getters.eventsDb.filter((cur) => cur.data.resourceId === storyId)
+    getByResourceId: (state, getters) => (resourceId) => {
+      return getters.eventsDb.filter((cur) => cur.data.resourceId === resourceId)
     },
     getEventsByType: (state, getters) => (eventType) => {
       return getters.eventsDb.filter( (cur) => cur.type === eventType)
-    }
+    },
+    getStoryEvents: (state, getters) => (storyId) => getters.getByResourceId(storyId)
   },
   mutations: {
     SET_LOADING (state, payload) {

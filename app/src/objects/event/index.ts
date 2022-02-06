@@ -69,12 +69,9 @@ export default class Event {
   getDescription(): string {
     if (this.hasEventType()) {
       assert(this.eventType !== undefined)
-      const template = new Function("return `" + this.eventType.descriptionTemplate + "`;")
-      const templateVars = {
-        user: this.getUser(),
-        resource: this.getResource()
-      }
-      return template.call(templateVars)
+      const user = this.getUser()
+      const resource = this.getResource()
+      return this.eventType.descriptionTemplate.interpolate({user: user, resource: resource})
     } else {
       throw new Error('Cannot use method "getDescription" on event if property "eventType" is undefined')
     }
@@ -88,7 +85,7 @@ export default class Event {
     let resource: IApiResource
     switch (this.resourceType) {
       case ResourceType.Story: {
-        resource = store.getters['stories/getStory'](this.resourceId) as IApiResource
+        resource = store.getters['stories/story'](this.resourceId) as IApiResource
         break
       }
       default: {

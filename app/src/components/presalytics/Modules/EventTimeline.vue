@@ -10,12 +10,11 @@
     >
       <template v-if="compact">
         <v-row>
-          <v-col>
+          <v-col class="text-left">
             {{ evt.eventType ? evt.eventType.shortName : '' }} 
           </v-col>
-          <v-spacer />
-          <v-col>
-            {{ evt.getFriendlyTime }}
+          <v-col class="text-right text-caption font-weight-thin timeline-date">
+            {{ evt.getFriendlyTime() }}
           </v-col>
         </v-row>
       </template>
@@ -27,10 +26,10 @@
             {{ evt.eventType ? evt.eventType.shortName : '' }}
           </v-card-title>
           <v-card-subtitle>
-            {{ evt.getFriendlyTime }}
+            {{ evt.getFriendlyTime() }}
           </v-card-subtitle>
           <v-card-text>
-            {{ evt.getDescription }}
+            {{ evt.getDescription() }}
           </v-card-text>
         </v-card>
       </template>
@@ -69,3 +68,13 @@
     },
   })
 </script>
+
+<style lang="sass">
+  .v-timeline-item__divider
+    min-width: 48px !important
+  .v-timeline-item
+    justify-content: center
+    align-items: center
+  .timeline-date
+    color: var(--v-gray-base)
+</style>
