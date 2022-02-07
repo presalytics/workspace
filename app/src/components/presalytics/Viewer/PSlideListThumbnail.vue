@@ -76,7 +76,7 @@
     },
     methods: {
       setPage() {
-        this.setActivePageIndex(this.pageNumber)
+        this.setActivePageIndex(this.pageIndex)
       }
     },
   })

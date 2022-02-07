@@ -147,7 +147,7 @@ export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).e
 <style lang="sass">
   .left-nav-drawer
     overflow-y: hidden
-  .v-navigation-drawer__content
+  #slidePanelDrawer > .v-navigation-drawer__content
     overflow-y: hidden !important
     display: flex
     flex-direction: column

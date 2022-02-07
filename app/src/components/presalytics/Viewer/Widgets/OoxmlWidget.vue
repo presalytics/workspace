@@ -32,10 +32,11 @@
 </template>
 
 <script>
-import widgetMixin from './widget-mixin'
+import Vue from 'vue'
+import widgetMixin from '../mixins/widget-mixin'
 import Preloader from '@/components/presalytics/Preloader.vue'
 
-export default {
+export default Vue.extend({
   name: 'OoxmlWidget',
   components: {Preloader},
   mixins: [widgetMixin],
@@ -78,8 +79,6 @@ export default {
         if (evt.imageType === "png") {
           this.pngBlobUrl = URL.createObjectURL(evt.blob)
         } else if (evt.imageType === "svg") {
-          // eslint-disable-next-line
-          console.log("Blob size: " + evt.blob.size)
           this.svgBlobUrl = URL.createObjectURL(evt.blob)
         }
       }
@@ -147,7 +146,7 @@ export default {
       } 
     }
   }
-}
+})
 
 </script>
 

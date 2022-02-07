@@ -81,7 +81,7 @@ export default {
   },
   actions: {
     updateAppState( { commit }, payload) {
-      if (!payload.key || !payload.value || !payload.value) {
+      if (!payload.key || typeof payload.value !== 'number' || !payload.storyId) {
         throw new Error('action updateAppState requires a payload with a storyId, key, and value properties')
       }
       commit('UPDATE_APP_STATE', payload)

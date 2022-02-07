@@ -4,10 +4,9 @@
     class="viewer-container"
   >
     <swiper
-      ref="mySwiper"
+      ref="swiper"
       class="swiper"
       :options="swiperOptions"
-      @slideChange="onSlideChange"
     >
       <swiper-slide
         v-for="(page, id) in pages"
@@ -35,20 +34,34 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import Vue, { VueConstructor } from 'vue'
   import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+  import SwiperClass from 'swiper/node_modules/swiper/types/swiper-class'
+  import ViewerMixin from './mixins/viewer-mixin'
+  import PageMixin from './mixins/page-mixin'
+  import WidgetPage from './Pages/WidgetPage.vue'
   import 'swiper/css/swiper.min.css'
-  import SharedWorker from './screen.worker?sharedworker'
   import Sandbox from './Sandbox.vue'
+  import StoryPage from '@/objects/story/story-page'
 
-  const worker = new SharedWorker()
+  declare module 'vue-awesome-swiper' {
+    export interface Swiper {
+      $swiper?: SwiperClass
+    }
+  }
 
-  export default {
+  const pageComponents: Record<string, VueConstructor<Vue & ThisType<typeof PageMixin>>> = {
+    'widget-page': WidgetPage
+  }
+
+  export default (Vue as VueConstructor<Vue & InstanceType<typeof ViewerMixin>>).extend({
     components: {
       Swiper,
       SwiperSlide,
       Sandbox,
     },
+    mixins: [ViewerMixin],
     props: {
       storyId: {
         type: String,
@@ -66,166 +79,65 @@
           prevEl: '.swiper-button-prev',
         },
       },
-      pageComponents: {
-        'widget-page': () => import('./Pages/WidgetPage.vue')
-      },
       pageActiveStartTime: () => Date.now()
     }),
     computed: {
-      swiper () {
-        if (this.$refs.mySwiper) {
-          return this.$refs.mySwiper.$swiper
-        } else {
-          return null
-        }
-      },
-      story () {
-        if (this.storyId) {
-          return this.$store.getters['stories/story'](this.storyId)
-        } else {
-          return null
-        }
-      },
-      outline () {
-        if (this.story) {
-          return this.$store.getters['stories/outline'](this.storyId)
-        } else {
-          return null
-        }
-      },
-      pages() {
-        if (!this.outline) return null
+      pages(): Array<StoryPage> {
         return this.outline.document.pages
       }
     },
-    mounted () {
-      worker.addEventListener('message', this.listenToWorkerMessages)
-      window.addEventListener('keyup', (e) => {
-      if (e.key == 'f') {
-        this.toggleFullscreen()
+    watch: {
+      activePageIndex(newValue) {
+        this.getSwiper().slideTo(newValue, 500)
       }
-    });
     },
-    beforeDestroy () {
-      worker.removeEventListener('message', this.listenToWorkerMessages)
+    mounted () {
+      window.addEventListener('keyup', this.handleKeyUpEvent)
+    },
+    beforeDestroy() {
+      window.removeEventListener('keyup', this.handleKeyUpEvent)
     },
     methods: {
-      listenToWorkerMessages(e) {
-        switch (e.data.type) {
-          case ('accessToken'): {
-            this.sendAccessTokenToWorker()
+      getSwiper(): SwiperClass {
+        if (typeof this.$refs.swiper === 'undefined') {
+          throw new Error('Refernece to Swiper could not be found.  Has the swiper rendered?')
+        }
+        const swiperRef = this.$refs.swiper as Swiper
+        return swiperRef.$swiper as SwiperClass
+      },
+      getPageComponent(pageKind: string): VueConstructor<Vue & ThisType<typeof PageMixin>> {
+        return pageComponents[pageKind]
+      },
+      handleKeyUpEvent(e: KeyboardEvent): void {
+        switch (e.key) {
+          case('f'): {
+            this.toggleFullscreen()
             break
-          }
-          case ('cachedIframeBlob'): {
-            // console.log('Received Cached IFrame Response') // esline-disable-line
-            this.handleCachedIframe(e.data.nonce, e.data.blob)
-            break
-          }
-          case ('updateOutline'): {
-            // console.log('Received Outline Update Response') // esline-disable-line
-            this.$store.dispatch('stories/setStoryOutline', { storyId: e.data.storyId, outline: e.data.outline })
           }
         }
       },
-      getPageComponent(pageKind) {
-        return this.pageComponents[pageKind]
-      },
-      onClick () {
-        alert('swiper clicked!')
-      },
-      onSlideChange() {
-        this.$dispatcher.emit('story.page_view', this.getPageviewModel())
-        this.pageActiveStartTime = Date.now()
-      },
-      getPageViewModel() {
-        return {
-          slideChangeTime: Date.now(),
-          storyId: this.storyId,
-          fromPageNumber: '<insertStartPageNumber>',
-          toPageNumber: '<insertTargetPageNumber>',
-          fromPageId: '<insertStartPageId',
-          toPageId: '<insertTargetPageId',
-          fromPageActiveMilliseconds: Date.now() - this.pageActiveStartTime
-        }
-      },
-      // loadIframesInWorker (frameElement) {
-      //   var nonce = uuidv4()
-      //   frameElement.setAttribute('id', nonce)
-      //   var src = frameElement.src
-      //   frameElement.src = ''
-      //   this.sendAccessTokenToWorker()
-      //   worker.postMessage({
-      //     request: 'cachedFrame',
-      //     nonce: nonce,
-      //     src: src,
-      //   })
+      // onSlideChange() {
+      //   this.$dispatcher.emit('story.page_view', this.getPageviewModel())
       // },
-      resizeCurrentElement () {
-        if (this.$el) {
-          var obj = this.$el.querySelector('.swiper-slide-active')
-          if (obj) {
-            this.resizeSvgContainer(obj)
-          }
-        }
-      },
-      // handleAFterSlideChange () {
-      //   this.resizeCurrentElement()
-      //   if (this.screenShotMakerRef) {
-      //     clearTimeout(this.screenShotMakerRef)
+      // getPageViewModel() {
+      //   return {
+      //     slideChangeTime: Date.now(),
+      //     storyId: this.storyId,
+      //     fromPageNumber: '<insertStartPageNumber>',
+      //     toPageNumber: '<insertTargetPageNumber>',
+      //     fromPageId: '<insertStartPageId',
+      //     toPageId: '<insertTargetPageId',
+      //     fromPageActiveMilliseconds: Date.now() - this.pageActiveStartTime
       //   }
-      //   this.screenShotMakerRef = setTimeout(this.makeThumbnail, 500)
       // },
-      getPageIdFromSlideIndex (slideIndex = null) {
-        if (!slideIndex) {
-          slideIndex = this.swiper.activeIndex
-        }
-        return this.$store.state.stories.outlines[this.outline]?.document.pages[slideIndex]?.id
-      },
-      // makeThumbnail () {
-      //   if (!this.loading) {
-      //     var element = this.$el.querySelector('.swiper-slide-active')
-      //     var pageId = this.getPageIdFromSlideIndex()
-      //     var vm = this
-      //     var isPreloader = !!element.querySelector('.preloader-container')
-      //     if (vm && pageId && !isPreloader) {
-      //       toPng(element)
-      //         .then(function (dataUrl) {
-      //           var img = new Image()
-      //           img.src = dataUrl
-      //           document.body.appendChild(img)
-      //         })
-      //       // html2canvas(element, {
-      //       //   allowTaint: true,
-      //       //   useCORS: true,
-      //       //   scale: 1,
-      //       //   logging: true,
-      //       //   foreignObjectRendering: true,
-      //       //   removeContainer: true,
-      //       //   async: true,
-      //       // }).then(function (canvas) {
-      //       //   // var dataUrl = canvas.toDataURL()
-      //       //   document.body.appendChild(canvas)
-      //       //   // vm.addUriToOutline(pageId, dataUrl, vm.storyId)
-      //       //   // worker.postMessage({
-      //       //   //   request: 'makeThumbnail',
-      //       //   //   dataUrl: dataUrl,
-      //       //   //   pageId: pageId,
-      //       //   //   storyId: vm.storyId,
-      //       //   // })
-      //       // })
+      // resizeCurrentElement () {
+      //   if (this.$el) {
+      //     var obj = this.$el.querySelector('.swiper-slide-active')
+      //     if (obj) {
+      //       this.resizeSvgContainer(obj)
       //     }
       //   }
       // },
-      addUriToOutline (pageId, dataUri, storyId) {
-        var outline = this.$store.getters['stories/outline'](storyId)
-        outline.pages = outline.pages.map((cur) => {
-          if (cur.id === pageId) {
-            cur.thumbnail = dataUri
-          }
-          return cur
-        })
-        this.$store.dispatch('stories/setStoryOutline', { storyId: storyId, outline: outline })
-      },
       toggleFullscreen() { 
         if (
               document.fullscreenElement ||
@@ -236,7 +148,7 @@
               if (document.exitFullscreen) {
                 document.exitFullscreen();
               } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
+                document.mozCancelFullScreen(); 
               } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
               } else if (document.msExitFullscreen) {
@@ -246,9 +158,11 @@
               let element = this.$el;
               if (element.requestFullscreen) {
                 element.requestFullscreen();
-              } else if (element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
+              } else if (element.mozRequestFullscreen) {
+                element.mozRequestFullscreen();
               } else if (element.webkitRequestFullscreen) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
               } else if (element.msRequestFullscreen) {
                 element.msRequestFullscreen();
@@ -256,7 +170,7 @@
             }
       }
     }
-  }
+  })
 </script>
 
 <style lang="sass" scoped>
