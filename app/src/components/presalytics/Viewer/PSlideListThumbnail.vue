@@ -9,6 +9,7 @@
       <div class="story-list-thumbnail-container">
         <div class="skeleton-wrapper">
           <ooxml-widget
+            thumbnail
             :widget="page.widgets[0]"
           />
         </div>

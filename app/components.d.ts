@@ -11,6 +11,7 @@ declare module 'vue' {
     CollaboratorManager: typeof import('./src/components/presalytics/Modules/CollaboratorManager.vue')['default']
     CommentsPanel: typeof import('./src/components/presalytics/Viewer/CommentsPanel.vue')['default']
     CommentWindow: typeof import('./src/components/presalytics/Modules/CommentWindow.vue')['default']
+    EventSparkline: typeof import('./src/components/presalytics/Modules/EventSparkline.vue')['default']
     EventTimeline: typeof import('./src/components/presalytics/Modules/EventTimeline.vue')['default']
     ExpansionPanel: typeof import('./src/components/presalytics/Viewer/ExpansionPanel.vue')['default']
     Item: typeof import('./src/components/base/Item.vue')['default']

@@ -7,6 +7,7 @@ import { ResourceType } from '../resource-type'
 import User, { getUser } from '@/objects/user'
 import store from '@/store'
 import { IApiResource } from '../api-resource'
+import { getString, getUnknownChildObject, getDate } from '@/objects/util'
 
 moment.locale('en', {
   relativeTime: {
@@ -27,7 +28,7 @@ moment.locale('en', {
   },
 })
 
-export default class Event {
+export default class ApiEvent {
   id: string
   resourceId: string
   userId: string
@@ -40,30 +41,51 @@ export default class Event {
   source: string
   subject: string | undefined
 
-  constructor(obj: CloudEvent<EventData>) {  
-    this.id = obj.id
-    this.resourceId = obj.data?.resourceId as string
-    this.userId = obj.data?.userId as string
-    this.type = obj.type
-    try {
-      this.eventType = new EventType(obj.type as EventTypeName)
-    } catch (err) {
-      this.eventType = undefined
-    }
-    if (obj.data != null) {
-      this.data = obj.data
+  constructor(obj: CloudEvent<EventData> | unknown) {
+    if (obj instanceof CloudEvent) {  
+      this.id = obj.id
+      this.resourceId = obj.data?.resourceId as string
+      this.userId = obj.data?.userId as string
+      this.type = obj.type
+      try {
+        this.eventType = new EventType(obj.type as EventTypeName)
+      } catch (err) {
+        this.eventType = undefined
+      }
+      if (obj.data != null) {
+        this.data = obj.data
+      } else {
+        throw new Error('Event data missing')
+      }
+      if (obj.time != null) {
+        this.time = new Date(obj.time)
+      } else {
+        throw new Error('Event time is missing')
+      }
+      this.resourceType = obj.type.split('.')[0] as ResourceType
+      this.eventSubType = obj.type.split('.')[1]
+      this.source = obj.source
+      this.subject = obj.subject
     } else {
-      throw new Error('Event data missing')
+      assert(typeof obj === 'object')
+      assert(obj !== null)
+      this.id = getString(obj, "id")
+      const data = getUnknownChildObject(obj, "data")
+      this.resourceId = getString(data, "resourceId")
+      this.userId = getString(data, "userId")
+      this.type = getString(obj, "type")
+      try {
+        this.eventType = new EventType(this.type as EventTypeName)
+      } catch (err) {
+        this.eventType = undefined
+      }
+      this.data = data as EventData<unknown>
+      this.time = getDate(obj, "time")
+      this.resourceType = this.type.split('.')[0] as ResourceType
+      this.eventSubType = this.type.split('.')[1]
+      this.source = getString(obj, "source")
+      this.subject = getString(obj, "subject")
     }
-    if (obj.time != null) {
-      this.time = new Date(obj.time)
-    } else {
-      throw new Error('Event time is missing')
-    }
-    this.resourceType = obj.type.split('.')[0] as ResourceType
-    this.eventSubType = obj.type.split('.')[1]
-    this.source = obj.source
-    this.subject = obj.subject
   }
 
   getDescription(): string {
@@ -101,5 +123,13 @@ export default class Event {
 
   hasEventType(): boolean {
     return this.eventType !== undefined
+  }
+
+  fromJSON(obj: unknown): ApiEvent {
+    if (obj instanceof ApiEvent) {
+      return obj as ApiEvent
+    } else {
+      return new ApiEvent(obj)
+    }
   }
 }

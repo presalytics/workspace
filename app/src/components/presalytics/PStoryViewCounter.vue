@@ -15,15 +15,12 @@
     },
     computed: {
       viewCount () {
-        var storyId = this.$props.story.item.id
-        return this.$store.getters['apiEvents/eventsDb'].filter((cur) => {
-          return cur.type === 'story.view_session_started' && cur.data.resourceId === storyId
-        }).length
+        // add new view count funtion
+        return 0
       },
     },
     created () {
-      var storyId = this.$props.story.item.id
-      this.$store.dispatch('apiEvents/getStoryEvents', storyId)
+      // dispatch view count query
     },
   }
 </script>

@@ -129,7 +129,7 @@ export default class Auth0Plugin{
 
   sendUserEvent(eventType) {
     const userId = this.user.appMetadata?.apiUserId || this.user["https://api.presalytics.io/api_user_id"]
-    this.storeDispatchFn('apiEvents/sendEvent',  new CloudEvent({
+    this.storeDispatchFn('dispatchApiEvent',  new CloudEvent({
         type: eventType,
         data: {
           resourceId: userId,

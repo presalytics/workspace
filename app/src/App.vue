@@ -21,7 +21,7 @@
 <script>
   import Preloader from '@/components/presalytics/Preloader.vue'
   import Login from '@/components/presalytics/Login.vue'
-  import {userWorker, eventWorker, storyWorker, imageWorker} from '@/store'
+  import {userWorker, storyWorker, imageWorker} from '@/store'
   import AppBar from '@/views/dashboard/components/core/AppBar.vue'
   import Drawer from '@/views/dashboard/components/core//Drawer.vue'
   import Index from '@/views/dashboard/Index.vue'
@@ -64,14 +64,12 @@
       userId(newValue) {
         if (newValue) {
           this.$store.dispatch('stories/initStories')
-          this.$store.dispatch('apiEvents/initEvents', this.userId)
           this.$store.dispatch('users/initUsers')
         }
       }
     },
     created() {
       userWorker.addEventListener('message', this.userEventListener)
-      eventWorker.addEventListener('message', this.apiEventsEventListener)
       storyWorker.addEventListener('message', this.storyEventListener)
       imageWorker.addEventListener('message', this.imageWorkerEventListener)
       this.$auth.init()
@@ -80,7 +78,6 @@
     },
     beforeDestroy() {
       userWorker.removeEventListener('message', this.userEventListener)
-      eventWorker.removeEventListener('message', this.apiEventsEventListener)
       storyWorker.removeEventListener('message', this.storyEventListener)
       imageWorker.removeEventListener('message', this.imageWorkerEventListener)
       this.handleVisibiltyChange()
@@ -90,7 +87,6 @@
         var accessToken = await this.$auth.getTokenSilently()
         var message = {accessToken: accessToken}
         userWorker.postMessage(message)
-        eventWorker.postMessage(message)
         storyWorker.postMessage(message)
         imageWorker.postMessage(message)
       },
@@ -101,16 +97,6 @@
           this.$store.dispatch('users/sync')
         } else {
           this.$store.commit('users/' + e.data.type, e.data.payload)
-        }
-      },
-      apiEventsEventListener(e) {
-        if (e.data.type === 'REFRESH_AUTH') {
-          this.refreshAuth()
-        } else {
-          this.$store.commit('apiEvents/' + e.data.type, e.data.cloudEvents)
-          if (e.data.dispatch) {
-            e.data.cloudEvents.forEach( (evt) => this.$dispatcher.handleEvent(evt) )
-          }
         }
       },
       storyEventListener(e) {
@@ -127,7 +113,7 @@
         if (e.data.type === 'REFRESH_AUTH') {
           this.refreshAuth()
         } else if (e.data.type === 'IMG_BLOB') {
-          this.$dispatcher.localEventBus.$emit('image.updated', e.data)
+          this.$dispatcher.$emit('image.updated', e.data)
         } 
       },
       handleVisibiltyChange() {

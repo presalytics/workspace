@@ -1,5 +1,5 @@
 import Auth0Plugin from '@/plugins/auth0'
-import Dispatcher from '@/plugins/dispatcher'
+import { Dispatcher } from '@/plugins/dispatcher'
 import HttpPlugin from '@/plugins/http'
 import { Store } from 'vuex'
 

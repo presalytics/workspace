@@ -24,10 +24,8 @@
         }
       },
       userEvents () {
-        var evts = this.$store.getters['apiEvents/eventsDb'].filter((cur) => {
-          return cur.resourceId === this.userId || cur.metadata?.relationships?.userId === this.userId
-        })
-        return evts
+        // need to rewrite this
+        return []
       },
       latestUserEvent () {
         if (this.userEvents.length > 0) {

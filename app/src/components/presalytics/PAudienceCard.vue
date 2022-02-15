@@ -259,19 +259,8 @@
           return true
         }
       },
-      getUserEvents (user) {
-        var db = this.$store.getters['apiEvents/eventsDb']
-        return db.filter((cur) => {
-          if (cur.resourceId === user.id) {
-            return true
-          }
-          if (cur.relationships?.userId) {
-            if (cur.relationships.userId === user.id) {
-              return true
-            }
-          }
-          return false
-        })
+      getUserEvents () {
+        throw new Error('make get user events function')
       },
       getLatestEvent (eventList) {
         return eventList.reduce((acc, cur) => {

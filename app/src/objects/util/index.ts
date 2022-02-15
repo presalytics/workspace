@@ -65,7 +65,7 @@ export function getUnknownChildObject(obj: unknown, key: string, defaultValue?: 
     value = get(obj, key) as unknown
   }
   if (typeof value !== "object") {
-    throw new TypeError(`Property "${key}" in object "obj" is not of type "string"`)
+    throw new TypeError(`Property "${key}" in object "obj" is not of type "object"`)
   }
   return value
 }
@@ -109,4 +109,34 @@ export function getUnknownChildArray(obj: unknown, key: string, defaultValue?: A
     throw new TypeError(`Property "${key}" in object "obj" is not an array`)
   }
   return value
+}
+
+
+export function getDate(obj: unknown, key: string, defaultValue?: Date): Date {
+  assertObject(obj)
+  let value
+  if (!has(obj, key)) {
+    if (typeof defaultValue !== 'undefined') {
+      if (!(defaultValue instanceof Date)) {
+        throw new TypeError('Argument "defaultValue" must be a Date object')
+      }
+      value = defaultValue
+    }
+    throw new Error(`Input object "obj" has no property "${key}"`)
+  }
+  value = get(obj, key) as Date | string
+  if (!(value instanceof Date)) {
+    value = new Date(value)
+    if (isNaN(value.getTime())) {
+      throw new Error(`Invalid date value for key "${key}"`)
+    }
+  }
+  return value
+}
+
+export function propertyIsNull(obj: unknown, key: string): boolean {
+  assertObject(obj)
+  const value = get(obj, key)
+  if (value === null) return true 
+  return false
 }

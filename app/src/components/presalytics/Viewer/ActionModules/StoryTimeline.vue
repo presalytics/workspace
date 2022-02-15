@@ -39,7 +39,8 @@
     }),
     computed: {
       events(): Array<Event> {
-        return this.$store.getters['apiEvents/getStoryEvents'](this.storyId)
+        // TODO: rewrite this as a property 
+        return []
       }
     }
   })

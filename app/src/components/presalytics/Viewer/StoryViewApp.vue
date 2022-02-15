@@ -124,11 +124,11 @@ import AppState from '@/objects/viewer/app-state'
         storyId: this.storyId,
         userId: this.userId
       })
-      this.$dispatcher.emit("story.view_session_started", this.sessionMetrics.jsonify())
+      this.$dispatcher.dispatchApiEvent("story.view_session_started", this.sessionMetrics.jsonify())
     },
     beforeDestroy() {
       this.sessionMetrics.updateActiveTime()
-      this.$dispatcher.emit("story.view_session_ended", this.sessionMetrics.jsonify())
+      this.$dispatcher.dispatchApiEvent("story.view_session_ended", this.sessionMetrics.jsonify())
     },
     methods: {
       ...mapActions('storyviewer', ['updateAppState']),

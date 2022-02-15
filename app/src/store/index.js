@@ -7,7 +7,6 @@ import deepmerge from 'deepmerge'
 import auth from './auth'
 import {stories, storyWorker} from './stories'
 import {users, userWorker} from './users'
-import {apiEvents, eventWorker} from './apiEvents'
 import {images, imageWorker} from './images'
 import alerts from './alerts'
 import dialogs from './dialogs'
@@ -39,7 +38,7 @@ const initialState = () => ({
 
 const sleep = async (ms) => await new Promise(resolve => setTimeout(resolve, ms));
 
-export {userWorker, eventWorker, storyWorker, imageWorker}
+export {userWorker, storyWorker, imageWorker}
 
 export default new Vuex.Store({
   state: initialState,
@@ -81,14 +80,12 @@ export default new Vuex.Store({
   },
   actions: {
     sendToken ({ dispatch }, token) {
-      dispatch('apiEvents/setToken', token)
       dispatch('stories/setToken', token)
       dispatch('users/setToken', token)
     },
     reset ({ commit }) {
       commit('RESET_STATE')
       commit('auth/RESET_STATE')
-      commit('apiEvents/RESET_STATE')
       commit('stories/RESET_STATE')
       commit('users/RESET_STATE')
       commit('storyviewer/RESET_STATE')
@@ -111,14 +108,16 @@ export default new Vuex.Store({
       await this.restored
     },
     localEvent(context, evt) {
-      this._vm.$dispatcher.localEventBus.$emit(evt.type, evt.payload)
+      this._vm.$dispatcher.$emit(evt.type, evt.payload)
+    },
+    sendApiEvent(context, cloudEvent){
+      this._vm.$dispatcher.dispatchApiEvent(cloudEvent)
     }
   },
   modules: {
     auth,
     stories,
     users,
-    apiEvents,
     alerts,
     dialogs,
     images,

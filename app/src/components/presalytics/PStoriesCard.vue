@@ -105,7 +105,7 @@
             </template>
             <template #item.activity_last_90="{ item }">
               <p-story-activity-sparkline
-                :story="{ item }"
+                :story-id="item.id"
               />
             </template>
             <template #item.actions="{ item }">

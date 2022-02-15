@@ -109,7 +109,7 @@ export default {
           await this.$http.postData('/api/stories/outline/' + story.id + '/patch', diff)
           this.setProgress(90, 'Outline finalized.  Saving new Story to API...')
           story = await this.$http.getData('/api/stories/' + story.id)
-          this.$dispatcher.emit("story.created", story)
+          this.$dispatcher.dispatchApiEvent("story.created", story)
           this.setProgress(100, 'Story created.  Redirecting...')
           setTimeout(() => this.$router.push('/stories/view/' + storyId), 4000)
         }

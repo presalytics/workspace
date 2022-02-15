@@ -34,10 +34,7 @@ Vue.use(auth, {
 
 Vue.use(http, {authGetTokenFn: () => store.getters.accessToken})
 Vue.use(ErrorHandler)
-Vue.use(dispatcher, {
-  storeDispatchFn: store.dispatch,
-  userIdFn: () => store.getters.userId
-})
+Vue.use(dispatcher)
 
 Vue.config.productionTip = false
 Vue.config.devtools = true

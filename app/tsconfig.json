@@ -20,8 +20,8 @@
     "types": [
       "vite/client"
     ],
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost", "webworker"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "tests/**/*.ts", "tests/**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", "tests/**/*.ts", "tests/**/*.tsx", "src/objects/api-event/api-event-worker-message"],
   "exclude": ["node_modules", "mock", "build", "dist"]
 }

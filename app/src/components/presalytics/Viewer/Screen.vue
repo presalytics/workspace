@@ -116,28 +116,6 @@
           }
         }
       },
-      // onSlideChange() {
-      //   this.$dispatcher.emit('story.page_view', this.getPageviewModel())
-      // },
-      // getPageViewModel() {
-      //   return {
-      //     slideChangeTime: Date.now(),
-      //     storyId: this.storyId,
-      //     fromPageNumber: '<insertStartPageNumber>',
-      //     toPageNumber: '<insertTargetPageNumber>',
-      //     fromPageId: '<insertStartPageId',
-      //     toPageId: '<insertTargetPageId',
-      //     fromPageActiveMilliseconds: Date.now() - this.pageActiveStartTime
-      //   }
-      // },
-      // resizeCurrentElement () {
-      //   if (this.$el) {
-      //     var obj = this.$el.querySelector('.swiper-slide-active')
-      //     if (obj) {
-      //       this.resizeSvgContainer(obj)
-      //     }
-      //   }
-      // },
       toggleFullscreen() { 
         if (
               document.fullscreenElement ||
