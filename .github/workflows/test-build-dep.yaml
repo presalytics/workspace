@@ -39,7 +39,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v4
       with:
         # list of Docker images to use as base name for tags
         images: presalytics/workspace-api
@@ -93,7 +93,7 @@ jobs:
       run: printenv > .env.production
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v4
       with:
         # list of Docker images to use as base name for tags
         images: presalytics/workspace-frontend
